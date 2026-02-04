@@ -10,5 +10,9 @@
     "@types/node": "^25.2.0",
     "typescript": "^5.5.3"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@types/unzipper": "^0.10.11",
+    "unzipper": "^0.12.3"
+  }
 }
