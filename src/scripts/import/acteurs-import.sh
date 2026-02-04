@@ -71,14 +71,21 @@ echo "=============================================="
 echo "ACTEURS_ADRESSES_POSTALES"
 echo "=============================================="
 
+echo "Copying JSON to container..."
 docker cp $TABLES_DIR/acteurs_adresses_postales.json $DB_CONTAINER:/acteurs_adresses_postales.json
 
+echo "Verifying file..."
+docker exec -it $DB_CONTAINER ls -lh /acteurs_adresses_postales.json
+
+echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "INSERT INTO acteurs_adresses_postales_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/acteurs_adresses_postales.json')::jsonb) AS elem;"
 
+echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "SELECT COUNT(*) FROM acteurs_adresses_postales_raw;"
 
+echo "Projecting to SQL table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "INSERT INTO acteurs_adresses_postales (acteur_uid, uid_adresse, type_code, type_libelle, intitule, numero_rue, nom_rue, complement_adresse, code_postal, ville)
    SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle',
@@ -86,6 +93,7 @@ docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
           data->>'code_postal', data->>'ville'
    FROM acteurs_adresses_postales_raw;"
 
+echo "Final verification..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "SELECT COUNT(*) FROM acteurs_adresses_postales;"
 
@@ -99,19 +107,27 @@ echo "=============================================="
 echo "ACTEURS_ADRESSES_MAILS"
 echo "=============================================="
 
+echo "Copying JSON to container..."
 docker cp $TABLES_DIR/acteurs_adresses_mails.json $DB_CONTAINER:/acteurs_adresses_mails.json
 
+echo "Verifying file..."
+docker exec -it $DB_CONTAINER ls -lh /acteurs_adresses_mails.json
+
+echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "INSERT INTO acteurs_adresses_mails_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/acteurs_adresses_mails.json')::jsonb) AS elem;"
 
+echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "SELECT COUNT(*) FROM acteurs_adresses_mails_raw;"
 
+echo "Projecting to SQL table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "INSERT INTO acteurs_adresses_mails (acteur_uid, uid_adresse, type_code, type_libelle, email)
    SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle', data->>'email'
    FROM acteurs_adresses_mails_raw;"
 
+echo "Final verification..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "SELECT COUNT(*) FROM acteurs_adresses_mails;"
 
@@ -125,20 +141,28 @@ echo "=============================================="
 echo "ACTEURS_RESEAUX_SOCIAUX"
 echo "=============================================="
 
+echo "Copying JSON to container..."
 docker cp $TABLES_DIR/acteurs_reseaux_sociaux.json $DB_CONTAINER:/acteurs_reseaux_sociaux.json
 
+echo "Verifying file..."
+docker exec -it $DB_CONTAINER ls -lh /acteurs_reseaux_sociaux.json
+
+echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "INSERT INTO acteurs_reseaux_sociaux_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/acteurs_reseaux_sociaux.json')::jsonb) AS elem;"
 
+echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "SELECT COUNT(*) FROM acteurs_reseaux_sociaux_raw;"
 
+echo "Projecting to SQL table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "INSERT INTO acteurs_reseaux_sociaux (acteur_uid, uid_adresse, type_code, type_libelle, plateforme, identifiant)
    SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle',
           data->>'plateforme', data->>'identifiant'
    FROM acteurs_reseaux_sociaux_raw;"
 
+echo "Final verification..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "SELECT COUNT(*) FROM acteurs_reseaux_sociaux;"
 
@@ -152,19 +176,28 @@ echo "=============================================="
 echo "ACTEURS_TELEPHONES"
 echo "=============================================="
 
+echo "Copying JSON to container..."
 docker cp $TABLES_DIR/acteurs_telephones.json $DB_CONTAINER:/acteurs_telephones.json
 
+echo "Verifying file..."
+docker exec -it $DB_CONTAINER ls -lh /acteurs_telephones.json
+
+echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "INSERT INTO acteurs_telephones_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/acteurs_telephones.json')::jsonb) AS elem;"
 
+echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "SELECT COUNT(*) FROM acteurs_telephones_raw;"
 
+echo "Projecting to SQL table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "INSERT INTO acteurs_telephones (acteur_uid, uid_adresse, type_code, type_libelle, adresse_rattachement, numero)
    SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle',
           data->>'adresse_rattachement', data->>'numero'
    FROM acteurs_telephones_raw;"
+
+echo "Final verification..."
 
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
   "SELECT COUNT(*) FROM acteurs_telephones;"
@@ -173,11 +206,19 @@ echo "✓ Téléphones imported"
 echo ""
 
 # ==============================================================================
-# STEP 7: Clean up raw tables
+# STEP 7: Clean up raw tables + files from container
 # ==============================================================================
 echo "=============================================="
 echo "CLEANUP "
 echo "=============================================="
+
+echo "Cleaning JSON files from container"
+docker exec -it $DB_CONTAINER rm -f \
+  /acteurs.json \
+  /acteurs_adresses_postales.json \
+  /acteurs_adresses_mails.json \
+  /acteurs_reseaux_sociaux.json \
+  /acteurs_telephones.json
 
 read -p "Do you want to drop raw tables? (y/n) " -n 1 -r
 echo

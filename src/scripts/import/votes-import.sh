@@ -281,6 +281,16 @@ echo "=============================================="
 echo "CLEANUP"
 echo "=============================================="
 
+echo "Cleaning JSON files from container"
+docker exec -it $DB_CONTAINER rm -f \
+  /deputes.json \
+  /groupes.json \
+  /votes.json \
+  /votesGroupes.json \
+  /votesDeputes.json \
+  /votesAgregats.json \
+  /votesGroupesAgregats.json
+
 read -p "Do you want to drop raw tables? (y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
