@@ -10,12 +10,6 @@ CREATE TABLE param_legislatures
     updated_at TIMESTAMP        DEFAULT NOW()
 );
 
-INSERT INTO param_legislatures (number, is_current)
-VALUES (14, false),
-       (15, false),
-       (16, false),
-       (17, true);
-
 -- Table de refentiel des domains métier qu'on exploite
 CREATE TABLE ref_data_domains
 (
@@ -23,10 +17,6 @@ CREATE TABLE ref_data_domains
     code        TEXT NOT NULL UNIQUE,
     description TEXT
 );
-
-INSERT INTO ref_data_domains (code, description)
-VALUES ('acteurs', 'Députés, mandats, organes'),
-       ('scrutins', 'Votes et scrutins publics');
 
 -- Table de parametrage des sources de données de l'AN
 CREATE TABLE param_data_sources
@@ -42,7 +32,7 @@ CREATE TABLE param_data_sources
 );
 
 -- Table de monitoring des fichiers téléchargés
-CREATE TABLE data_download
+CREATE TABLE monitor_data_download
 (
     id               SERIAL PRIMARY KEY,
     source_id        INT     NOT NULL REFERENCES param_data_sources (id),
