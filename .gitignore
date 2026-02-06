@@ -16,5 +16,8 @@ package-lock.json
 
 src/data/**/*.json
 src/data/**/*.zip
+src/db/init-db.generated.sql
 
+.env
 
+/generated

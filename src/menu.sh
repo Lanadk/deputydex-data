@@ -54,7 +54,7 @@ while true; do
     echo " "
     echo "=============================================="
     echo " "
-    echo "1) Run Global Workflow (Download + Parser + Import + Update)"
+    echo "1) Run Global Workflow (Download + Parser + Import)"
     echo "2) Run Download All"
     echo "3) Run Parser All"
     echo "4) Run Import All"
@@ -71,7 +71,6 @@ while true; do
             run_download_all
             run_parser_all
             run_import_all --auto-cleanup
-            run_update_all
             ;;
         2)
             echo "📥 Downloading All data..."

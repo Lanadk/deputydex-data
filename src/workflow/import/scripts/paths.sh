@@ -15,7 +15,7 @@ export TABLES_DIR="$DATA_DIR/parser/tables"
 
 # TODO Faudra lacher du token ici
 export DB_CONTAINER="deputedex-db"
-export DB_USER="dev"
+export DB_USER="user_etl_writer"
 export DB_NAME="deputedex"
 
 # Paramètres du splitter
