@@ -129,11 +129,8 @@ _import_large_json_incremental() {
 
     # Importer et projeter chaque partie séparément
     echo "Importing parts into tables"
-    echo "DEBUG: [$part_files]"
     local part_num=0
-    echo "DEBUG: Starting loop"
     while IFS= read -r part_file; do
-        echo "DEBUG: Loop iteration, part_file=[$part_file]"
         [ -z "$part_file" ] && continue
 
         part_num=$((part_num + 1))
@@ -219,7 +216,6 @@ _import_small_json() {
 _import_part_file() {
     local part_file=$1
     local raw_table=$2
-    echo "DEBUG: _import_part_file called with part_file=[$1] raw_table=[$2]"
     echo "📦 Importing part $(basename "$part_file")..."
 
     local container_path="/$(basename "$part_file")"

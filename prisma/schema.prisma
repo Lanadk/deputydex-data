@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ParamLegislature {
+  id        Int       @id @default(autoincrement())
+  number    Int       @unique
+  startDate DateTime? @map("start_date") @db.Date
+  endDate   DateTime? @map("end_date") @db.Date
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  currentLegislatures ParamCurrentLegislature[]
+  dataSources         ParamDataSource[]
+
+  @@map("param_legislatures")
+}
+
+model ParamCurrentLegislature {
+  id            Int      @id @default(autoincrement())
+  legislatureId Int      @map("legislature_id")
+  number        Int      @unique
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+
+  legislature ParamLegislature @relation(fields: [legislatureId], references: [id])
+
+  @@map("param_current_legislatures")
+}
+
+model RefDataDomain {
+  id          Int     @id @default(autoincrement())
+  code        String  @unique
+  description String?
+
+  dataSources ParamDataSource[]
+
+  @@map("ref_data_domains")
+}
+
+model ParamDataSource {
+  id            Int      @id @default(autoincrement())
+  domainId      Int      @map("domain_id")
+  legislatureId Int      @map("legislature_id")
+  downloadUrl   String   @map("download_url")
+  fileName      String   @map("file_name")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  domain      RefDataDomain         @relation(fields: [domainId], references: [id])
+  legislature ParamLegislature      @relation(fields: [legislatureId], references: [id])
+  downloads   MonitorDataDownload[]
+
+  @@unique([domainId, legislatureId])
+  @@map("param_data_sources")
+}
+
+model MonitorDataDownload {
+  id             Int       @id @default(autoincrement())
+  sourceId       Int       @map("source_id")
+  fileName       String?   @map("file_name")
+  downloaded     Boolean   @default(false)
+  lastDownloadAt DateTime? @map("last_download_at")
+  checksum       String?
+  fileSize       BigInt?   @map("file_size")
+  errorMessage   String?   @map("error_message")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  source ParamDataSource @relation(fields: [sourceId], references: [id])
+
+  @@unique([sourceId])
+  @@map("monitor_data_download")
+}

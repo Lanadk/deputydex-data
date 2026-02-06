@@ -4,18 +4,30 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "prisma generate && tsc",
+    "db-setup": "npm run db:docker && npm run prisma:generate && npm run prisma:migrate",
+    "db-docker-install": "npm run db:docker",
+    "db:docker": "node src/db/local-db-init.js",
+    "prisma:init": "npx prisma init",
+    "prisma:pull": "npx prisma db pull",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate-dev": "dotenv -e .env.local -- npx prisma migrate dev --name init",
+    "prisma:migrate-prod": "prisma migrate deploy"
   },
-  "devDependencies": {
-    "@types/node": "^25.2.0",
-    "@types/pg": "^8.16.0",
-    "typescript": "^5.5.3"
-  },
-  "private": true,
   "dependencies": {
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
     "@types/unzipper": "^0.10.11",
     "dotenv": "^17.2.3",
     "pg": "^8.18.0",
     "unzipper": "^0.12.3"
-  }
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "@types/pg": "^8.16.0",
+    "dotenv-cli": "^11.0.0",
+    "prisma": "^7.3.0",
+    "typescript": "^5.5.3"
+  },
+  "private": true
 }
