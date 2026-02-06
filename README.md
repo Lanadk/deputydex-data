@@ -85,16 +85,18 @@ Sélectionnez **"Run Global Workflow (Download + Parser + Import + Agregat/Stati
 ```
 deputydex-data/
 ├── prisma/
+│   ├── migrations/        # Contient les scripts de migrations .sql
 │   ├── schema.prisma      # Schéma de la base de données
-│   ├── seed.ts            # Données de référence
-│   └── seed.sql           # SQL de seed
+│   └── seed.ts            # Script pour importer les données de référence
 ├── src/
-│   ├── db/
-│   │   ├── client.ts      # Client Prisma configuré
-│   │   └── init-db.sql    # Script d'init users/roles
+│   ├── sql/
+│   │   ├── data/          # Contient les données de seed
+│   │   └── schema/        # Contient les schemas sql pour les scripts d'import
 │   └── workflow/
 │       ├── download/      # Téléchargement des données
-│       ├── processing/    # Extraction et transformation
+│       ├── parser/        # Extraction et transformation
+│       ├── update/        # Update des données et calcul du delta
+│       ├── agregat/       # Agrege les données de la base pour générer des statistiques
 │       └── import/        # Chargement en base
 ├── generated/
 │   └── prisma/           # Client Prisma généré
