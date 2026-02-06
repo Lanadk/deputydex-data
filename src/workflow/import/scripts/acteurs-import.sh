@@ -21,7 +21,7 @@ ACTEURS_TELEPHONES_JSON="acteursTelephones.json"
 
 project_acteurs() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO acteurs (uid, civilite, prenom, nom, nom_alpha, trigramme, date_naissance, ville_naissance, departement_naissance, pays_naissance, date_deces, profession_libelle, profession_categorie, profession_famille, uri_hatvp)
        SELECT data->>'uid', data->>'civilite', data->>'prenom', data->>'nom', data->>'nom_alpha', data->>'trigramme',
               NULLIF(data->>'date_naissance', '')::date, data->>'ville_naissance', data->>'departement_naissance',
@@ -33,7 +33,7 @@ project_acteurs() {
 
 project_acteurs_adresses_postales() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO acteurs_adresses_postales (acteur_uid, uid_adresse, type_code, type_libelle, intitule, numero_rue, nom_rue, complement_adresse, code_postal, ville)
        SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle',
               data->>'intitule', data->>'numero_rue', data->>'nom_rue', data->>'complement_adresse',
@@ -43,7 +43,7 @@ project_acteurs_adresses_postales() {
 
 project_acteurs_adresses_mails() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO acteurs_adresses_mails (acteur_uid, uid_adresse, type_code, type_libelle, email)
        SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle', data->>'email'
        FROM $raw_table;"
@@ -51,7 +51,7 @@ project_acteurs_adresses_mails() {
 
 project_acteurs_reseaux_sociaux() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO acteurs_reseaux_sociaux (acteur_uid, uid_adresse, type_code, type_libelle, plateforme, identifiant)
        SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle',
               data->>'plateforme', data->>'identifiant'
@@ -60,7 +60,7 @@ project_acteurs_reseaux_sociaux() {
 
 project_acteurs_telephones() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO acteurs_telephones (acteur_uid, uid_adresse, type_code, type_libelle, adresse_rattachement, numero)
        SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle',
               data->>'adresse_rattachement', data->>'numero'
@@ -80,7 +80,7 @@ echo "=============================================="
 echo ""
 
 echo "Importing schema..."
-cat "$SCHEMA_DIR/$SCHEMA_NAME" | docker exec -i "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME"
+cat "$SCHEMA_DIR/$SCHEMA_NAME" | docker exec -i "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME"
 echo "✓ Schema imported"
 echo ""
 
@@ -91,7 +91,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$ACTEURS_JSON" "acteurs_raw" "project_acteurs"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM acteurs;"
 
 echo "✓ Acteurs imported"
@@ -104,7 +104,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$ACTEURS_ADRESSES_POSTALES_JSON" "acteurs_adresses_postales_raw" "project_acteurs_adresses_postales"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM acteurs_adresses_postales;"
 
 echo "✓ Adresses postales imported"
@@ -117,7 +117,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$ACTEURS_ADRESSES_MAILS_JSON" "acteurs_adresses_mails_raw" "project_acteurs_adresses_mails"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM acteurs_adresses_mails;"
 
 echo "✓ Adresses mails imported"
@@ -130,7 +130,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$ACTEURS_RESEAUX_SOCIAUX_JSON" "acteurs_reseaux_sociaux_raw" "project_acteurs_reseaux_sociaux"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM acteurs_reseaux_sociaux;"
 
 echo "✓ Réseaux sociaux imported"
@@ -143,7 +143,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$ACTEURS_TELEPHONES_JSON" "acteurs_telephones_raw" "project_acteurs_telephones"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM acteurs_telephones;"
 
 echo "✓ Téléphones imported"
@@ -155,14 +155,14 @@ echo "=============================================="
 
 if [[ "$AUTO_CLEANUP" == true ]]; then
     echo "🤖 Auto cleanup enabled - dropping raw tables..."
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "DROP TABLE IF EXISTS acteurs_raw, acteurs_adresses_postales_raw, acteurs_adresses_mails_raw, acteurs_reseaux_sociaux_raw, acteurs_telephones_raw CASCADE;"
     echo "✓ Raw tables dropped"
 else
     read -p "Do you want to drop raw tables? (y/n) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+        docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
           "DROP TABLE IF EXISTS acteurs_raw, acteurs_adresses_postales_raw, acteurs_adresses_mails_raw, acteurs_reseaux_sociaux_raw, acteurs_telephones_raw CASCADE;"
         echo "✓ Raw tables dropped"
     fi
@@ -173,7 +173,7 @@ echo "=============================================="
 echo "FINAL VERIFICATION"
 echo "=============================================="
 
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c "
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c "
 SELECT
   'acteurs' as table_name, COUNT(*) as count FROM acteurs
 UNION ALL

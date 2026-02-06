@@ -87,7 +87,7 @@ import_json_to_raw_table() {
     fi
 
     # Validation des variables d'environnement
-    if [ -z "$DB_CONTAINER" ] || [ -z "$DB_USER" ] || [ -z "$DB_NAME" ]; then
+    if [ -z "$DB_CONTAINER" ] || [ -z "$DB_USER_WRITER" ] || [ -z "$DB_NAME" ]; then
         echo "❌ Error: Missing environment variables" >&2
         echo "Required: DB_CONTAINER, DB_USER, DB_NAME" >&2
         return 1
@@ -143,7 +143,7 @@ _import_large_json_incremental() {
 
         # 2. Vérifier le contenu de raw
         echo "Checking raw count..."
-        docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+        docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
           "SELECT COUNT(*) FROM $raw_table;"
 
         # 3. Projection (callback fourni par l'appelant)
@@ -154,7 +154,7 @@ _import_large_json_incremental() {
 
         # 4. Clean raw pour la prochaine part
         echo "Cleaning raw table for next part..."
-        docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+        docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
           "TRUNCATE TABLE $raw_table;"
 
         echo "✓ Part $part_num/$total_parts processed"
@@ -186,7 +186,7 @@ _import_small_json() {
     docker exec "$DB_CONTAINER" ls -lh "//$container_path"
 
     echo "Importing to raw table..."
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
         "INSERT INTO $raw_table (data)
          SELECT elem
          FROM jsonb_array_elements(pg_read_file('//$container_path')::jsonb) AS elem;"
@@ -198,7 +198,7 @@ _import_small_json() {
 
     # Vérifier le contenu de raw
     echo "Checking raw count..."
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "SELECT COUNT(*) FROM $raw_table;"
 
     # Projection (si callback fourni)
@@ -224,7 +224,7 @@ _import_part_file() {
     docker cp "$part_file" "$DB_CONTAINER:$container_path" || return 1
 
     echo "Importing to raw table..."
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
         "INSERT INTO $raw_table (data)
          SELECT elem
          FROM jsonb_array_elements(pg_read_file('//$container_path')::jsonb) AS elem;" || return 1

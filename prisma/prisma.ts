@@ -1,6 +1,6 @@
 import { config } from "dotenv"
 import { existsSync } from "fs"
-import { PrismaClient } from '../../generated/prisma/client'
+import { PrismaClient } from '../generated/prisma/client'
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 

@@ -36,7 +36,7 @@ SCRUTINS_GROUPES_AGREGATS_JSON="scrutinsGroupesAgregats.json"
 
 project_deputes() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO deputes (id)
        SELECT data->>'id'
        FROM $raw_table
@@ -45,7 +45,7 @@ project_deputes() {
 
 project_groupes_parlementaires() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO groupes_parlementaires (id, nom)
        SELECT data->>'id', data->>'nom'
        FROM $raw_table
@@ -54,7 +54,7 @@ project_groupes_parlementaires() {
 
 project_scrutins() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO scrutins (uid, numero, legislature, date_scrutin, titre, type_scrutin_code, type_scrutin_libelle, type_majorite, resultat_code, resultat_libelle)
        SELECT data->>'uid', data->>'numero', data->>'legislature', NULLIF(data->>'date_scrutin', '')::date,
               data->>'titre', data->>'type_scrutin_code', data->>'type_scrutin_libelle', data->>'type_majorite',
@@ -65,7 +65,7 @@ project_scrutins() {
 
 project_scrutins_groupes() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO scrutins_groupes (scrutin_uid, groupe_id, nombre_membres, position_majoritaire)
        SELECT data->>'scrutin_uid', data->>'groupe_id', (data->>'nombre_membres')::integer, data->>'position_majoritaire'
        FROM $raw_table;"
@@ -73,7 +73,7 @@ project_scrutins_groupes() {
 
 project_votes_deputes() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO votes_deputes (scrutin_uid, depute_id, groupe_id, mandat_ref, position, cause_position, par_delegation)
        SELECT data->>'scrutin_uid', data->>'depute_id', data->>'groupe_id', data->>'mandat_ref',
               data->>'position', data->>'cause_position', (data->>'par_delegation')::boolean
@@ -82,7 +82,7 @@ project_votes_deputes() {
 
 project_scrutins_agregats() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO scrutins_agregats (scrutin_uid, nombre_votants, suffrages_exprimes, suffrages_requis, total_pour, total_contre, total_abstentions, total_non_votants, total_non_votants_volontaires)
        SELECT data->>'scrutin_uid', (data->>'nombre_votants')::integer, (data->>'suffrages_exprimes')::integer,
               (data->>'suffrages_requis')::integer, (data->>'total_pour')::integer, (data->>'total_contre')::integer,
@@ -93,7 +93,7 @@ project_scrutins_agregats() {
 
 project_scrutins_groupes_agregats() {
     local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO scrutins_groupes_agregats (scrutin_uid, groupe_id, pour, contre, abstentions, non_votants, non_votants_volontaires)
        SELECT data->>'scrutin_uid', data->>'groupe_id', (data->>'pour')::integer, (data->>'contre')::integer,
               (data->>'abstentions')::integer, (data->>'non_votants')::integer, (data->>'non_votants_volontaires')::integer
@@ -119,7 +119,7 @@ echo ""
 # STEP 1: Import Schema
 # ==============================================================================
 echo "Importing schema..."
-cat "$SCHEMA_DIR/$SCHEMA_NAME" | docker exec -i "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME"
+cat "$SCHEMA_DIR/$SCHEMA_NAME" | docker exec -i "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME"
 echo "✓ Schema imported"
 echo ""
 
@@ -133,7 +133,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$DEPUTES_JSON" "deputes_raw" "project_deputes"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM deputes;"
 
 echo "✓ Deputes imported"
@@ -149,7 +149,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$GROUPES_JSON" "groupes_parlementaires_raw" "project_groupes_parlementaires"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM groupes_parlementaires;"
 
 echo "✓ Groupes parlementaires imported"
@@ -165,7 +165,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$SCRUTINS_JSON" "scrutins_raw" "project_scrutins"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM scrutins;"
 
 echo "✓ Scrutins imported"
@@ -181,7 +181,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$SCRUTINS_GROUPES_JSON" "scrutins_groupes_raw" "project_scrutins_groupes"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM scrutins_groupes;"
 
 echo "✓ Scrutins groupes imported"
@@ -197,7 +197,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$VOTES_DEPUTES_JSON" "votes_deputes_raw" "project_votes_deputes"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM votes_deputes;"
 
 echo "✓ Votes deputes imported"
@@ -213,7 +213,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$SCRUTINS_AGREGATS_JSON" "scrutins_agregats_raw" "project_scrutins_agregats"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM scrutins_agregats;"
 
 echo "✓ Scrutins agregats imported"
@@ -229,7 +229,7 @@ echo "=============================================="
 import_json_to_raw_table "$TABLES_DIR/$SCRUTINS_GROUPES_AGREGATS_JSON" "scrutins_groupes_agregats_raw" "project_scrutins_groupes_agregats"
 
 echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
   "SELECT COUNT(*) FROM scrutins_groupes_agregats;"
 
 echo "✓ Scrutins groupes agregats imported"
@@ -244,7 +244,7 @@ echo "=============================================="
 
 if [[ "$AUTO_CLEANUP" == true ]]; then
     echo "🤖 Auto cleanup enabled - dropping raw tables..."
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "DROP TABLE IF EXISTS deputes_raw, groupes_parlementaires_raw, scrutins_raw, scrutins_groupes_raw,
        votes_deputes_raw, scrutins_agregats_raw, scrutins_groupes_agregats_raw CASCADE;"
     echo "✓ Raw tables dropped"
@@ -252,7 +252,7 @@ else
     read -p "Do you want to drop raw tables? (y/n) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+        docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
           "DROP TABLE IF EXISTS deputes_raw, groupes_parlementaires_raw, scrutins_raw, scrutins_groupes_raw,
            votes_deputes_raw, scrutins_agregats_raw, scrutins_groupes_agregats_raw CASCADE;"
         echo "✓ Raw tables dropped"
@@ -267,7 +267,7 @@ echo "=============================================="
 echo "FINAL VERIFICATION"
 echo "=============================================="
 
-docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c "
+docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c "
 SELECT
   'deputes' as table_name, COUNT(*) as count FROM deputes
 UNION ALL
