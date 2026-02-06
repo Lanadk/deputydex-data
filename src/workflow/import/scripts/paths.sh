@@ -7,7 +7,7 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 # SRC
 SRC_DIR="$ROOT_DIR/src"
 # DATA
-DATA_DIR="$ROOT_DIR/src/data"
+DATA_DIR="$ROOT_DIR/data"
 
 # Exported paths
 export SCHEMA_DIR="$SRC_DIR/sql/schema"
