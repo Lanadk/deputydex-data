@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import {prisma} from "../src/db/prisma";
+import {prisma} from "./prisma";
 
 async function main() {
     console.log('🌱 Seeding database...\n');

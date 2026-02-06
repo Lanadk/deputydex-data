@@ -4,10 +4,10 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "prisma generate && tsc",
-    "db-setup": "npm run db:docker && npm run prisma:generate && npm run prisma:migrate",
-    "db-docker-install": "npm run db:docker",
-    "db:docker": "node src/db/local-db-init.js",
+    "build": "tsc",
+    "first-setup": "npm run prisma:init && npm run docker:db && npm run prisma:generate && npm run prisma:migrate-dev && npm run prisma:seed",
+    "docker:db": "node src/db/local-db-init.js",
+
     "prisma:init": "prisma init",
     "prisma:generate": "prisma generate",
     "prisma:migrate-dev": "dotenv -e .env.local -- npx prisma migrate dev --name init",
