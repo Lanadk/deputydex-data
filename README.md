@@ -96,7 +96,7 @@ deputydex-data/
 │       ├── download/      # Téléchargement des données
 │       ├── parser/        # Extraction et transformation
 │       ├── update/        # Update des données et calcul du delta
-│       ├── agregat/       # Agrege les données de la base pour générer des statistiques
+│       ├── agregat/       # Agrege les données de la base pour générer des tables de statistiques
 │       └── import/        # Chargement en base
 ├── generated/
 │   └── prisma/           # Client Prisma généré

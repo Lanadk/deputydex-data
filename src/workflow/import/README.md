@@ -14,11 +14,11 @@ src/scripts/db/
 
 ### 1. Split automatique
 
-Les fichiers > 150MB sont automatiquement découpés :
+Les fichiers > 125MB sont automatiquement découpés :
 ```
-votesDeputes.json (308MB)
+votesDeputes.json (250MB)
     ↓ split
-part000.json (150MB) + part001.json (158MB)
+part000.json (125MB) + part001.json (125MB)
 ```
 
 ### 2. Import incrémental
@@ -63,9 +63,6 @@ Le callback est appelé après chaque import (1 fois pour petits fichiers, N foi
 ## Compatibilité Windows
 
 Les chemins dans `docker exec` utilisent `//` pour Git Bash :
-```bash
-docker exec container psql ... "pg_read_file('//file.json')"
-```
 
 ## Dépendances
 
@@ -92,6 +89,6 @@ PostgreSQL limite les éléments JSONB à 268MB. Le split à 150MB laisse une ma
 ## Avantages
 
 - ✅ Pas de limite de taille
-- ✅ Mémoire maîtrisée (max 150MB en raw)
+- ✅ Mémoire maîtrisée (max 125MB en raw)
 - ✅ Code DRY et réutilisable
 - ✅ Compatible Windows/Linux/macOS
