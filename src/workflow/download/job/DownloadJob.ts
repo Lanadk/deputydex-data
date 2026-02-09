@@ -1,10 +1,10 @@
-import {DownloadFilesUseCase} from "../domain/usecases/DownloadFilesUseCase";
+import {DownloadFilesUsecase} from "../domain/usecases/DownloadFiles.usecase";
 import {Logger} from "../../../utils/logger";
 import {DownloadResult, JobOptions} from "../types/types";
 
 export class DownloadJob {
     constructor(
-        private downloadUseCase: DownloadFilesUseCase,
+        private downloadUseCase: DownloadFilesUsecase,
         private logger: Logger
     ) {}
 
@@ -15,7 +15,6 @@ export class DownloadJob {
         const results = await this.downloadUseCase.execute(options.filters, {
             force: options.force,
             maxRetries: options.maxRetries,
-            parallel: options.parallel,
             maxConcurrency: options.maxConcurrency
         });
 

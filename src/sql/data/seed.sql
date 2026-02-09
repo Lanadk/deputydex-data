@@ -46,7 +46,7 @@ VALUES
         'AMO50_acteurs_mandats_organes_divises.json.zip'
     ),
     (
-        (SELECT id FROM ref_data_domains WHERE code = 'votes'),
+        (SELECT id FROM ref_data_domains WHERE code = 'scrutins'),
         (SELECT id FROM param_legislatures WHERE number = 16),
         'https://data.assemblee-nationale.fr/static/openData/repository/16/loi/scrutins/Scrutins.json.zip',
         'Scrutins.json.zip'
@@ -66,7 +66,7 @@ VALUES
         'AMO50_acteurs_mandats_organes_divises.json.zip'
     ),
     (
-        (SELECT id FROM ref_data_domains WHERE code = 'votes'),
+        (SELECT id FROM ref_data_domains WHERE code = 'scrutins'),
         (SELECT id FROM param_legislatures WHERE number = 17),
         'https://data.assemblee-nationale.fr/static/openData/repository/17/loi/scrutins/Scrutins.json.zip',
         'Scrutins.json.zip'
