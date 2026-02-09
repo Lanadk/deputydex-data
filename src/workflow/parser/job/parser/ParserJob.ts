@@ -23,8 +23,8 @@ export class ParserJob {
             });
 
             this.logger.success('Parser job completed successfully');
-            this.logger.info(`Files processed: ${result.totalFiles}`);
-            this.logger.info(`Tables created: ${result.totalTables}`);
+            this.logger.info(`JSON files processed: ${result.totalFiles}`);
+            this.logger.info(`Final JSON files created: ${result.totalTables}`);
             this.logger.info(`Total records: ${result.totalRecords}`);
 
             if (result.errors > 0) {
