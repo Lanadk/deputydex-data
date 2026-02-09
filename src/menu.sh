@@ -4,9 +4,9 @@ set -e
 # -----------------------------
 # Functions calling the all-jobs scripts
 # -----------------------------
-run_download_all() { npx ts-node ./workflow/download/job/download/trtCollecteData.ts; }
-run_parser_all() { npx ts-node ./workflow/parser/trtCheckCollecte.ts; }
-run_import_all() { ./workflow/import/trtImportCollecte.sh "$1"; }
+run_download_all() { npx ts-node ./workflow/download/job/trtCollecteData.ts; }
+run_parser_all() { npx ts-node ./workflow/parser/job/trtCheckCollecte.ts; }
+run_import_all() { ./workflow/import/job/trtImportCollecte.sh "$1"; }
 run_update_all() { npx ts-node ./workflow/update/updateAll.ts; }
 
 # -----------------------------

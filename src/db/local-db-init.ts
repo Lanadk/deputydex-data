@@ -89,7 +89,7 @@ async function waitForDb(): Promise<void> {
             stdio: ['pipe', 'inherit', 'inherit'],
         });
 
-        console.log('✅ Utilisateurs et permissions configurés pour local dev\n');
+        console.log('✅ Utilisateurs et permissions configurés pour local dev');
     } catch (error) {
         console.error('❌ Erreur:', (error as Error).message);
         process.exit(1);

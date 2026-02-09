@@ -3,7 +3,7 @@ import * as path from 'path';
 import {prisma} from "./prisma";
 
 async function main() {
-    console.log('🌱 Seeding database...\n');
+    console.log('🌱 Seeding database...');
     const seedSqlPath = path.join(__dirname, '../src/sql/data/seed.sql');
 
     if (!fs.existsSync(seedSqlPath)) {

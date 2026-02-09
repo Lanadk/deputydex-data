@@ -15,5 +15,5 @@ export function formatJsonForImport(data: any[], outputFile: string): void {
     }
 
     stream.end();
-    console.log(`Formatted ${data.length} records for import: ${outputFile}`);
+    console.log(`[DEBUG 🔍]: Formatted ${data.length} records for import: ${outputFile}`);
 }
