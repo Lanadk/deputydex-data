@@ -9,6 +9,4 @@ export async function unzipFile(zipPath: string, targetDir: string) {
     await fs.createReadStream(zipPath)
         .pipe(unzipper.Extract({ path: targetDir }))
         .promise();
-
-    console.log(`✔ Unzipped: ${zipPath} → ${targetDir}`);
 }

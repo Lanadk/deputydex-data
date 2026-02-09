@@ -30,7 +30,7 @@ ON CONFLICT (legislature_id) DO UPDATE SET number = EXCLUDED.number;
 INSERT INTO ref_data_domains (code, description)
 VALUES
     ('acteurs', 'Personne physique'),
-    ('votes', 'Votes et scrutins publics')
+    ('scrutins', 'Votes et scrutins publics')
 ON CONFLICT (code) DO NOTHING;
 
 -- ============================================
