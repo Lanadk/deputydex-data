@@ -48,12 +48,12 @@ async function splitJsonFile(inputFile: string, maxSizeMB: number): Promise<void
 const [inputFile, maxSizeMB] = process.argv.slice(2);
 
 if (!inputFile || !maxSizeMB) {
-    console.error('Usage: ts-node json-splitter.ts <input-file> <max-size-mb>');
+    console.error('[ERROR  ❌ ]: Usage: ts-node json-splitter.ts <input-file> <max-size-mb>');
     process.exit(1);
 }
 
 splitJsonFile(inputFile, parseInt(maxSizeMB))
     .catch(err => {
-        console.error('❌ Split error:', err.message);
+        console.error('[ERROR  ❌ ]: Split error:', err.message);
         process.exit(1);
     });

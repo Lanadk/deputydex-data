@@ -8,12 +8,13 @@ export interface DownloadItem {
     checksum?: string;
     fileSize?: bigint;
     lastDownloadAt?: Date;
+    subdomains?: string[];
 }
 
 export interface DownloadPaths {
-    zipDir: string;              // data/download/zip/2025-02-09_14-30-45
-    zipFilePath: string;         // data/download/zip/2025-02-09_14-30-45/file.zip
-    unzipDir: string;            // data/download/unzip/acteurs
+    zipDir: string;
+    zipFilePath: string;
+    unzipDir: string;
 }
 
 export interface DownloadResult {
@@ -35,7 +36,6 @@ export interface ProcessOptions {
 export interface UseCaseOptions {
     force?: boolean;
     maxRetries?: number;
-    parallel?: boolean;
     maxConcurrency?: number;
 }
 
@@ -48,7 +48,6 @@ export interface Filters {
 export interface JobOptions {
     force?: boolean;
     maxRetries?: number;
-    parallel?: boolean;
     maxConcurrency?: number;
     filters?: Filters;
 }

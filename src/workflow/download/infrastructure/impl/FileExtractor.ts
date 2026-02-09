@@ -6,8 +6,8 @@ export class FileExtractor implements IFileExtractor {
     constructor(private logger: Logger) {}
 
     async extract(zipPath: string, targetDir: string): Promise<void> {
-        this.logger.info(`Unzipping: ${zipPath}`);
+        this.logger.info(`Extracting: ${zipPath}`);
         await unzipFile(zipPath, targetDir);
-        this.logger.success(`Unzipped to: ${targetDir}`);
+        this.logger.success(`Extracted to: ${targetDir}`);
     }
 }

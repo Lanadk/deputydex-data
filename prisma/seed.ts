@@ -17,7 +17,7 @@ async function main() {
         await prisma.$executeRawUnsafe(seedSql);
         console.log('🎉 Seeding completed successfully!');
     } catch (error) {
-        console.error('❌ Seeding failed:', error);
+        console.error('[ERROR  ❌ ]: Seeding failed:', error);
         throw error;
     }
 }

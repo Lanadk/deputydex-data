@@ -1,4 +1,4 @@
-import {DownloadItem} from "../../../types/types";
+import {DownloadItem} from "../../../download/types/types";
 
 export interface DataSourceFilters {
     legislature?: number;

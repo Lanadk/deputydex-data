@@ -22,7 +22,7 @@ if (fs.existsSync('.env.local')) {
     dotenv.config({path: '.env.local'});
     console.log('📄 Variables chargées depuis .env.local');
 } else {
-    console.error('❌ .env.local introuvable');
+    console.error('[ERROR  ❌ ]: .env.local introuvable');
     process.exit(1);
 }
 
@@ -91,7 +91,7 @@ async function waitForDb(): Promise<void> {
 
         console.log('✅ Utilisateurs et permissions configurés pour local dev');
     } catch (error) {
-        console.error('❌ Erreur:', (error as Error).message);
+        console.error('[ERROR  ❌ ]: Erreur:', (error as Error).message);
         process.exit(1);
     }
 })();

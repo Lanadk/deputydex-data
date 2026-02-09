@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {IFileManager} from "../IFileManager";
+import {DownloadPaths} from "../../types/types";
 
 export class FileManager implements IFileManager {
     private readonly PROJECT_ROOT: string;
@@ -18,35 +19,28 @@ export class FileManager implements IFileManager {
         console.log('📁 Download dir:', this.BASE_DOWNLOAD_DIR);
     }
 
-    /**
-     * Crée un dossier timestampé pour les téléchargements
-     * Format: data/download/zip/2025-02-09_14-30-45
-     */
     createTimestampedZipDir(): string {
         const timestamp = this.generateTimestamp();
         const timestampedDir = path.join(this.ZIP_DIR, timestamp);
-
         this.ensureDir(timestampedDir);
         return timestampedDir;
     }
 
-    /**
-     * Prépare les chemins de téléchargement
-     */
     prepareDownloadPaths(
         timestampedZipDir: string,
         filename: string,
         domain: string
-    ): { zipDir: string; zipFilePath: string; unzipDir: string } {
+    ): DownloadPaths {
         const zipFilePath = path.join(timestampedZipDir, filename);
-        const unzipDir = path.join(this.UNZIP_DIR, domain);
 
+        // Extraire dans unzip/{domain}/
+        const unzipDir = path.join(this.UNZIP_DIR, domain);
         this.ensureDir(unzipDir);
 
         return {
             zipDir: timestampedZipDir,
             zipFilePath,
-            unzipDir
+            unzipDir  // data/download/unzip/scrutins/
         };
     }
 

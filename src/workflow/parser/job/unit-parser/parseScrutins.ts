@@ -26,7 +26,7 @@ async function main() {
         });
 
     } catch (error) {
-        console.error('Job failed:', error);
+        console.error('[ERROR  ❌ ]: Job failed:', error);
         process.exit(1);
     }
 }

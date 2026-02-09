@@ -39,7 +39,8 @@ export class BatchProcessor {
         }
 
         this.processedFilesCount = files.length;
-        this.logger.info('Processing complete!');
+        console.log('\n'); // format
+        this.logger.success('Processing complete!');
     }
 
     getTables(): Record<string, any[]> {
