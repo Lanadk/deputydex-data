@@ -4,10 +4,11 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Racine du repo
 ROOT_DIR="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
+ROOT_DATA_DIR="$(cd "$SCRIPT_DIR/../../../../../.." && pwd)"
 # SRC
 SRC_DIR="$ROOT_DIR/src"
 # DATA
-DATA_DIR="$ROOT_DIR/data"
+DATA_DIR="$ROOT_DATA_DIR/data"
 
 # Exported paths
 export SCHEMA_DIR="$SRC_DIR/sql/schema"
