@@ -15,9 +15,9 @@ export SCHEMA_DIR="$SRC_DIR/sql/schema"
 export TABLES_DIR="$DATA_DIR/parser/tables"
 
 # TODO Faudra lacher du token ici
-export DB_CONTAINER="deputedex-db"
+export DB_CONTAINER="deputydex-db"
 export DB_USER_WRITER="user_etl_writer"
-export DB_NAME="deputedex"
+export DB_NAME="deputydex"
 
 # Paramètres du splitter
 export MAX_JSON_SIZE_MB=125

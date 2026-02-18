@@ -31,7 +31,7 @@ DB_URL=postgresql://user:mdp@localhost:5432/deputedex?schema=public
 # Database configuration
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=deputedex
+DB_NAME=deputydex
 
 # Main user (Docker init)
 DB_USER=user
