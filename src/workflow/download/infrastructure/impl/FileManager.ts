@@ -4,19 +4,21 @@ import {IFileManager} from "../IFileManager";
 import {DownloadPaths} from "../../types/types";
 
 export class FileManager implements IFileManager {
-    private readonly PROJECT_ROOT: string;
     private readonly BASE_DOWNLOAD_DIR: string;
     private readonly ZIP_DIR: string;
     private readonly UNZIP_DIR: string;
+    private readonly DATA_ROOT: string;
 
     constructor() {
-        this.PROJECT_ROOT = path.resolve(__dirname, '../../../../..');
-        this.BASE_DOWNLOAD_DIR = path.join(this.PROJECT_ROOT, 'data', 'download');
+        this.DATA_ROOT = path.resolve(__dirname, '../../../../../..');
+        this.BASE_DOWNLOAD_DIR = path.join(this.DATA_ROOT, 'data', 'download');
         this.ZIP_DIR = path.join(this.BASE_DOWNLOAD_DIR, 'zip');
         this.UNZIP_DIR = path.join(this.BASE_DOWNLOAD_DIR, 'unzip');
 
-        console.log('📁 Project root:', this.PROJECT_ROOT);
         console.log('📁 Download dir:', this.BASE_DOWNLOAD_DIR);
+        console.log('📁 Data dir:', this.DATA_ROOT);
+        console.log('📁 Zip dir:', this.ZIP_DIR);
+        console.log('📁 Unzip dir:', this.UNZIP_DIR);
     }
 
     createTimestampedZipDir(): string {
@@ -40,7 +42,7 @@ export class FileManager implements IFileManager {
         return {
             zipDir: timestampedZipDir,
             zipFilePath,
-            unzipDir  // data/download/unzip/scrutins/
+            unzipDir
         };
     }
 

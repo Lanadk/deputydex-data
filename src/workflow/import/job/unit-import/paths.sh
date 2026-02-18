@@ -4,19 +4,20 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Racine du repo
 ROOT_DIR="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
+ROOT_DATA_DIR="$(cd "$SCRIPT_DIR/../../../../../.." && pwd)"
 # SRC
 SRC_DIR="$ROOT_DIR/src"
 # DATA
-DATA_DIR="$ROOT_DIR/data"
+DATA_DIR="$ROOT_DATA_DIR/data"
 
 # Exported paths
 export SCHEMA_DIR="$SRC_DIR/sql/schema"
 export TABLES_DIR="$DATA_DIR/parser/tables"
 
 # TODO Faudra lacher du token ici
-export DB_CONTAINER="deputedex-db"
+export DB_CONTAINER="deputydex-db"
 export DB_USER_WRITER="user_etl_writer"
-export DB_NAME="deputedex"
+export DB_NAME="deputydex"
 
 # Paramètres du splitter
 export MAX_JSON_SIZE_MB=125

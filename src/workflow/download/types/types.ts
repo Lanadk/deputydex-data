@@ -1,4 +1,4 @@
-export interface DownloadItem {
+export interface DownloadItem { // TODO ceci est une entity
     id: number;
     sourceId: number;
     legislature: number;

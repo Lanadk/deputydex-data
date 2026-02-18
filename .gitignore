@@ -21,3 +21,4 @@ data/**/*.zip
 
 /generated
 /local
+docker-compose.yml
