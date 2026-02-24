@@ -101,6 +101,7 @@ model Acteurs {
   adressesMails    ActeursAdressesMails[]
   reseauxSociaux   ActeursReseauxSociaux[]
   telephones       ActeursTelephones[]
+  mandats          Mandats[]
 
   @@map("acteurs")
 }
@@ -290,6 +291,57 @@ model ScrutinsGroupesAgregats {
 
   @@unique([scrutin_uid, groupe_id]) // Un groupe ne peut avoir qu'un agrégat par scrutin
   @@map("scrutins_groupes_agregats")
+}
+
+// ============================================
+// MANDATS
+// ============================================
+model Mandats {
+  uid                                String    @id @db.VarChar(50)
+  acteur_uid                         String    @db.VarChar(50)
+  legislature                        Int
+  type_organe                        String    @db.VarChar(50)
+  date_debut                         DateTime  @db.Date
+  date_fin                           DateTime? @db.Date
+  date_publication                   DateTime? @db.Date
+  preseance                          Int
+  nomin_principale                   Int
+  code_qualite                       String    @db.VarChar(100)
+  lib_qualite                        String    @db.VarChar(255)
+  lib_qualite_sex                    String    @db.VarChar(255)
+  organe_uid                         String    @db.VarChar(100)
+  election_region                    String?   @db.VarChar(255)
+  election_region_type               String?   @db.VarChar(100)
+  election_departement               String?   @db.VarChar(255)
+  election_num_departement           String?   @db.VarChar(10)
+  election_num_circo                 String?   @db.VarChar(10)
+  election_cause_mandat              String?   @db.VarChar(255)
+  election_ref_circonscription       String?   @db.VarChar(255)
+  mandature_date_prise_fonction      DateTime? @db.Date
+  mandature_cause_fin                String?   @db.VarChar(255)
+  mandature_premiere_election        Boolean?
+  mandature_place_hemicycle          String?   @db.VarChar(10)
+  mandature_mandat_remplace_ref      String?   @db.VarChar(100)
+  created_at                         DateTime  @default(now()) @db.Timestamp(6)
+
+  acteur      Acteurs             @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
+  suppleants  MandatsSuppleants[]
+
+  @@map("mandats")
+}
+
+model MandatsSuppleants {
+  id            Int       @id @default(autoincrement())
+  mandat_uid    String    @db.VarChar(50)
+  suppleant_uid String    @db.VarChar(50)
+  date_debut    DateTime  @db.Date
+  date_fin      DateTime? @db.Date
+  created_at    DateTime  @default(now()) @db.Timestamp(6)
+
+  mandat Mandats @relation(fields: [mandat_uid], references: [uid], onDelete: Cascade)
+
+  @@unique([mandat_uid, suppleant_uid])
+  @@map("mandats_suppleants")
 }
 
 // ============================================
