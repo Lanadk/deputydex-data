@@ -5,7 +5,7 @@ import {ScrutinsExtractor} from "../../domain/models/ScrutinsExtractor";
 import {
     acteursSourceDirectoryName,
     baseInData,
-    baseOutData,
+    baseOutData, mandatsSourceDirectoryName,
     outTableDirectoryName,
     scrutinsSourceDirectoryName
 } from "../const";
@@ -15,8 +15,9 @@ import {DirectorySource} from "../../infrastructure/impl/DirectorySource";
 import {JsonFileWriter} from "../../infrastructure/impl/JsonFileWriter";
 import {BatchProcessor} from "../../domain/models/BatchProcessor";
 import {ParseFilesUseCase} from "../../domain/usecases/ParseFilesUseCase";
+import {MandatsExtractor} from "../../domain/models/MandatExtractor";
 
-export type ParserDomain = 'acteurs' | 'scrutins';
+export type ParserDomain = 'acteurs' | 'scrutins' | 'mandats';
 
 export interface ParserJobRunnerConfig {
     domain: ParserDomain;
@@ -26,12 +27,14 @@ export interface ParserJobRunnerConfig {
 export class ParserJobFactory {
     private static readonly EXTRACTORS: Record<ParserDomain, new () => IExtractor> = {
         acteurs: ActeursExtractor,
-        scrutins: ScrutinsExtractor
+        scrutins: ScrutinsExtractor,
+        mandats: MandatsExtractor
     };
 
     private static readonly SOURCE_DIRS: Record<ParserDomain, string> = {
         acteurs: acteursSourceDirectoryName,
-        scrutins: scrutinsSourceDirectoryName
+        scrutins: scrutinsSourceDirectoryName,
+        mandats: mandatsSourceDirectoryName
     };
 
     static create(config: ParserJobRunnerConfig): { job: ParserJob; outputDir: string } {
@@ -68,7 +71,7 @@ export class ParserJobFactory {
 
         logger.info('======== Starting Parser Jobs ========');
 
-        const domains: ParserDomain[] = ['acteurs', 'scrutins'];
+        const domains: ParserDomain[] = ['acteurs', 'scrutins', 'mandats'];
 
         for (let i = 0; i < domains.length; i++) {
             const domain = domains[i];
