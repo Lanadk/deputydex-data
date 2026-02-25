@@ -24,8 +24,10 @@ unit_job_menu() {
         echo "2) Download Scrutins"
         echo "3) Parse Acteurs"
         echo "4) Parse Scrutins"
-        echo "5) Import Acteurs"
-        echo "6) Import Scrutins"
+        echo "5) Parse Mandts"
+        echo "6) Import Acteurs"
+        echo "7) Import Scrutins"
+        echo "8) Import Mandats"
         echo "0) Back to Main Menu"
         echo " "
         echo "=============================================="
@@ -36,8 +38,10 @@ unit_job_menu() {
             2) npx ts-node ./download/downloadScrutins.ts ;;
             3) npx ts-node ./parser/runActeursJob.ts ;;
             4) npx ts-node ./parser/runScrutinsJob.ts ;;
-            5) ./job/acteurs-import.sh ;;
-            6) ./job/scrutins-import.sh ;;
+            5) npx ts-node ./parser/runMandatsJob.ts ;;
+            6) ./job/acteurs-import.sh ;;
+            7) ./job/scrutins-import.sh ;;
+            8) ./job/mandats-import.sh ;;
             0) return ;;
             *) echo "⚠️ Invalid option, please try again." ;;
         esac
