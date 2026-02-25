@@ -24,7 +24,7 @@ unit_job_menu() {
         echo "2) Download Scrutins"
         echo "3) Parse Acteurs"
         echo "4) Parse Scrutins"
-        echo "5) Parse Mandts"
+        echo "5) Parse Mandats"
         echo "6) Import Acteurs"
         echo "7) Import Scrutins"
         echo "8) Import Mandats"
