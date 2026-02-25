@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
 
+# ==============================================================================
+# SCRUTINS IMPORT SCRIPT
+# Imports scrutins JSON data into the database for each legislature
+# Raw → Snapshot → Final pipeline with optional cleanup
+# ==============================================================================
+
 set -e
 
+# ==============================================================================
+# IMPORTS
+# ==============================================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/paths.sh"
 source "$SCRIPT_DIR/json-import-utils.sh"
 
-AUTO_CLEANUP=false
-if [[ "$1" == "--auto-cleanup" ]]; then
-    AUTO_CLEANUP=true
-    echo "ℹ️  Auto cleanup mode enabled"
-fi
+# ==============================================================================
+# CONSTANTS
+# ==============================================================================
+SQL_SCRIPTS_DIR="//sql/scripts/scrutins"
 
 SCHEMA_NAME="scrutins.schema.sql"
 DEPUTES_JSON="deputes.json"
@@ -21,82 +29,70 @@ VOTES_DEPUTES_JSON="votesDeputes.json"
 SCRUTINS_AGREGATS_JSON="scrutinsAgregats.json"
 SCRUTINS_GROUPES_AGREGATS_JSON="scrutinsGroupesAgregats.json"
 
-CURRENT_LEGISLATURE=""
+# ==============================================================================
+# ARGUMENTS
+# ==============================================================================
+AUTO_CLEANUP=false
+if [[ "$1" == "--auto-cleanup" ]]; then
+    AUTO_CLEANUP=true
+    echo "ℹ️  Auto cleanup mode enabled"
+fi
+
+# ==============================================================================
+# PROJECTION WRAPPERS
+# ==============================================================================
 
 project_deputes() {
-    local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-      "INSERT INTO deputes (id)
-       SELECT data->>'id'
-       FROM $raw_table
-       ON CONFLICT (id) DO NOTHING;"
+    run_sql_file "$SQL_SCRIPTS_DIR/projections/project_deputes.sql"
 }
 
 project_groupes_parlementaires() {
-    local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-      "INSERT INTO groupes_parlementaires (id, legislature, nom)
-       SELECT data->>'id', ${CURRENT_LEGISLATURE}, data->>'nom'
-       FROM $raw_table
-       ON CONFLICT (id, legislature) DO NOTHING;"
+    run_sql_file "$SQL_SCRIPTS_DIR/projections/project_groupes_parlementaires.sql"
 }
 
 project_scrutins() {
-    local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-      "INSERT INTO scrutins (uid, numero, legislature, date_scrutin, titre, type_scrutin_code, type_scrutin_libelle, type_majorite, resultat_code, resultat_libelle)
-       SELECT data->>'uid', data->>'numero', data->>'legislature', NULLIF(data->>'date_scrutin', '')::date,
-              data->>'titre', data->>'type_scrutin_code', data->>'type_scrutin_libelle', data->>'type_majorite',
-              data->>'resultat_code', data->>'resultat_libelle'
-       FROM $raw_table
-       ON CONFLICT (uid) DO NOTHING;"
-}
-
-project_scrutins_agregats() {
-    local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-      "INSERT INTO scrutins_agregats (scrutin_uid, nombre_votants, suffrages_exprimes, suffrages_requis, total_pour, total_contre, total_abstentions, total_non_votants, total_non_votants_volontaires)
-       SELECT data->>'scrutin_uid', (data->>'nombre_votants')::integer, (data->>'suffrages_exprimes')::integer,
-              (data->>'suffrages_requis')::integer, (data->>'total_pour')::integer, (data->>'total_contre')::integer,
-              (data->>'total_abstentions')::integer, (data->>'total_non_votants')::integer, (data->>'total_non_votants_volontaires')::integer
-       FROM $raw_table
-       ON CONFLICT (scrutin_uid) DO NOTHING;"
+    run_sql_file "$SQL_SCRIPTS_DIR/projections/project_scrutins.sql"
 }
 
 project_scrutins_groupes() {
-    local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-      "INSERT INTO scrutins_groupes (scrutin_uid, groupe_id, groupe_legislature, nombre_membres, position_majoritaire)
-       SELECT data->>'scrutin_uid', data->>'groupe_id', ${CURRENT_LEGISLATURE},
-              (data->>'nombre_membres')::integer, data->>'position_majoritaire'
-       FROM $raw_table
-       ON CONFLICT (scrutin_uid, groupe_id) DO NOTHING;"
+    run_sql_file "$SQL_SCRIPTS_DIR/projections/project_scrutins_groupes.sql"
 }
 
 project_votes_deputes() {
-    local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-      "INSERT INTO votes_deputes (scrutin_uid, depute_id, groupe_id, groupe_legislature, mandat_ref, position, cause_position, par_delegation)
-       SELECT data->>'scrutin_uid', data->>'depute_id', data->>'groupe_id',
-              CASE WHEN data->>'groupe_id' IS NOT NULL THEN ${CURRENT_LEGISLATURE} ELSE NULL END,
-              data->>'mandat_ref', data->>'position', data->>'cause_position',
-              (data->>'par_delegation')::boolean
-       FROM $raw_table
-       ON CONFLICT (scrutin_uid, depute_id) DO NOTHING;"
+    run_sql_file "$SQL_SCRIPTS_DIR/projections/project_votes_deputes.sql"
+}
+
+project_scrutins_agregats() {
+    run_sql_file "$SQL_SCRIPTS_DIR/projections/project_scrutins_agregats.sql"
 }
 
 project_scrutins_groupes_agregats() {
-    local raw_table=$1
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-      "INSERT INTO scrutins_groupes_agregats (scrutin_uid, groupe_id, groupe_legislature, pour, contre, abstentions, non_votants, non_votants_volontaires)
-       SELECT data->>'scrutin_uid', data->>'groupe_id', ${CURRENT_LEGISLATURE},
-              (data->>'pour')::integer, (data->>'contre')::integer,
-              (data->>'abstentions')::integer, (data->>'non_votants')::integer,
-              (data->>'non_votants_volontaires')::integer
-       FROM $raw_table
-       ON CONFLICT (scrutin_uid, groupe_id) DO NOTHING;"
+    run_sql_file "$SQL_SCRIPTS_DIR/projections/project_scrutins_groupes_agregats.sql"
 }
 
+# ==============================================================================
+# SYNC / CLEANUP / VERIFY WRAPPERS
+# ==============================================================================
+
+sync_snapshot_to_final() {
+    run_sql_file "$SQL_SCRIPTS_DIR/sync/sync_snapshot_to_final.sql"
+}
+
+drop_snapshots() {
+    run_sql_file "$SQL_SCRIPTS_DIR/cleanup/drop_snapshots_tables.sql"
+}
+
+drop_raw_tables() {
+    run_sql_file "$SQL_SCRIPTS_DIR/cleanup/drop_raw_tables.sql"
+}
+
+verify_final_counts() {
+    run_sql_file "$SQL_SCRIPTS_DIR/verify/final_counts.sql"
+}
+
+# ==============================================================================
+# GUARDS
+# ==============================================================================
 for dir in "$SCHEMA_DIR" "$TABLES_DIR"; do
   if [ ! -d "$dir" ]; then
     echo "❌ Missing directory: $dir"
@@ -104,131 +100,112 @@ for dir in "$SCHEMA_DIR" "$TABLES_DIR"; do
   fi
 done
 
+# ==============================================================================
+# MAIN
+# ==============================================================================
 echo "=============================================="
-echo "SCRUTINS IMPORT SCRIPT"
+echo "  SCRUTINS IMPORT SCRIPT"
 echo "=============================================="
 echo ""
 
-echo "Importing schema..."
+# -- Schema --------------------------------------------------------------------
+echo "📦 [SCHEMA] Importing schema..."
 cat "$SCHEMA_DIR/$SCHEMA_NAME" | docker exec -i "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME"
-echo "✓ Schema imported"
+echo "✓ [SCHEMA] Done"
 echo ""
 
-# ==============================================================================
-# BOUCLE SUR LES LÉGISLATURES
-# ==============================================================================
+# -- Raw → Snapshot (per legislature) -----------------------------------------
 for LEGISLATURE_DIR in "$TABLES_DIR"/*/; do
     LEGISLATURE=$(basename "$LEGISLATURE_DIR")
     if ! [[ "$LEGISLATURE" =~ ^[0-9]+$ ]]; then continue; fi
 
-    CURRENT_LEGISLATURE=$LEGISLATURE
-
+    echo ""
     echo "=============================================="
-    echo "🏛️  Legislature $LEGISLATURE"
+    echo "  🏛️  Legislature $LEGISLATURE"
     echo "=============================================="
     echo ""
 
-    echo "=============================================="
-    echo " DEPUTES "
-    echo "=============================================="
+    echo "📥 [RAW] Importing députes..."
     import_json_to_raw_table "$LEGISLATURE_DIR/$DEPUTES_JSON" "deputes_raw" "project_deputes"
-    echo "✓ Deputes imported"
-    echo ""
+    echo "✓ [RAW] députes done"
+    echo " ------------- "
 
-    echo "=============================================="
-    echo " GROUPES_PARLEMENTAIRES "
-    echo "=============================================="
+    echo "📥 [RAW] Importing groupes parlementaires..."
     import_json_to_raw_table "$LEGISLATURE_DIR/$GROUPES_JSON" "groupes_parlementaires_raw" "project_groupes_parlementaires"
-    echo "✓ Groupes parlementaires imported"
-    echo ""
+    echo "✓ [RAW] groupes parlementaires done"
+    echo " ------------- "
 
-    echo "=============================================="
-    echo "SCRUTINS"
-    echo "=============================================="
+    echo "📥 [RAW] Importing scrutins..."
     import_json_to_raw_table "$LEGISLATURE_DIR/$SCRUTINS_JSON" "scrutins_raw" "project_scrutins"
-    echo "✓ Scrutins imported"
-    echo ""
+    echo "✓ [RAW] scrutins done"
+    echo " ------------- "
 
-    echo "=============================================="
-    echo "SCRUTINS_GROUPES"
-    echo "=============================================="
+    echo "📥 [RAW] Importing scrutins groupes..."
     import_json_to_raw_table "$LEGISLATURE_DIR/$SCRUTINS_GROUPES_JSON" "scrutins_groupes_raw" "project_scrutins_groupes"
-    echo "✓ Scrutins groupes imported"
-    echo ""
+    echo "✓ [RAW] scrutins groupes done"
+    echo " ------------- "
 
-    echo "=============================================="
-    echo "VOTES_DEPUTES"
-    echo "=============================================="
+    echo "📥 [RAW] Importing votes députes..."
     import_json_to_raw_table "$LEGISLATURE_DIR/$VOTES_DEPUTES_JSON" "votes_deputes_raw" "project_votes_deputes"
-    echo "✓ Votes deputes imported"
-    echo ""
+    echo "✓ [RAW] votes députes done"
+    echo " ------------- "
 
-    echo "=============================================="
-    echo "SCRUTINS_AGREGATS"
-    echo "=============================================="
+    echo "📥 [RAW] Importing scrutins agrégats..."
     import_json_to_raw_table "$LEGISLATURE_DIR/$SCRUTINS_AGREGATS_JSON" "scrutins_agregats_raw" "project_scrutins_agregats"
-    echo "✓ Scrutins agregats imported"
-    echo ""
+    echo "✓ [RAW] scrutins agrégats done"
+    echo " ------------- "
 
-    echo "=============================================="
-    echo "SCRUTINS_GROUPES_AGREGATS"
-    echo "=============================================="
+    echo "📥 [RAW] Importing scrutins groupes agrégats..."
     import_json_to_raw_table "$LEGISLATURE_DIR/$SCRUTINS_GROUPES_AGREGATS_JSON" "scrutins_groupes_agregats_raw" "project_scrutins_groupes_agregats"
-    echo "✓ Scrutins groupes agregats imported"
-    echo ""
+    echo "✓ [RAW] scrutins groupes agrégats done"
 
+    echo "----------------------------------------------"
+    echo "  ✅ Legislature $LEGISLATURE complete"
+    echo "----------------------------------------------"
+    echo ""
 done
 
-# ==============================================================================
-# CLEANUP
-# ==============================================================================
+# -- Snapshot → Final ----------------------------------------------------------
 echo "=============================================="
-echo "CLEANUP"
+echo "  🔄 [SYNC] Snapshot → Final"
 echo "=============================================="
+sync_snapshot_to_final
+echo "✓ [SYNC] Done"
+echo ""
 
+# -- Cleanup -------------------------------------------------------------------
+echo "=============================================="
+echo "  🧼 [CLEANUP] Dropping snapshots"
+echo "=============================================="
+drop_snapshots
+echo "✓ [CLEANUP] Snapshots dropped"
+echo ""
+
+echo "=============================================="
+echo "  🗑️  [CLEANUP] Drop raw tables"
+echo "=============================================="
 if [[ "$AUTO_CLEANUP" == true ]]; then
-    echo "🤖 Auto cleanup enabled - dropping raw tables..."
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-      "DROP TABLE IF EXISTS deputes_raw, groupes_parlementaires_raw, scrutins_raw, scrutins_groupes_raw,
-       votes_deputes_raw, scrutins_agregats_raw, scrutins_groupes_agregats_raw CASCADE;"
-    echo "✓ Raw tables dropped"
+    drop_raw_tables
+    echo "✓ [CLEANUP] Raw tables dropped"
 else
-    read -p "Do you want to drop raw tables? (y/n) " -n 1 -r
+    read -p "Drop raw tables? (y/n) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-          "DROP TABLE IF EXISTS deputes_raw, groupes_parlementaires_raw, scrutins_raw, scrutins_groupes_raw,
-           votes_deputes_raw, scrutins_agregats_raw, scrutins_groupes_agregats_raw CASCADE;"
-        echo "✓ Raw tables dropped"
+        drop_raw_tables
+        echo "✓ [CLEANUP] Raw tables dropped"
+    else
+        echo "⏭️  [CLEANUP] Raw tables kept"
     fi
 fi
 echo ""
 
-# ==============================================================================
-# FINAL VERIFICATION
-# ==============================================================================
+# -- Verification --------------------------------------------------------------
 echo "=============================================="
-echo "FINAL VERIFICATION"
+echo "  📊 [VERIFY] Final row counts"
 echo "=============================================="
-
-docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c "
-SELECT
-  'deputes' as table_name, COUNT(*) as count FROM deputes
-UNION ALL
-SELECT 'groupes_parlementaires', COUNT(*) FROM groupes_parlementaires
-UNION ALL
-SELECT 'scrutins', COUNT(*) FROM scrutins
-UNION ALL
-SELECT 'scrutins_groupes', COUNT(*) FROM scrutins_groupes
-UNION ALL
-SELECT 'votes_deputes', COUNT(*) FROM votes_deputes
-UNION ALL
-SELECT 'scrutins_agregats', COUNT(*) FROM scrutins_agregats
-UNION ALL
-SELECT 'scrutins_groupes_agregats', COUNT(*) FROM scrutins_groupes_agregats;
-"
-
+verify_final_counts
 echo ""
+
 echo "=============================================="
-echo "✓ IMPORT COMPLETED"
+echo "  ✅ IMPORT COMPLETED"
 echo "=============================================="

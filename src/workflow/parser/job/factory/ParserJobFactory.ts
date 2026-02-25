@@ -27,17 +27,23 @@ export interface ParserJobRunnerConfig {
 }
 
 export class ParserJobFactory {
-    private static readonly EXTRACTORS: Record<ParserDomain, new () => IExtractor> = {
-        acteurs: ActeursExtractor,
-        scrutins: ScrutinsExtractor,
-        mandats: MandatsExtractor
-    };
 
     private static readonly SOURCE_DIRS: Record<ParserDomain, string> = {
         acteurs: acteursSourceDirectoryName,
         scrutins: scrutinsSourceDirectoryName,
         mandats: mandatsSourceDirectoryName
     };
+
+    // ==============================================================================
+    // Instanciation des extractors avec legislature_snapshot
+    // ==============================================================================
+    private static createExtractor(domain: ParserDomain, legislature: number): IExtractor {
+        switch (domain) {
+            case 'acteurs':  return new ActeursExtractor(legislature);
+            case 'scrutins': return new ScrutinsExtractor(legislature);
+            case 'mandats':  return new MandatsExtractor();
+        }
+    }
 
     static create(config: ParserJobRunnerConfig): { job: ParserJob; outputDir: string } {
         const logger = new Logger(config.logLevel || LogLevel.INFO);
@@ -52,8 +58,7 @@ export class ParserJobFactory {
         const outputDir = path.resolve(__dirname, baseOutData, outTableDirectoryName, config.legislature.toString());
 
         const fileSource = new DirectorySource(sourceDir);
-        const ExtractorClass = this.EXTRACTORS[config.domain];
-        const extractor = new ExtractorClass();
+        const extractor = this.createExtractor(config.domain, config.legislature);
         const fileWriter = new JsonFileWriter();
 
         const processor = new BatchProcessor(fileSource, extractor, logger);

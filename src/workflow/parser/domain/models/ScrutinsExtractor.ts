@@ -10,6 +10,7 @@ import {
     ScrutinGroupeAgregat
 } from './/entities/Scrutin.entity';
 import {IExtractor} from "../../infrastructure/IExtractor";
+import {computeRowHash} from "../../../../utils/hash";
 
 export class ScrutinsExtractor implements IExtractor {
     private deputesSet = new Set<string>();
@@ -20,6 +21,9 @@ export class ScrutinsExtractor implements IExtractor {
     private scrutinsAgregats: ScrutinAgregat[] = [];
     private scrutinsGroupesAgregats: ScrutinGroupeAgregat[] = [];
     private errors: Array<{ file: string; error: string }> = [];
+
+    constructor(private readonly legislature_snapshot: number) {
+    }
 
     async processFile(filePath: string): Promise<void> {
         try {
@@ -41,8 +45,14 @@ export class ScrutinsExtractor implements IExtractor {
             votesDeputes: this.votesDeputes,
             scrutinsAgregats: this.scrutinsAgregats,
             scrutinsGroupesAgregats: this.scrutinsGroupesAgregats,
-            groupes: Array.from(this.groupesSet).map(id => ({ id })),
-            deputes: Array.from(this.deputesSet).map(id => ({ id }))
+            groupes: Array.from(this.groupesSet).map(id => {
+                const obj = { id, legislature_snapshot: this.legislature_snapshot };
+                return { ...obj, row_hash: computeRowHash(obj) };
+            }),
+            deputes: Array.from(this.deputesSet).map(id => {
+                const obj = { id, legislature_snapshot: this.legislature_snapshot };
+                return { ...obj, row_hash: computeRowHash(obj) };
+            })
         };
     }
 
@@ -57,15 +67,12 @@ export class ScrutinsExtractor implements IExtractor {
             throw new Error('Missing uid');
         }
 
-        // Extract scrutin
         this.extractScrutin(scrutin);
 
-        // Extract aggregates
         if (scrutin.syntheseVote) {
             this.extractScrutinAgregats(scrutin);
         }
 
-        // Extract groups and votes
         const ventilation = scrutin.ventilationVotes || scrutin.scrutins || scrutin.groupes;
         if (ventilation) {
             this.extractGroupesAndVotes(scrutin.uid, ventilation);
@@ -73,7 +80,7 @@ export class ScrutinsExtractor implements IExtractor {
     }
 
     private extractScrutin(scrutin: any): void {
-        const scrutinData: Scrutin = {
+        const scrutinData = {
             uid: scrutin.uid,
             numero: scrutin.numero || '',
             legislature: scrutin.legislature || '',
@@ -83,13 +90,14 @@ export class ScrutinsExtractor implements IExtractor {
             type_scrutin_libelle: scrutin.typeVote?.libelleTypeVote || null,
             type_majorite: scrutin.typeVote?.typeMajorite || null,
             resultat_code: scrutin.sort?.code || null,
-            resultat_libelle: scrutin.sort?.libelle || null
+            resultat_libelle: scrutin.sort?.libelle || null,
+            legislature_snapshot: this.legislature_snapshot,
         };
-        this.scrutins.push(scrutinData);
+        this.scrutins.push({...scrutinData, row_hash: computeRowHash(scrutinData)});
     }
 
     private extractScrutinAgregats(scrutin: any): void {
-        const agregats: ScrutinAgregat = {
+        const agregatsData = {
             scrutin_uid: scrutin.uid,
             nombre_votants: parseInt(scrutin.syntheseVote.nombreVotants) || 0,
             suffrages_exprimes: parseInt(scrutin.syntheseVote.suffragesExprimes) || 0,
@@ -98,9 +106,10 @@ export class ScrutinsExtractor implements IExtractor {
             total_contre: parseInt(scrutin.syntheseVote.decompte?.contre) || 0,
             total_abstentions: parseInt(scrutin.syntheseVote.decompte?.abstentions) || 0,
             total_non_votants: parseInt(scrutin.syntheseVote.decompte?.nonVotants) || 0,
-            total_non_votants_volontaires: parseInt(scrutin.syntheseVote.decompte?.nonVotantsVolontaires) || 0
+            total_non_votants_volontaires: parseInt(scrutin.syntheseVote.decompte?.nonVotantsVolontaires) || 0,
+            legislature_snapshot: this.legislature_snapshot,
         };
-        this.scrutinsAgregats.push(agregats);
+        this.scrutinsAgregats.push({...agregatsData, row_hash: computeRowHash(agregatsData)});
     }
 
     private extractGroupesAndVotes(scrutinUid: string, ventilation: any): void {
@@ -111,18 +120,13 @@ export class ScrutinsExtractor implements IExtractor {
         for (const group of groupsArray) {
             if (!group || !group.organeRef) continue;
 
-            // Register groupe
             this.groupesSet.add(group.organeRef);
-
-            // Extract scrutin_groupe
             this.extractScrutinGroupe(scrutinUid, group);
 
-            // Extract groupe aggregates
             if (group.vote?.decompteVoix) {
                 this.extractScrutinGroupeAgregats(scrutinUid, group);
             }
 
-            // Extract individual votes
             const decompteNominatif = group.vote?.decompteNominatif;
             if (decompteNominatif) {
                 this.extractVotes(scrutinUid, group.organeRef, decompteNominatif.pours, 'pour');
@@ -134,26 +138,30 @@ export class ScrutinsExtractor implements IExtractor {
     }
 
     private extractScrutinGroupe(scrutinUid: string, group: any): void {
-        const scrutinGroupe: ScrutinGroupe = {
+        const scrutinGroupeData = {
             scrutin_uid: scrutinUid,
             groupe_id: group.organeRef,
+            groupe_legislature: this.legislature_snapshot,
             nombre_membres: parseInt(group.nombreMembresGroupe) || 0,
-            position_majoritaire: group.vote?.positionMajoritaire || ''
+            position_majoritaire: group.vote?.positionMajoritaire || '',
+            legislature_snapshot: this.legislature_snapshot,
         };
-        this.scrutinsGroupes.push(scrutinGroupe);
+        this.scrutinsGroupes.push({...scrutinGroupeData, row_hash: computeRowHash(scrutinGroupeData)});
     }
 
     private extractScrutinGroupeAgregats(scrutinUid: string, group: any): void {
-        const groupeAgregats: ScrutinGroupeAgregat = {
+        const groupeAgregatsData = {
             scrutin_uid: scrutinUid,
             groupe_id: group.organeRef,
+            groupe_legislature: this.legislature_snapshot,
             pour: parseInt(group.vote.decompteVoix.pour) || 0,
             contre: parseInt(group.vote.decompteVoix.contre) || 0,
             abstentions: parseInt(group.vote.decompteVoix.abstentions) || 0,
             non_votants: parseInt(group.vote.decompteVoix.nonVotants) || 0,
-            non_votants_volontaires: parseInt(group.vote.decompteVoix.nonVotantsVolontaires) || 0
+            non_votants_volontaires: parseInt(group.vote.decompteVoix.nonVotantsVolontaires) || 0,
+            legislature_snapshot: this.legislature_snapshot,
         };
-        this.scrutinsGroupesAgregats.push(groupeAgregats);
+        this.scrutinsGroupesAgregats.push({...groupeAgregatsData, row_hash: computeRowHash(groupeAgregatsData)});
     }
 
     private extractVotes(scrutinUid: string, groupeId: string, votesData: any, position: string): void {
@@ -165,19 +173,20 @@ export class ScrutinsExtractor implements IExtractor {
         for (const voter of votersArray) {
             if (!voter.acteurRef) continue;
 
-            // Register depute
             this.deputesSet.add(voter.acteurRef);
 
-            const vote: VoteDepute = {
+            const voteData = {
                 scrutin_uid: scrutinUid,
                 depute_id: voter.acteurRef,
                 groupe_id: groupeId,
+                groupe_legislature: this.legislature_snapshot,
                 mandat_ref: voter.mandatRef || '',
                 position: position,
                 cause_position: voter.causePositionVote || null,
-                par_delegation: voter.parDelegation === 'true' || voter.parDelegation === true ? true : null
+                par_delegation: voter.parDelegation === 'true' || voter.parDelegation === true ? true : null,
+                legislature_snapshot: this.legislature_snapshot,
             };
-            this.votesDeputes.push(vote);
+            this.votesDeputes.push({...voteData, row_hash: computeRowHash(voteData)});
         }
     }
 }
