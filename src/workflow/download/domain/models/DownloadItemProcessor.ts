@@ -36,6 +36,7 @@ export class DownloadItemProcessor {
         const paths = this.fileManager.prepareDownloadPaths(
             timestampedZipDir,
             item.fileName,
+            item.legislature,
             item.domain
         );
 

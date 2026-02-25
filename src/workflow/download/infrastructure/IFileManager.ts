@@ -8,6 +8,7 @@ export interface IFileManager {
     prepareDownloadPaths(
         timestampedZipDir: string,
         filename: string,
+        legislature: number,
         domain: string
     ): DownloadPaths;
 

@@ -88,71 +88,58 @@ cat "$SCHEMA_DIR/$SCHEMA_NAME" | docker exec -i "$DB_CONTAINER" psql -U "$DB_USE
 echo "✓ Schema imported"
 echo ""
 
-echo "=============================================="
-echo "ACTEURS"
-echo "=============================================="
+# ==============================================================================
+# BOUCLE SUR LES LÉGISLATURES
+# ==============================================================================
+for LEGISLATURE_DIR in "$TABLES_DIR"/*/; do
+    LEGISLATURE=$(basename "$LEGISLATURE_DIR")
+    if ! [[ "$LEGISLATURE" =~ ^[0-9]+$ ]]; then continue; fi
 
-import_json_to_raw_table "$TABLES_DIR/$ACTEURS_JSON" "acteurs_raw" "project_acteurs"
+    echo "=============================================="
+    echo "🏛️  Legislature $LEGISLATURE"
+    echo "=============================================="
+    echo ""
 
-echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-  "SELECT COUNT(*) FROM acteurs;"
+    echo "=============================================="
+    echo "ACTEURS"
+    echo "=============================================="
+    import_json_to_raw_table "$LEGISLATURE_DIR/$ACTEURS_JSON" "acteurs_raw" "project_acteurs"
+    echo "✓ Acteurs imported"
+    echo ""
 
-echo "✓ Acteurs imported"
-echo ""
+    echo "=============================================="
+    echo "ACTEURS_ADRESSES_POSTALES"
+    echo "=============================================="
+    import_json_to_raw_table "$LEGISLATURE_DIR/$ACTEURS_ADRESSES_POSTALES_JSON" "acteurs_adresses_postales_raw" "project_acteurs_adresses_postales"
+    echo "✓ Adresses postales imported"
+    echo ""
 
-echo "=============================================="
-echo "ACTEURS_ADRESSES_POSTALES"
-echo "=============================================="
+    echo "=============================================="
+    echo "ACTEURS_ADRESSES_MAILS"
+    echo "=============================================="
+    import_json_to_raw_table "$LEGISLATURE_DIR/$ACTEURS_ADRESSES_MAILS_JSON" "acteurs_adresses_mails_raw" "project_acteurs_adresses_mails"
+    echo "✓ Adresses mails imported"
+    echo ""
 
-import_json_to_raw_table "$TABLES_DIR/$ACTEURS_ADRESSES_POSTALES_JSON" "acteurs_adresses_postales_raw" "project_acteurs_adresses_postales"
+    echo "=============================================="
+    echo "ACTEURS_RESEAUX_SOCIAUX"
+    echo "=============================================="
+    import_json_to_raw_table "$LEGISLATURE_DIR/$ACTEURS_RESEAUX_SOCIAUX_JSON" "acteurs_reseaux_sociaux_raw" "project_acteurs_reseaux_sociaux"
+    echo "✓ Réseaux sociaux imported"
+    echo ""
 
-echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-  "SELECT COUNT(*) FROM acteurs_adresses_postales;"
+    echo "=============================================="
+    echo "ACTEURS_TELEPHONES"
+    echo "=============================================="
+    import_json_to_raw_table "$LEGISLATURE_DIR/$ACTEURS_TELEPHONES_JSON" "acteurs_telephones_raw" "project_acteurs_telephones"
+    echo "✓ Téléphones imported"
+    echo ""
 
-echo "✓ Adresses postales imported"
-echo ""
+done
 
-echo "=============================================="
-echo "ACTEURS_ADRESSES_MAILS"
-echo "=============================================="
-
-import_json_to_raw_table "$TABLES_DIR/$ACTEURS_ADRESSES_MAILS_JSON" "acteurs_adresses_mails_raw" "project_acteurs_adresses_mails"
-
-echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-  "SELECT COUNT(*) FROM acteurs_adresses_mails;"
-
-echo "✓ Adresses mails imported"
-echo ""
-
-echo "=============================================="
-echo "ACTEURS_RESEAUX_SOCIAUX"
-echo "=============================================="
-
-import_json_to_raw_table "$TABLES_DIR/$ACTEURS_RESEAUX_SOCIAUX_JSON" "acteurs_reseaux_sociaux_raw" "project_acteurs_reseaux_sociaux"
-
-echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-  "SELECT COUNT(*) FROM acteurs_reseaux_sociaux;"
-
-echo "✓ Réseaux sociaux imported"
-echo ""
-
-echo "=============================================="
-echo "ACTEURS_TELEPHONES"
-echo "=============================================="
-
-import_json_to_raw_table "$TABLES_DIR/$ACTEURS_TELEPHONES_JSON" "acteurs_telephones_raw" "project_acteurs_telephones"
-
-echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-  "SELECT COUNT(*) FROM acteurs_telephones;"
-
-echo "✓ Téléphones imported"
-echo ""
-
+# ==============================================================================
+# CLEANUP
+# ==============================================================================
 echo "=============================================="
 echo "CLEANUP"
 echo "=============================================="
@@ -173,6 +160,9 @@ else
 fi
 echo ""
 
+# ==============================================================================
+# FINAL VERIFICATION
+# ==============================================================================
 echo "=============================================="
 echo "FINAL VERIFICATION"
 echo "=============================================="

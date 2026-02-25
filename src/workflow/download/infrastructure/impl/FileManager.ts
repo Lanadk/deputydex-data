@@ -31,12 +31,15 @@ export class FileManager implements IFileManager {
     prepareDownloadPaths(
         timestampedZipDir: string,
         filename: string,
+        legislature: number,
         domain: string
     ): DownloadPaths {
-        const zipFilePath = path.join(timestampedZipDir, filename);
+        const zipFileDir = path.join(timestampedZipDir, legislature.toString());
+        this.ensureDir(zipFileDir);
+        const zipFilePath = path.join(zipFileDir, filename);
 
         // Extraire dans unzip/{domain}/
-        const unzipDir = path.join(this.UNZIP_DIR, domain);
+        const unzipDir = path.join(this.UNZIP_DIR, legislature.toString(), domain);
         this.ensureDir(unzipDir);
 
         return {

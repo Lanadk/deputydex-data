@@ -84,7 +84,6 @@ project_mandats() {
        )
        ON CONFLICT (uid) DO NOTHING;"
 
-    # Compter les mandats orphelins
     docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "SELECT COUNT(*) as orphaned_mandats
        FROM $raw_table
@@ -125,32 +124,37 @@ cat "$SCHEMA_DIR/$SCHEMA_NAME" | docker exec -i "$DB_CONTAINER" psql -U "$DB_USE
 echo "✓ Schema imported"
 echo ""
 
-echo "=============================================="
-echo "MANDATS"
-echo "=============================================="
+# ==============================================================================
+# BOUCLE SUR LES LÉGISLATURES
+# ==============================================================================
+for LEGISLATURE_DIR in "$TABLES_DIR"/*/; do
+    LEGISLATURE=$(basename "$LEGISLATURE_DIR")
+    if ! [[ "$LEGISLATURE" =~ ^[0-9]+$ ]]; then continue; fi
 
-import_json_to_raw_table "$TABLES_DIR/$MANDATS_JSON" "mandats_raw" "project_mandats"
+    echo "=============================================="
+    echo "🏛️  Legislature $LEGISLATURE"
+    echo "=============================================="
+    echo ""
 
-echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-  "SELECT COUNT(*) FROM mandats;"
+    echo "=============================================="
+    echo "MANDATS"
+    echo "=============================================="
+    import_json_to_raw_table "$LEGISLATURE_DIR/$MANDATS_JSON" "mandats_raw" "project_mandats"
+    echo "✓ Mandats imported"
+    echo ""
 
-echo "✓ Mandats imported"
-echo ""
+    echo "=============================================="
+    echo "MANDATS_SUPPLEANTS"
+    echo "=============================================="
+    import_json_to_raw_table "$LEGISLATURE_DIR/$MANDATS_SUPPLEANTS_JSON" "mandats_suppleants_raw" "project_mandats_suppleants"
+    echo "✓ Suppléants imported"
+    echo ""
 
-echo "=============================================="
-echo "MANDATS_SUPPLEANTS"
-echo "=============================================="
+done
 
-import_json_to_raw_table "$TABLES_DIR/$MANDATS_SUPPLEANTS_JSON" "mandats_suppleants_raw" "project_mandats_suppleants"
-
-echo "Final verification..."
-docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
-  "SELECT COUNT(*) FROM mandats_suppleants;"
-
-echo "✓ Suppléants imported"
-echo ""
-
+# ==============================================================================
+# CLEANUP
+# ==============================================================================
 echo "=============================================="
 echo "CLEANUP"
 echo "=============================================="
@@ -171,6 +175,9 @@ else
 fi
 echo ""
 
+# ==============================================================================
+# FINAL VERIFICATION
+# ==============================================================================
 echo "=============================================="
 echo "FINAL VERIFICATION"
 echo "=============================================="
