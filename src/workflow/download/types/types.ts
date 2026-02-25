@@ -1,21 +1,4 @@
-export interface DownloadItem { // TODO ceci est une entity
-    id: number;
-    sourceId: number;
-    legislature: number;
-    domain: string;
-    url: string;
-    fileName: string;
-    checksum?: string;
-    fileSize?: bigint;
-    lastDownloadAt?: Date;
-    subdomains?: string[];
-}
-
-export interface DownloadPaths {
-    zipDir: string;
-    zipFilePath: string;
-    unzipDir: string;
-}
+import {DownloadItem} from "../domain/models/entities/DownloadItem.entity";
 
 export interface DownloadResult {
     success: boolean;
@@ -26,6 +9,12 @@ export interface DownloadResult {
     skipped?: boolean;
     reason?: string;
     error?: Error;
+}
+
+export interface DownloadPaths {
+    zipDir: string;
+    zipFilePath: string;
+    unzipDir: string;
 }
 
 export interface ProcessOptions {

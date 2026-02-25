@@ -1,11 +1,12 @@
 import { Logger } from "../../../../utils/logger";
-import { DownloadItem, DownloadResult, ProcessOptions } from "../../types/types";
+import {DownloadResult, ProcessOptions} from "../../types/types";
 import {IFileDownloader} from "../../infrastructure/IFileDownloader";
 import {IFileExtractor} from "../../infrastructure/IFileExtrator";
 import {IFileVerifier} from "../../infrastructure/IFileVerifier";
 import {IFileManager} from "../../infrastructure/IFileManager";
 import {IParamCurrentLegislatureService} from "../../../_common/infrastructure/services/IParamCurrentLegislature.service";
 import {IMonitorDataDownloadService} from "../../../_common/infrastructure/services/IMonitorDataDownload.service";
+import {DownloadItem} from "./entities/DownloadItem.entity";
 
 export class DownloadItemProcessor {
     constructor(

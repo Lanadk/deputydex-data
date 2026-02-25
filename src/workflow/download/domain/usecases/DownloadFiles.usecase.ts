@@ -4,7 +4,8 @@ import {IParamCurrentLegislatureService} from "../../../_common/infrastructure/s
 import {DownloadItemProcessor} from "../models/DownloadItemProcessor";
 import {IFileManager} from "../../infrastructure/IFileManager";
 import {Logger} from "../../../../utils/logger";
-import {DownloadItem, DownloadResult, Filters, UseCaseOptions} from "../../types/types";
+import {DownloadResult, Filters, UseCaseOptions} from "../../types/types";
+import {DownloadItem} from "../models/entities/DownloadItem.entity";
 
 export class DownloadFilesUsecase {
     constructor(
