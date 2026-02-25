@@ -22,6 +22,7 @@ fi
 SCRIPTS=(
   "$SCRIPT_DIR/unit-import/acteurs-import.sh"
   "$SCRIPT_DIR/unit-import/scrutins-import.sh"
+    "$SCRIPT_DIR/unit-import/mandats-import.sh"
   # ajouter ici les futurs imports
 )
 
