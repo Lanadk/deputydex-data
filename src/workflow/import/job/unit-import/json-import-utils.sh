@@ -124,8 +124,9 @@ _import_large_json_incremental() {
     echo "📊 Total parts to process: $total_parts"
 
     local part_num=0
-    while IFS= read -r part_file; do
+    while IFS= read -r part_file <&3; do
         [ -z "$part_file" ] && continue
+        [ ! -f "$part_file" ] && echo "⚠️ Part file not found: $part_file" && continue
         part_num=$((part_num + 1))
         echo "=============================================="
         echo "Processing part $part_num/$total_parts"
@@ -133,18 +134,16 @@ _import_large_json_incremental() {
 
         _import_part_file "$part_file" "$raw_table" || return 1
 
-        # Projection callback
         if [ -n "$projection_callback" ] && [ "$(type -t "$projection_callback")" = "function" ]; then
             echo "Projecting..."
-            $projection_callback "$raw_table"
+            $projection_callback
         fi
 
-        # Clean raw for next part
         echo "Cleaning raw table..."
         docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c "TRUNCATE TABLE $raw_table;"
 
         echo "✓ Part $part_num processed"
-    done <<< "$part_files"
+    done 3<<< "$part_files"
 
     cleanup_split_files "$json_file"
     echo "✅ All parts imported and projected"
@@ -181,6 +180,16 @@ _import_part_file() {
 }
 
 # ==============================================================================
+# SQL EXECUTION
+# ==============================================================================
+run_sql_file() {
+    local file=$1
+    docker exec -i "$DB_CONTAINER" \
+        psql -U "$DB_USER_WRITER" -d "$DB_NAME" \
+        -f "$file"
+}
+
+# ==============================================================================
 # EXPORT FUNCTIONS
 # ==============================================================================
 export -f should_split_json
@@ -190,3 +199,4 @@ export -f import_json_to_raw_table
 export -f _import_large_json_incremental
 export -f _import_small_json
 export -f _import_part_file
+export -f run_sql_file
