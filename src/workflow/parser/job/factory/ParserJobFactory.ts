@@ -37,11 +37,11 @@ export class ParserJobFactory {
     // ==============================================================================
     // Instanciation des extractors avec legislature_snapshot
     // ==============================================================================
-    private static createExtractor(domain: ParserDomain, legislature: number): IExtractor {
+    private static createExtractor(domain: ParserDomain, legislatureSnapshot: number): IExtractor {
         switch (domain) {
-            case 'acteurs':  return new ActeursExtractor(legislature);
-            case 'scrutins': return new ScrutinsExtractor(legislature);
-            case 'mandats':  return new MandatsExtractor();
+            case 'acteurs':  return new ActeursExtractor(legislatureSnapshot);
+            case 'scrutins': return new ScrutinsExtractor(legislatureSnapshot);
+            case 'mandats':  return new MandatsExtractor(legislatureSnapshot);
         }
     }
 

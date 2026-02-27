@@ -1,12 +1,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Mandat, MandatSuppleant } from "./entities/Mandat.entity";
-import { IExtractor } from "../../infrastructure/IExtractor";
+import {Mandat, MandatSuppleant} from "./entities/Mandat.entity";
+import {IExtractor} from "../../infrastructure/IExtractor";
+import {computeRowHash} from "../../../../utils/hash";
 
 export class MandatsExtractor implements IExtractor {
     private mandats: Mandat[] = [];
     private mandatsSuppleants: MandatSuppleant[] = [];
     private errors: Array<{ file: string; error: string }> = [];
+
+    constructor(private readonly legislatureSnapshot: number) {
+    }
 
     async processFile(filePath: string): Promise<void> {
         try {
@@ -49,7 +53,7 @@ export class MandatsExtractor implements IExtractor {
         const mandature = mandat.mandature;
 
         // Extraire le mandat principal
-        const mandatData: Mandat = {
+        const mandatData = {
             uid,
             acteur_uid: acteurRef || '',
             legislature: parseInt(mandat.legislature) || 0,
@@ -81,10 +85,11 @@ export class MandatsExtractor implements IExtractor {
                 mandature?.premiereElection === true ||
                 mandature?.premiereElection === 1,
             mandature_place_hemicycle: mandature?.placeHemicycle || null,
-            mandature_mandat_remplace_ref: mandature?.mandatRemplaceRef || null
+            mandature_mandat_remplace_ref: mandature?.mandatRemplaceRef || null,
+            legislature_snapshot: this.legislatureSnapshot
         };
 
-        this.mandats.push(mandatData);
+        this.mandats.push({...mandatData, row_hash: computeRowHash(mandatData)});
 
         // Extraire les suppléants (peut être 0, 1 ou plusieurs)
         this.extractSuppleants(uid, mandat.suppleants);
@@ -93,7 +98,6 @@ export class MandatsExtractor implements IExtractor {
     private extractSuppleants(mandatUid: string, suppleants: any): void {
         if (!suppleants?.suppleant) return;
 
-        // Normaliser en array
         const suppleantsList = Array.isArray(suppleants.suppleant)
             ? suppleants.suppleant
             : [suppleants.suppleant];
@@ -101,11 +105,17 @@ export class MandatsExtractor implements IExtractor {
         for (const suppleant of suppleantsList) {
             if (!suppleant.suppleantRef) continue;
 
-            this.mandatsSuppleants.push({
+            const obj = {
                 mandat_uid: mandatUid,
                 suppleant_uid: suppleant.suppleantRef,
                 date_debut: suppleant.dateDebut || '',
-                date_fin: suppleant.dateFin || null
+                date_fin: suppleant.dateFin || null,
+                legislature_snapshot: this.legislatureSnapshot
+            };
+
+            this.mandatsSuppleants.push({
+                ...obj,
+                row_hash: computeRowHash(obj)
             });
         }
     }

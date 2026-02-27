@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS mandats_raw CASCADE;
+DROP TABLE IF EXISTS mandats_suppleants_raw CASCADE;

@@ -1,14 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import {
-    Depute,
-    GroupeParlementaire,
     Scrutin,
     ScrutinAgregat,
     VoteDepute,
     ScrutinGroupe,
     ScrutinGroupeAgregat
-} from './/entities/Scrutin.entity';
+} from './entities/Scrutin.entity';
 import {IExtractor} from "../../infrastructure/IExtractor";
 import {computeRowHash} from "../../../../utils/hash";
 
@@ -22,7 +20,7 @@ export class ScrutinsExtractor implements IExtractor {
     private scrutinsGroupesAgregats: ScrutinGroupeAgregat[] = [];
     private errors: Array<{ file: string; error: string }> = [];
 
-    constructor(private readonly legislature_snapshot: number) {
+    constructor(private readonly legislatureSnapshot: number) {
     }
 
     async processFile(filePath: string): Promise<void> {
@@ -46,11 +44,11 @@ export class ScrutinsExtractor implements IExtractor {
             scrutinsAgregats: this.scrutinsAgregats,
             scrutinsGroupesAgregats: this.scrutinsGroupesAgregats,
             groupes: Array.from(this.groupesSet).map(id => {
-                const obj = { id, legislature_snapshot: this.legislature_snapshot };
+                const obj = { id, legislature_snapshot: this.legislatureSnapshot };
                 return { ...obj, row_hash: computeRowHash(obj) };
             }),
             deputes: Array.from(this.deputesSet).map(id => {
-                const obj = { id, legislature_snapshot: this.legislature_snapshot };
+                const obj = { id, legislature_snapshot: this.legislatureSnapshot };
                 return { ...obj, row_hash: computeRowHash(obj) };
             })
         };
@@ -91,7 +89,7 @@ export class ScrutinsExtractor implements IExtractor {
             type_majorite: scrutin.typeVote?.typeMajorite || null,
             resultat_code: scrutin.sort?.code || null,
             resultat_libelle: scrutin.sort?.libelle || null,
-            legislature_snapshot: this.legislature_snapshot,
+            legislature_snapshot: this.legislatureSnapshot,
         };
         this.scrutins.push({...scrutinData, row_hash: computeRowHash(scrutinData)});
     }
@@ -107,7 +105,7 @@ export class ScrutinsExtractor implements IExtractor {
             total_abstentions: parseInt(scrutin.syntheseVote.decompte?.abstentions) || 0,
             total_non_votants: parseInt(scrutin.syntheseVote.decompte?.nonVotants) || 0,
             total_non_votants_volontaires: parseInt(scrutin.syntheseVote.decompte?.nonVotantsVolontaires) || 0,
-            legislature_snapshot: this.legislature_snapshot,
+            legislature_snapshot: this.legislatureSnapshot,
         };
         this.scrutinsAgregats.push({...agregatsData, row_hash: computeRowHash(agregatsData)});
     }
@@ -141,10 +139,10 @@ export class ScrutinsExtractor implements IExtractor {
         const scrutinGroupeData = {
             scrutin_uid: scrutinUid,
             groupe_id: group.organeRef,
-            groupe_legislature: this.legislature_snapshot,
+            groupe_legislature: this.legislatureSnapshot,
             nombre_membres: parseInt(group.nombreMembresGroupe) || 0,
             position_majoritaire: group.vote?.positionMajoritaire || '',
-            legislature_snapshot: this.legislature_snapshot,
+            legislature_snapshot: this.legislatureSnapshot,
         };
         this.scrutinsGroupes.push({...scrutinGroupeData, row_hash: computeRowHash(scrutinGroupeData)});
     }
@@ -153,13 +151,13 @@ export class ScrutinsExtractor implements IExtractor {
         const groupeAgregatsData = {
             scrutin_uid: scrutinUid,
             groupe_id: group.organeRef,
-            groupe_legislature: this.legislature_snapshot,
+            groupe_legislature: this.legislatureSnapshot,
             pour: parseInt(group.vote.decompteVoix.pour) || 0,
             contre: parseInt(group.vote.decompteVoix.contre) || 0,
             abstentions: parseInt(group.vote.decompteVoix.abstentions) || 0,
             non_votants: parseInt(group.vote.decompteVoix.nonVotants) || 0,
             non_votants_volontaires: parseInt(group.vote.decompteVoix.nonVotantsVolontaires) || 0,
-            legislature_snapshot: this.legislature_snapshot,
+            legislature_snapshot: this.legislatureSnapshot,
         };
         this.scrutinsGroupesAgregats.push({...groupeAgregatsData, row_hash: computeRowHash(groupeAgregatsData)});
     }
@@ -179,12 +177,12 @@ export class ScrutinsExtractor implements IExtractor {
                 scrutin_uid: scrutinUid,
                 depute_id: voter.acteurRef,
                 groupe_id: groupeId,
-                groupe_legislature: this.legislature_snapshot,
+                groupe_legislature: this.legislatureSnapshot,
                 mandat_ref: voter.mandatRef || '',
                 position: position,
                 cause_position: voter.causePositionVote || null,
                 par_delegation: voter.parDelegation === 'true' || voter.parDelegation === true ? true : null,
-                legislature_snapshot: this.legislature_snapshot,
+                legislature_snapshot: this.legislatureSnapshot,
             };
             this.votesDeputes.push({...voteData, row_hash: computeRowHash(voteData)});
         }

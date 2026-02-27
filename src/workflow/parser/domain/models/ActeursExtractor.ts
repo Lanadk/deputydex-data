@@ -19,7 +19,7 @@ export class ActeursExtractor implements IExtractor {
     private acteursTelephones: ActeurTelephone[] = [];
     private errors: Array<{ file: string; error: string }> = [];
 
-    constructor(private readonly legislature_snapshot: number) {}
+    constructor(private readonly legislatureSnapshot: number) {}
 
     async processFile(filePath: string): Promise<void> {
         try {
@@ -72,7 +72,7 @@ export class ActeursExtractor implements IExtractor {
             profession_categorie: acteur.profession?.socProcINSEE?.catSocPro || null,
             profession_famille: acteur.profession?.socProcINSEE?.famSocPro || null,
             uri_hatvp: acteur.uri_hatvp || null,
-            legislature_snapshot: this.legislature_snapshot,
+            legislature_snapshot: this.legislatureSnapshot,
         };
         this.acteurs.push({ ...acteurObj, row_hash: computeRowHash(acteurObj) });
 
@@ -104,7 +104,7 @@ export class ActeursExtractor implements IExtractor {
                     complement_adresse: adresse.complementAdresse || null,
                     code_postal: adresse.codePostal || null,
                     ville: adresse.ville || null,
-                    legislature_snapshot: this.legislature_snapshot,
+                    legislature_snapshot: this.legislatureSnapshot,
                 };
                 this.acteursAdressesPostales.push({ ...obj, row_hash: computeRowHash(obj) });
                 break;
@@ -117,7 +117,7 @@ export class ActeursExtractor implements IExtractor {
                     type_code: adresse.type || null,
                     type_libelle: adresse.typeLibelle || null,
                     email: adresse.valElec || '',
-                    legislature_snapshot: this.legislature_snapshot,
+                    legislature_snapshot: this.legislatureSnapshot,
                 };
                 this.acteursAdressesMails.push({ ...obj, row_hash: computeRowHash(obj) });
                 break;
@@ -131,7 +131,7 @@ export class ActeursExtractor implements IExtractor {
                     type_libelle: adresse.typeLibelle || null,
                     plateforme: this.detectPlateforme(adresse.typeLibelle || ''),
                     identifiant: adresse.valElec || '',
-                    legislature_snapshot: this.legislature_snapshot,
+                    legislature_snapshot: this.legislatureSnapshot,
                 };
                 this.acteursReseauxSociaux.push({ ...obj, row_hash: computeRowHash(obj) });
                 break;
@@ -145,7 +145,7 @@ export class ActeursExtractor implements IExtractor {
                     type_libelle: adresse.typeLibelle || null,
                     adresse_rattachement: adresse.adresseDeRattachement || null,
                     numero: adresse.valElec || '',
-                    legislature_snapshot: this.legislature_snapshot,
+                    legislature_snapshot: this.legislatureSnapshot,
                 };
                 this.acteursTelephones.push({ ...obj, row_hash: computeRowHash(obj) });
                 break;

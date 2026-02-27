@@ -361,24 +361,31 @@ model Mandats {
   mandature_place_hemicycle     String?   @db.VarChar(10)
   mandature_mandat_remplace_ref String?   @db.VarChar(100)
   created_at                    DateTime  @default(now()) @db.Timestamp(6)
+  row_hash                      String    @db.Text
+  legislature_snapshot          Int       @db.Integer
 
   acteur     Acteurs             @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
   suppleants MandatsSuppleants[]
 
+  @@index([acteur_uid])
+  @@index([legislature_snapshot])
   @@map("mandats")
 }
 
 model MandatsSuppleants {
-  id            Int       @id @default(autoincrement())
-  mandat_uid    String    @db.VarChar(50)
-  suppleant_uid String    @db.VarChar(50)
-  date_debut    DateTime  @db.Date
-  date_fin      DateTime? @db.Date
-  created_at    DateTime  @default(now()) @db.Timestamp(6)
+  id                   Int       @id @default(autoincrement())
+  mandat_uid           String    @db.VarChar(50)
+  suppleant_uid        String    @db.VarChar(50)
+  date_debut           DateTime  @db.Date
+  date_fin             DateTime? @db.Date
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+  row_hash             String    @db.Text
+  legislature_snapshot Int       @db.Integer
 
   mandat Mandats @relation(fields: [mandat_uid], references: [uid], onDelete: Cascade)
 
   @@unique([mandat_uid, suppleant_uid])
+  @@index([legislature_snapshot])
   @@map("mandats_suppleants")
 }
 
