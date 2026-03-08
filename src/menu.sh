@@ -1,110 +1,250 @@
 #!/usr/bin/env bash
 set -e
 
-# -----------------------------
-# Functions calling the all-jobs scripts
-# -----------------------------
-run_download_all() { npx ts-node ./workflow/download/job/trtCollecteData.ts; }
-run_parser_all() { npx ts-node ./workflow/parser/job/trtCheckCollecte.ts; }
-run_import_all() { ./workflow/import/job/trtImportCollecte.sh "$1"; }
-run_update_all() { npx ts-node ./workflow/update/updateAll.ts; }
+# ==============================================================================
+# DEPUTYDEX - MAIN MENU
+# ==============================================================================
 
-# -----------------------------
-# Sub menu for unit jobs
-# -----------------------------
-unit_job_menu() {
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ==============================================================================
+# FUNCTIONS
+# ==============================================================================
+
+# -- Download ------------------------------------------------------------------
+run_download_all()              { npx ts-node ./workflow/download/job/trtCollecteData.ts; }
+
+# -- Parser --------------------------------------------------------------------
+run_parser_all()                { npx ts-node ./workflow/parser/job/trtCheckCollecte.ts; }
+run_parser_acteurs()            { npx ts-node ./workflow/parser/job/unit-parser/parseActeurs.ts; }
+run_parser_scrutins()           { npx ts-node ./workflow/parser/job/unit-parser/parseScrutins.ts; }
+run_parser_mandats()            { npx ts-node ./workflow/parser/job/unit-parser/parseMandats.ts; }
+
+# -- Import --------------------------------------------------------------------
+run_import_all()                { ./workflow/import/job/trtImportCollecte.sh "$1"; }
+run_import_acteurs()            { ./workflow/import/job/unit-import/acteurs-import.sh; }
+run_import_scrutins()           { ./workflow/import/job/unit-import/scrutins-import.sh; }
+run_import_mandats()            { ./workflow/import/job/unit-import/mandats-import.sh; }
+
+# -- Aggregation ---------------------------------------------------------------
+run_aggregate_all_one_shot()    { ./workflow/aggregat/job/trtAggregatCollecte-oneshot.sh; }
+run_aggregate_all_refresh()     { ./workflow/aggregat/job/trtAggregatCollecte.sh; }
+run_aggregate_acteurs_one_shot(){ ./workflow/aggregat/job/unit-aggregation/acteurs-aggregation-oneshot.sh; }
+run_aggregate_acteurs_refresh() { ./workflow/aggregat/job/unit-aggregation/acteurs-aggregation.sh; }
+
+# ==============================================================================
+# WORKFLOWS
+# ==============================================================================
+
+workflow_init() {
+    echo "🚀 Running INIT Workflow (Download + Parser + Import + Aggregate ONE SHOT)..."
+    run_download_all
+    run_parser_all
+    run_import_all --auto-cleanup
+    run_aggregate_all_one_shot
+    echo "✅ Init Workflow completed"
+}
+
+workflow_update() {
+    echo "🔄 Running UPDATE Workflow (Download + Parser + Import + Aggregate Refresh)..."
+    run_download_all
+    run_parser_all
+    run_import_all --auto-cleanup
+    run_aggregate_all_refresh
+    echo "✅ Update Workflow completed"
+}
+
+# ==============================================================================
+# SUB MENUS
+# ==============================================================================
+
+download_menu() {
     while true; do
         echo "=============================================="
-        echo " "
-        echo "UNIT JOB MENU"
-        echo " "
+        echo "  DOWNLOAD JOBS"
         echo "=============================================="
-        echo " "
-        echo "1) Download Acteurs"
-        echo "2) Download Scrutins"
-        echo "3) Parse Acteurs"
-        echo "4) Parse Scrutins"
-        echo "5) Parse Mandats"
-        echo "6) Import Acteurs"
-        echo "7) Import Scrutins"
-        echo "8) Import Mandats"
-        echo "0) Back to Main Menu"
-        echo " "
+        echo ""
+        echo "1) Download All"
+        echo "0) Back"
+        echo ""
         echo "=============================================="
-        read -p "Select a unit job: " unit_option
+        read -p "Select an option: " option
 
-        case $unit_option in
-            1) npx ts-node ./download/downloadActeurs.ts ;;
-            2) npx ts-node ./download/downloadScrutins.ts ;;
-            3) npx ts-node ./parser/runActeursJob.ts ;;
-            4) npx ts-node ./parser/runScrutinsJob.ts ;;
-            5) npx ts-node ./parser/runMandatsJob.ts ;;
-            6) ./job/acteurs-import.sh ;;
-            7) ./job/scrutins-import.sh ;;
-            8) ./job/mandats-import.sh ;;
+        case $option in
+            1) run_download_all ;;
             0) return ;;
-            *) echo "⚠️ Invalid option, please try again." ;;
+            *) echo "⚠️  Invalid option, please try again." ;;
         esac
     done
 }
 
-# -----------------------------
-# Main Menu
-# -----------------------------
+parser_menu() {
+    while true; do
+        echo "=============================================="
+        echo "  PARSER JOBS"
+        echo "=============================================="
+        echo ""
+        echo "1) Parse All"
+        echo "2) Parse Acteurs"
+        echo "3) Parse Scrutins"
+        echo "4) Parse Mandats"
+        echo "0) Back"
+        echo ""
+        echo "=============================================="
+        read -p "Select an option: " option
+
+        case $option in
+            1) run_parser_all ;;
+            2) run_parser_acteurs ;;
+            3) run_parser_scrutins ;;
+            4) run_parser_mandats ;;
+            0) return ;;
+            *) echo "⚠️  Invalid option, please try again." ;;
+        esac
+    done
+}
+
+import_menu() {
+    while true; do
+        echo "=============================================="
+        echo "  IMPORT JOBS"
+        echo "=============================================="
+        echo ""
+        echo "1) Import All"
+        echo "2) Import Acteurs"
+        echo "3) Import Scrutins"
+        echo "4) Import Mandats"
+        echo "0) Back"
+        echo ""
+        echo "=============================================="
+        read -p "Select an option: " option
+
+        case $option in
+            1) run_import_all --auto-cleanup ;;
+            2) run_import_acteurs ;;
+            3) run_import_scrutins ;;
+            4) run_import_mandats ;;
+            0) return ;;
+            *) echo "⚠️  Invalid option, please try again." ;;
+        esac
+    done
+}
+
+aggregate_menu() {
+    while true; do
+        echo "=============================================="
+        echo "  AGGREGATION JOBS"
+        echo "=============================================="
+        echo ""
+        echo "1) Aggregate All (Refresh)"
+        echo "2) Aggregate All (Create - One shot)"
+        echo "3) Aggregate Acteurs (Refresh)"
+        echo "4) Aggregate Acteurs (Create - One shot)"
+        echo "0) Back"
+        echo ""
+        echo "=============================================="
+        read -p "Select an option: " option
+
+        case $option in
+            1) run_aggregate_all_refresh ;;
+            2)
+                read -p "⚠️  ONE SHOT - À lancer une seule fois. Confirmer ? (y/n) " -n 1 -r
+                echo
+                if [[ $REPLY =~ ^[Yy]$ ]]; then run_aggregate_all_one_shot; fi
+                ;;
+            3) run_aggregate_acteurs_refresh ;;
+            4)
+                read -p "⚠️  ONE SHOT - À lancer une seule fois. Confirmer ? (y/n) " -n 1 -r
+                echo
+                if [[ $REPLY =~ ^[Yy]$ ]]; then run_aggregate_acteurs_one_shot; fi
+                ;;
+            0) return ;;
+            *) echo "⚠️  Invalid option, please try again." ;;
+        esac
+    done
+}
+
+unit_job_menu() {
+    while true; do
+        echo "=============================================="
+        echo "  UNIT JOB MENU"
+        echo "=============================================="
+        echo ""
+        echo "1) Download Jobs"
+        echo "2) Parser Jobs"
+        echo "3) Import Jobs"
+        echo "4) Aggregation Jobs"
+        echo "0) Back"
+        echo ""
+        echo "=============================================="
+        read -p "Select an option: " option
+
+        case $option in
+            1) download_menu ;;
+            2) parser_menu ;;
+            3) import_menu ;;
+            4) aggregate_menu ;;
+            0) return ;;
+            *) echo "⚠️  Invalid option, please try again." ;;
+        esac
+    done
+}
+
+# ==============================================================================
+# MAIN MENU
+# ==============================================================================
+
 while true; do
     echo "=============================================="
     echo " "
-    echo "DEPUTEDEX MAIN MENU"
+    echo "  DEPUTYDEX MAIN MENU"
     echo " "
     echo "=============================================="
+    echo " ----------- "
+    echo "  WORKFLOWS"
+    echo " ----------- "
+    echo "  1) Init          (Download + Parse + Import + Aggregate CREATE)"
+    echo "  2) Update        (Download + Parse + Import + Aggregate REFRESH)"
     echo " "
-    echo "1) Run Global Workflow (Download + Parser + Import)"
-    echo "2) Run Download All"
-    echo "3) Run Parser All"
-    echo "4) Run Import All"
-    echo "5) Run Update All"
-    echo "6) Show Unit Jobs"
-    echo "0) Quit"
+    echo " ----------- "
+    echo "  FULL JOBS"
+    echo " ----------- "
+    echo "  3) Download All"
+    echo "  4) Parse All"
+    echo "  5) Import All"
+    echo "  6) Aggregate All (Refresh)"
+    echo "  7) Aggregate All (One shot)"
+    echo " "
+    echo " ----------- "
+    echo "  UNIT JOBS"
+    echo " ----------- "
+    echo "  8) See unit Jobs"
+    echo " "
+    echo "  0) Quit"
     echo " "
     echo "=============================================="
     read -p "Select an option: " option
 
     case $option in
-        1)
-            echo "🚀 Running Global Workflow..."
-            run_download_all
-            run_parser_all
-            run_import_all --auto-cleanup
+        1) workflow_init ;;
+        2) workflow_update ;;
+        3) echo "📥 Downloading All..."  && run_download_all ;;
+        4) echo "🛠  Parsing All..."     && run_parser_all ;;
+        5) echo "📤 Importing All..."    && run_import_all --auto-cleanup ;;
+        6) echo "📊 Aggregating All..."  && run_aggregate_all_refresh ;;
+        7)
+            read -p "⚠️  ONE SHOT - À lancer une seule fois. Confirmer ? (y/n) " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then run_aggregate_all_one_shot; fi
             ;;
-        2)
-            echo "📥 Downloading All data..."
-            run_download_all
-            ;;
-        3)
-            echo "🛠 Parsing All..."
-            run_parser_all
-            ;;
-        4)
-            echo "📤 Importing All..."
-            run_import_all --auto-cleanup
-            ;;
-        5)
-            echo "🔄 Updating All..."
-            run_update_all
-            ;;
-        6)
-            unit_job_menu
-            ;;
-        0)
-            echo "Bye!"
-            exit 0
-            ;;
-        *)
-            echo "⚠️ Invalid option, please try again."
-            ;;
+        8) unit_job_menu ;;
+        0) echo "Bye! 👋" && exit 0 ;;
+        *) echo "⚠️  Invalid option, please try again." ;;
     esac
 
+    echo ""
     echo "=============================================="
-    echo "✓ Done"
+    echo "✅ Done"
     echo "=============================================="
+    echo ""
 done

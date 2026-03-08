@@ -105,6 +105,36 @@ export class ParserJobFactory {
         logger.info('='.repeat(25));
     }
 
+    static async runByDomain(domain: ParserDomain, logLevel: LogLevel = LogLevel.INFO): Promise<void> {
+        const logger = new Logger(logLevel);
+        logger.info(`======== Starting Parser Job: ${domain} ========`);
+
+        const legislatures = this.getAvailableLegislatures();
+
+        if (legislatures.length === 0) {
+            logger.warn(`No legislature directories found`);
+            return;
+        }
+
+        logger.info(`🏛️  Législatures trouvées : ${legislatures.join(', ')}`);
+
+        for (const legislature of legislatures) {
+            logger.info(`\n📅 Legislature ${legislature}`);
+
+            const { job, outputDir } = this.create({ domain, legislature, logLevel });
+
+            await job.run({
+                outputDir,
+                exportSeparateFiles: true,
+                exportSingleFile: false
+            });
+        }
+
+        logger.info('='.repeat(25));
+        logger.success(`🎉 ${domain} parser terminé !`);
+        logger.info('='.repeat(25));
+    }
+
     private static getAvailableLegislatures(): number[] {
         const unzipBaseDir = path.resolve(__dirname, baseInData);
 

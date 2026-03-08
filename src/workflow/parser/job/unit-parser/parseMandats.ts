@@ -14,22 +14,13 @@ if (existsSync(envPath)) config({ path: envPath });
 
 async function main() {
     try {
-        const { job, outputDir } = ParserJobFactory.create({
-            domain: 'mandats',
-            logLevel: LogLevel.INFO
-        });
-
-        await job.run({
-            outputDir,
-            exportSeparateFiles: true,
-            exportSingleFile: false
-        });
-
+        await ParserJobFactory.runByDomain('mandats', LogLevel.INFO);
     } catch (error) {
         console.error('[ERROR  ❌ ]: Job failed:', error);
         process.exit(1);
     }
 }
+
 
 if (require.main === module) {
     main().catch(console.error);

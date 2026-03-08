@@ -14,17 +14,7 @@ if (existsSync(envPath)) config({ path: envPath });
 
 async function main() {
     try {
-        const { job, outputDir } = ParserJobFactory.create({
-            domain: 'acteurs',
-            logLevel: LogLevel.INFO
-        });
-
-        await job.run({
-            outputDir,
-            exportSeparateFiles: true,
-            exportSingleFile: false
-        });
-
+        await ParserJobFactory.runByDomain('acteurs', LogLevel.INFO);
     } catch (error) {
         console.error('[ERROR  ❌ ]: Job failed:', error);
         process.exit(1);
