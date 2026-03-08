@@ -8,6 +8,7 @@ import {
     ActeurTelephone
 } from "./entities/Acteur.entity";
 import {IExtractor} from "../../infrastructure/IExtractor";
+import {computeRowHash} from "../../../../utils/hash";
 
 
 export class ActeursExtractor implements IExtractor {
@@ -17,6 +18,8 @@ export class ActeursExtractor implements IExtractor {
     private acteursReseauxSociaux: ActeurReseauSocial[] = [];
     private acteursTelephones: ActeurTelephone[] = [];
     private errors: Array<{ file: string; error: string }> = [];
+
+    constructor(private readonly legislatureSnapshot: number) {}
 
     async processFile(filePath: string): Promise<void> {
         try {
@@ -51,8 +54,9 @@ export class ActeursExtractor implements IExtractor {
 
         const uid = typeof acteur.uid === 'string' ? acteur.uid : acteur.uid['#text'];
 
-        // Extract main acteur
-        this.acteurs.push({
+        // legislature_snapshot est inclus dans le hash pour qu'un même acteur
+        // dans deux législatures différentes ait un hash différent
+        const acteurObj = {
             uid,
             civilite: acteur.etatCivil?.ident?.civ || null,
             prenom: acteur.etatCivil?.ident?.prenom || null,
@@ -67,8 +71,10 @@ export class ActeursExtractor implements IExtractor {
             profession_libelle: acteur.profession?.libelleCourant || null,
             profession_categorie: acteur.profession?.socProcINSEE?.catSocPro || null,
             profession_famille: acteur.profession?.socProcINSEE?.famSocPro || null,
-            uri_hatvp: acteur.uri_hatvp || null
-        });
+            uri_hatvp: acteur.uri_hatvp || null,
+            legislature_snapshot: this.legislatureSnapshot,
+        };
+        this.acteurs.push({ ...acteurObj, row_hash: computeRowHash(acteurObj) });
 
         if (!acteur.adresses?.adresse) return;
 
@@ -86,8 +92,8 @@ export class ActeursExtractor implements IExtractor {
         const xsiType = adresse['@xsi:type'];
 
         switch (xsiType) {
-            case 'AdressePostale_Type':
-                this.acteursAdressesPostales.push({
+            case 'AdressePostale_Type': {
+                const obj = {
                     acteur_uid: acteurUid,
                     uid_adresse: adresse.uid || '',
                     type_code: adresse.type || null,
@@ -97,43 +103,53 @@ export class ActeursExtractor implements IExtractor {
                     nom_rue: adresse.nomRue || null,
                     complement_adresse: adresse.complementAdresse || null,
                     code_postal: adresse.codePostal || null,
-                    ville: adresse.ville || null
-                });
-                break;
-
-            case 'AdresseMail_Type':
-                this.acteursAdressesMails.push({
-                    acteur_uid: acteurUid,
-                    uid_adresse: adresse.uid || '',
-                    type_code: adresse.type || null,
-                    type_libelle: adresse.typeLibelle || null,
-                    email: adresse.valElec || ''
-                });
-                break;
-
-            case 'AdresseSiteWeb_Type': {
-                const plateforme = this.detectPlateforme(adresse.typeLibelle || '');
-                this.acteursReseauxSociaux.push({
-                    acteur_uid: acteurUid,
-                    uid_adresse: adresse.uid || '',
-                    type_code: adresse.type || null,
-                    type_libelle: adresse.typeLibelle || null,
-                    plateforme,
-                    identifiant: adresse.valElec || ''
-                });
+                    ville: adresse.ville || null,
+                    legislature_snapshot: this.legislatureSnapshot,
+                };
+                this.acteursAdressesPostales.push({ ...obj, row_hash: computeRowHash(obj) });
                 break;
             }
 
-            case 'AdresseTelephonique_Type':
-                this.acteursTelephones.push({
+            case 'AdresseMail_Type': {
+                const obj = {
+                    acteur_uid: acteurUid,
+                    uid_adresse: adresse.uid || '',
+                    type_code: adresse.type || null,
+                    type_libelle: adresse.typeLibelle || null,
+                    email: adresse.valElec || '',
+                    legislature_snapshot: this.legislatureSnapshot,
+                };
+                this.acteursAdressesMails.push({ ...obj, row_hash: computeRowHash(obj) });
+                break;
+            }
+
+            case 'AdresseSiteWeb_Type': {
+                const obj = {
+                    acteur_uid: acteurUid,
+                    uid_adresse: adresse.uid || '',
+                    type_code: adresse.type || null,
+                    type_libelle: adresse.typeLibelle || null,
+                    plateforme: this.detectPlateforme(adresse.typeLibelle || ''),
+                    identifiant: adresse.valElec || '',
+                    legislature_snapshot: this.legislatureSnapshot,
+                };
+                this.acteursReseauxSociaux.push({ ...obj, row_hash: computeRowHash(obj) });
+                break;
+            }
+
+            case 'AdresseTelephonique_Type': {
+                const obj = {
                     acteur_uid: acteurUid,
                     uid_adresse: adresse.uid || '',
                     type_code: adresse.type || null,
                     type_libelle: adresse.typeLibelle || null,
                     adresse_rattachement: adresse.adresseDeRattachement || null,
-                    numero: adresse.valElec || ''
-                });
+                    numero: adresse.valElec || '',
+                    legislature_snapshot: this.legislatureSnapshot,
+                };
+                this.acteursTelephones.push({ ...obj, row_hash: computeRowHash(obj) });
                 break;
+            }
         }
     }
 

@@ -28,6 +28,9 @@ export interface Mandat {
     mandature_premiere_election: boolean | null;
     mandature_place_hemicycle: string | null;
     mandature_mandat_remplace_ref: string | null;
+
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface MandatSuppleant {
@@ -35,4 +38,6 @@ export interface MandatSuppleant {
     suppleant_uid: string;
     date_debut: string;
     date_fin: string | null;
+    row_hash: string;
+    legislature_snapshot: number;
 }

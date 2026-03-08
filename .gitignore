@@ -18,6 +18,8 @@ data/**/*.*json
 data/**/*.zip
 
 .env
+.env.local
+prisma/migrations/**
 
 /generated
 /local

@@ -14,6 +14,8 @@ export interface Acteur {
     profession_categorie: string | null;
     profession_famille: string | null;
     uri_hatvp: string | null;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface ActeurAdressePostale {
@@ -27,6 +29,8 @@ export interface ActeurAdressePostale {
     complement_adresse: string | null;
     code_postal: string | null;
     ville: string | null;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface ActeurAdresseMail {
@@ -35,6 +39,8 @@ export interface ActeurAdresseMail {
     type_code: string | null;
     type_libelle: string | null;
     email: string;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface ActeurReseauSocial {
@@ -44,6 +50,8 @@ export interface ActeurReseauSocial {
     type_libelle: string | null;
     plateforme: string;
     identifiant: string;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface ActeurTelephone {
@@ -53,4 +61,6 @@ export interface ActeurTelephone {
     type_libelle: string | null;
     adresse_rattachement: string | null;
     numero: string;
+    row_hash: string;
+    legislature_snapshot: number;
 }

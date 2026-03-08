@@ -1,9 +1,13 @@
 export interface Depute {
     id: string;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface GroupeParlementaire {
     id: string;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface Scrutin {
@@ -17,6 +21,8 @@ export interface Scrutin {
     type_majorite: string | null;
     resultat_code: string | null;
     resultat_libelle: string | null;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface ScrutinGroupe {
@@ -24,6 +30,8 @@ export interface ScrutinGroupe {
     groupe_id: string;
     nombre_membres: number;
     position_majoritaire: string;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface VoteDepute {
@@ -34,6 +42,8 @@ export interface VoteDepute {
     position: string | null;
     cause_position: string | null;
     par_delegation: boolean | null;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface ScrutinAgregat {
@@ -46,6 +56,8 @@ export interface ScrutinAgregat {
     total_abstentions: number;
     total_non_votants: number;
     total_non_votants_volontaires: number;
+    row_hash: string;
+    legislature_snapshot: number;
 }
 
 export interface ScrutinGroupeAgregat {
@@ -56,4 +68,6 @@ export interface ScrutinGroupeAgregat {
     abstentions: number;
     non_votants: number;
     non_votants_volontaires: number;
+    row_hash: string;
+    legislature_snapshot: number;
 }
