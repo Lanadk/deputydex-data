@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# ==============================================================================
+# AGGREGATION ALL - Script pour lancer toutes les agrégations
+# ==============================================================================
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+SCRIPTS=(
+  "$SCRIPT_DIR/unit-aggregation/acteurs-aggregation-one-shot.sh"
+  # ajouter ici les futurs domaines
+)
+
+echo "=============================================="
+echo "🚀 Starting ALL aggregations ONE SHOT"
+echo "=============================================="
+
+for script in "${SCRIPTS[@]}"; do
+    if [[ -f "$script" ]]; then
+        echo ""
+        echo "=============================================="
+        echo "Running $script"
+        echo "=============================================="
+        bash "$script"
+    else
+        echo "⚠️  Script not found: $script, skipping..."
+    fi
+done
+
+echo ""
+echo "=============================================="
+echo "🎉 All aggregations completed"
+echo "=============================================="
