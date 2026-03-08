@@ -7,21 +7,9 @@
 
 set -e
 
+# Déterminer le répertoire du script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../paths.sh"
-
-# ==============================================================================
-# WRAPPERS
-# ==============================================================================
-
-refresh_view() {
-    local view_name=$1
-    echo "🔄 Refreshing $view_name..."
-    docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" \
-        -c "REFRESH MATERIALIZED VIEW CONCURRENTLY $view_name;"
-    echo "✓ $view_name refreshed"
-    echo " ------------- "
-}
+source "$SCRIPT_DIR/../utils/sql-utils.sh"
 
 # ==============================================================================
 # MAIN
