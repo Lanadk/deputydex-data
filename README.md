@@ -91,11 +91,11 @@ deputydex-data/
 ├── src/
 │   ├── sql/
 │   │   ├── data/          # Contient les données de seed
+│   │   ├── data/          # Contient les scripts copié dans le container lors du build de l'image
 │   │   └── schema/        # Contient les schemas sql pour les scripts d'import
 │   └── workflow/
 │       ├── download/      # Téléchargement des données
 │       ├── parser/        # Extraction et transformation
-│       ├── update/        # Update des données et calcul du delta
 │       ├── agregat/       # Agrege les données de la base pour générer des tables de statistiques
 │       └── import/        # Chargement en base
 ├── generated/
@@ -106,22 +106,17 @@ deputydex-data/
 
 ## 🛠️ Scripts disponibles
 
-| Script | Description |
-|--------|-------------|
+| Script | Description                                    |
+|--------|------------------------------------------------|
 | `npm run first-setup` | Installation complète (DB + migrations + seed) |
-| `npm run docker:db` | Démarrer le container PostgreSQL |
-| `npm run prisma:generate` | Générer le client Prisma |
-| `npm run prisma:migrate-dev` | Créer/appliquer une migration |
-| `npm run prisma:seed` | Peupler les données de référence |
-| `npm run prisma:reset` | Reset complet de la DB (⚠️ destructif) |
-| `./menu.sh` | Menu interactif pour les workflows |
+| `npm run docker:db` | Démarrer le container PostgreSQL               |
+| `npm run docker-image:build` | Build l'image docker utilisé par le container  |
+| `npm run prisma:generate` | Générer le client Prisma                       |
+| `npm run prisma:migrate-dev` | Créer/appliquer une migration                  |
+| `npm run prisma:seed` | Peupler les données de référence               |
+| `npm run prisma:reset` | Reset complet de la DB (⚠️ destructif)         |
+| `./menu.sh` | Menu interactif pour les workflows             |
 
-## 🔍 Vérifier l'installation
-```bash
-npm run test:db
-```
-
-Affiche les statistiques de connexion et le nombre de lignes dans chaque table.
 
 ## 📚 Client Prisma
 
