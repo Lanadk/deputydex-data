@@ -8,6 +8,11 @@
 #   source sql-sql-utils.sh
 # ==============================================================================
 
+# TODO Faudra lacher du token ici + un seul fichier d'env
+export DB_CONTAINER="deputydex-db"
+export DB_USER_WRITER="user_etl_writer"
+export DB_NAME="deputydex"
+
 # ==============================================================================
 # SQL EXECUTION
 # ==============================================================================
