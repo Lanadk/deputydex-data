@@ -9,7 +9,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 SCRIPTS=(
-  "$SCRIPT_DIR/unit-aggregation/acteurs-aggregation-one-shot.sh"
+  "$SCRIPT_DIR/acteurs/aggregation-oneshot.sh"
   # ajouter ici les futurs domaines
 )
 

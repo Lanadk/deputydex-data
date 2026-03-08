@@ -1,4 +1,4 @@
-import {FileDownloader} from "../infrastructure/impl/FileDownloader";
+    import {FileDownloader} from "../infrastructure/impl/FileDownloader";
 import {Logger, LogLevel} from "../../../utils/logger";
 import {FileExtractor} from "../infrastructure/impl/FileExtractor";
 import {FileVerifier} from "../infrastructure/impl/FileVerifier";
