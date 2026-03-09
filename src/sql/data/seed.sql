@@ -6,10 +6,10 @@
 -- LÉGISLATURES
 -- ============================================
 
-INSERT INTO param_legislatures (number)
+INSERT INTO param_legislatures (number, start_date, end_date)
 VALUES
-    (16),
-    (17)
+    (16, '2022-06-28', '2024-06-09'),
+    (17, '2024-07-18', NULL)
 ON CONFLICT (number) DO NOTHING;
 
 -- ============================================
