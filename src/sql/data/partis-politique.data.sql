@@ -1,6 +1,6 @@
 INSERT INTO ref_partis_politiques (groupe_id, groupe_legislature, libelle, code)
 SELECT * FROM (VALUES
-                   ('PO800484', 16, 'Démocrate (MoDem et Indépendants)', 'MODEM'),
+                   ('PO800484', 16, 'Démocrate (MoDem et Indépendants)', 'DEM'),
                    ('PO800526', 16, 'Écologiste - NUPES', 'ECOLO'),
                    ('PO800502', 16, 'Gauche démocrate et républicaine - NUPES', 'GDR-NUPES'),
                    ('PO800514', 16, 'Horizons et apparentés', 'HOR'),
@@ -23,7 +23,7 @@ SELECT * FROM (VALUES
                    ('PO845401', 17, 'Rassemblement National', 'RN'),
                    ('PO845419', 17, 'Socialistes et apparentés', 'SOC'),
                    ('PO847173', 17, 'Union des droites pour la République', 'UDR'),
-                   ('PO872880', 17, 'Union des droites pour la République', 'UDR-2'),
+                   ('PO872880', 17, 'Union des droites pour la République', 'UDDPLR'),
                    ('PO840056', 17, 'Non inscrits', 'NI-17'),
                    ('PO0',      17, 'Non inscrits (groupe technique)', 'NI')
               ) AS v(groupe_id, groupe_legislature, libelle, code)
