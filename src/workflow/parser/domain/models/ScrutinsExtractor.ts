@@ -11,8 +11,8 @@ import {IExtractor} from "../../infrastructure/IExtractor";
 import {computeRowHash} from "../../../../utils/hash";
 
 export class ScrutinsExtractor implements IExtractor {
-    private deputesSet = new Set<string>();
-    private groupesSet = new Set<string>();
+    private deputesSet = new Set<string>(); //Depute
+    private groupesSet = new Set<string>(); //GroupeParlementaire
     private scrutins: Scrutin[] = [];
     private scrutinsGroupes: ScrutinGroupe[] = [];
     private votesDeputes: VoteDepute[] = [];

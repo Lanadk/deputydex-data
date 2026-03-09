@@ -59,11 +59,9 @@ CREATE TABLE deputes_snapshot
 CREATE TABLE groupes_parlementaires_snapshot
 (
     id                   TEXT    NOT NULL,
-    legislature          INTEGER NOT NULL,
-    nom                  TEXT,
-    row_hash             TEXT    NOT NULL,
     legislature_snapshot INTEGER NOT NULL,
-    PRIMARY KEY (id, legislature)
+    row_hash             TEXT    NOT NULL,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE scrutins_snapshot
