@@ -396,12 +396,12 @@ model RefPartisPolitiques {
   groupe_id          String?  @db.VarChar(50)
   groupe_legislature Int?
   libelle            String   @db.VarChar(100)
-  code               String   @unique @db.VarChar(10)
+  code               String   @db.VarChar(10)
   created_at         DateTime @default(now()) @db.Timestamp(6)
   updated_at         DateTime @default(now()) @updatedAt @db.Timestamp(6)
 
   groupe GroupesParlementaires? @relation(fields: [groupe_id], references: [id])
 
-  @@unique([groupe_id]) // Un parti politique ne peut qu'être rataché à un groupe
+  @@unique([groupe_id, groupe_legislature]) // Un parti politique ne peut qu'être rataché à un groupe
   @@map("ref_partis_politiques")
 }
