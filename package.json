@@ -9,12 +9,14 @@
     "docker:db": "ts-node local/local-db-init.ts",
     "docker-image:build": "docker build -t deputydex-db-image .",
 
+    "drop-views": "ts-node prisma/drop-views.ts",
+
     "prisma:generate": "prisma generate",
     "prisma:migrate-dev": "dotenv -e .env.local -- npx prisma migrate dev",
     "prisma:migrate-prod": "prisma migrate deploy",
     "prisma:seed": "ts-node --project tsconfig.json prisma/seed.ts",
     "prisma:pull": "prisma db pull",
-    "prisma:reset": "dotenv -e .env.local -- npx prisma migrate reset"
+    "prisma:reset": "npm run drop-views && dotenv -e .env.local -- npx prisma migrate reset"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
