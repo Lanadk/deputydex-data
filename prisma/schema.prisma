@@ -405,3 +405,18 @@ model RefPartisPolitiques {
   @@unique([groupe_id, groupe_legislature]) // Un parti politique ne peut qu'être rataché à un groupe
   @@map("ref_partis_politiques")
 }
+
+model RefScrutinType {
+  id                   Int     @id @default(autoincrement())
+  type_scrutin_code    String? @db.VarChar(10)
+  type_scrutin_libelle String  @db.VarChar(100)
+
+  @@map("ref_scrutin_type")
+}
+
+model RefOrganeType {
+  id                   Int     @id @default(autoincrement())
+  type_organe          String? @db.VarChar(50)
+
+  @@map("ref_organe_type")
+}

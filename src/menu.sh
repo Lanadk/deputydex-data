@@ -32,6 +32,9 @@ run_aggregate_all_refresh()     { ./workflow/aggregat/job/trtAggregatCollecte.sh
 run_aggregate_acteurs_one_shot(){ ./workflow/aggregat/job/unit-aggregation/acteurs-aggregation-oneshot.sh; }
 run_aggregate_acteurs_refresh() { ./workflow/aggregat/job/unit-aggregation/acteurs-aggregation.sh; }
 
+# -- Referentiels  ---------------------------------------------------------------
+run_update_all_referentials_tables() { ./workflow/referentials/job/trtUpdateReferentials.sh; }
+
 # ==============================================================================
 # WORKFLOWS
 # ==============================================================================
@@ -42,6 +45,7 @@ workflow_init() {
     run_parser_all
     run_import_all --auto-cleanup
     run_aggregate_all_one_shot
+    run_update_all_referentials_tables
     echo "✅ Init Workflow completed"
 }
 
@@ -51,6 +55,7 @@ workflow_update() {
     run_parser_all
     run_import_all --auto-cleanup
     run_aggregate_all_refresh
+    run_update_all_referentials_tables
     echo "✅ Update Workflow completed"
 }
 
@@ -203,8 +208,8 @@ while true; do
     echo " ----------- "
     echo "  WORKFLOWS"
     echo " ----------- "
-    echo "  1) Init          (Download + Parse + Import + Aggregate CREATE)"
-    echo "  2) Update        (Download + Parse + Import + Aggregate REFRESH)"
+    echo "  1) Init          (Download + Parse + Import + Aggregate CREATE + Referentials UPDATE)"
+    echo "  2) Update        (Download + Parse + Import + Aggregate REFRESH + Referentials UPDATE)"
     echo " "
     echo " ----------- "
     echo "  FULL JOBS"
@@ -214,11 +219,12 @@ while true; do
     echo "  5) Import All"
     echo "  6) Aggregate All (Refresh)"
     echo "  7) Aggregate All (One shot)"
+    echo "  8) Referentials Update"
     echo " "
     echo " ----------- "
     echo "  UNIT JOBS"
     echo " ----------- "
-    echo "  8) See unit Jobs"
+    echo "  9) See unit Jobs"
     echo " "
     echo "  0) Quit"
     echo " "
@@ -237,7 +243,8 @@ while true; do
             echo
             if [[ $REPLY =~ ^[Yy]$ ]]; then run_aggregate_all_one_shot; fi
             ;;
-        8) unit_job_menu ;;
+        8) echo "📊 Referentials Update ..."  &&  run_update_all_referentials_tables ;;
+        9) unit_job_menu ;;
         0) echo "Bye! 👋" && exit 0 ;;
         *) echo "⚠️  Invalid option, please try again." ;;
     esac
