@@ -28,6 +28,6 @@ SELECT * FROM (VALUES
                    ('PO0',      17, 'Non inscrits (groupe technique)', 'NI')
               ) AS v(groupe_id, groupe_legislature, libelle, code)
 WHERE NOT EXISTS (
-    SELECT 1 FROM ref_partis_politiques
-    WHERE ref_partis_politiques.code = v.code
+    SELECT 1 FROM ref_partis_politiques r
+    WHERE r.groupe_id = v.groupe_id
 );
