@@ -99,13 +99,13 @@ model Acteurs {
   row_hash              String    @db.Text
   legislature_snapshot  Int       @db.Integer
 
-
   adressesPostales ActeursAdressesPostales[]
   adressesMails    ActeursAdressesMails[]
   reseauxSociaux   ActeursReseauxSociaux[]
   telephones       ActeursTelephones[]
   mandats          Mandats[]
-  photos           RefActeursPhotos
+  photos           RefActeursPhotos[]
+  groupes          ActeursGroupes[]
 
   @@map("acteurs")
 }
@@ -185,6 +185,27 @@ model ActeursTelephones {
   @@map("acteurs_telephones")
 }
 
+model ActeursGroupes {
+  id                   Int       @id @default(autoincrement())
+  acteur_uid           String    @db.VarChar(50)
+  groupe_id            String    @db.VarChar(50)
+  groupe_legislature   Int
+  date_debut           DateTime  @db.Date
+  date_fin             DateTime? @db.Date
+  legislature_snapshot Int       @db.Integer
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+  row_hash             String    @db.Text
+
+  acteur Acteurs               @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
+  groupe GroupesParlementaires @relation(fields: [groupe_id], references: [id])
+
+  @@unique([acteur_uid, groupe_id, date_debut]) // un acteur peut changer de groupe
+  @@index([acteur_uid])
+  @@index([groupe_id])
+  @@index([legislature_snapshot])
+  @@map("acteurs_groupes")
+}
+
 // ============================================
 // DÉPUTÉS & SCRUTINS
 // ============================================
@@ -211,6 +232,7 @@ model GroupesParlementaires {
   votesDeputes            VotesDeputes[]
   scrutinsGroupesAgregats ScrutinsGroupesAgregats[]
   partis                  RefPartisPolitiques[]
+  acteurs                 ActeursGroupes[]
 
   @@id([id])
   @@map("groupes_parlementaires")
@@ -418,19 +440,19 @@ model RefScrutinType {
 }
 
 model RefOrganeType {
-  id                   Int     @id @default(autoincrement())
-  type_organe          String? @db.VarChar(50)
+  id          Int     @id @default(autoincrement())
+  type_organe String? @db.VarChar(50)
 
   @@unique([type_organe])
   @@map("ref_organe_type")
 }
 
 model RefActeursPhotos {
-  id           Int      @id @default(autoincrement())
-  acteurUid    String   @map("acteur_uid") @db.VarChar(50)
-  legislature  Int      @db.Integer
-  photoPath    String   @map("photo_path") @db.Text
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  id          Int      @id @default(autoincrement())
+  acteurUid   String   @map("acteur_uid") @db.VarChar(50)
+  legislature Int      @db.Integer
+  photoPath   String   @map("photo_path") @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
   acteur Acteurs @relation(fields: [acteurUid], references: [uid], onDelete: Cascade)
 
