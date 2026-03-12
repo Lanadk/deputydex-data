@@ -1,6 +1,7 @@
 -- ============================================
 -- SEED DATA - Données statiques de référence
 -- ============================================
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- ============================================
 -- LÉGISLATURES

@@ -99,11 +99,13 @@ model Acteurs {
   row_hash              String    @db.Text
   legislature_snapshot  Int       @db.Integer
 
+
   adressesPostales ActeursAdressesPostales[]
   adressesMails    ActeursAdressesMails[]
   reseauxSociaux   ActeursReseauxSociaux[]
   telephones       ActeursTelephones[]
   mandats          Mandats[]
+  photos           RefActeursPhotos[]
 
   @@map("acteurs")
 }
@@ -396,7 +398,7 @@ model RefPartisPolitiques {
   groupe_id          String?  @db.VarChar(50)
   groupe_legislature Int?
   libelle            String   @db.VarChar(100)
-  code               String   @db.VarChar(10)
+  code               String   @db.VarChar(20)
   created_at         DateTime @default(now()) @db.Timestamp(6)
   updated_at         DateTime @default(now()) @updatedAt @db.Timestamp(6)
 
@@ -411,6 +413,7 @@ model RefScrutinType {
   type_scrutin_code    String? @db.VarChar(10)
   type_scrutin_libelle String  @db.VarChar(100)
 
+  @@unique([type_scrutin_code, type_scrutin_libelle])
   @@map("ref_scrutin_type")
 }
 
@@ -418,5 +421,21 @@ model RefOrganeType {
   id                   Int     @id @default(autoincrement())
   type_organe          String? @db.VarChar(50)
 
+  @@unique([type_organe])
   @@map("ref_organe_type")
+}
+
+model RefActeursPhotos {
+  id           Int      @id @default(autoincrement())
+  acteurUid    String   @map("acteur_uid") @db.VarChar(50)
+  legislature  Int      @db.Integer
+  photoPath    String   @map("photo_path") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  acteur Acteurs @relation(fields: [acteurUid], references: [uid], onDelete: Cascade)
+
+  @@unique([acteurUid, legislature])
+  @@index([acteurUid])
+  @@index([legislature])
+  @@map("ref_acteurs_photos")
 }
