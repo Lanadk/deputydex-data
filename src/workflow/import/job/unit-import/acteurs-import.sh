@@ -26,6 +26,7 @@ ACTEURS_ADRESSES_POSTALES_JSON="acteursAdressesPostales.json"
 ACTEURS_ADRESSES_MAILS_JSON="acteursAdressesMails.json"
 ACTEURS_RESEAUX_SOCIAUX_JSON="acteursReseauxSociaux.json"
 ACTEURS_TELEPHONES_JSON="acteursTelephones.json"
+GROUPES_VU_DES_MANDATS_JSON="groupesVuDesMandats.json"
 
 # ==============================================================================
 # ARGUMENTS
@@ -59,6 +60,11 @@ project_acteurs_reseaux_sociaux() {
 project_acteurs_telephones() {
     run_sql_file "$SQL_SCRIPTS_DIR/projections/project_acteurs_telephones.sql"
 }
+
+project_groupes_parlementaires() {
+    run_sql_file "$SQL_SCRIPTS_DIR/projections/project_groupes_parlementaires.sql"
+}
+
 
 # ==============================================================================
 # SYNC / CLEANUP / VERIFY WRAPPERS
@@ -137,6 +143,11 @@ for LEGISLATURE_DIR in "$TABLES_DIR"/*/; do
     echo "📥 [RAW] Importing téléphones..."
     import_json_to_raw_table "$LEGISLATURE_DIR/$ACTEURS_TELEPHONES_JSON" "acteurs_telephones_raw" "project_acteurs_telephones"
     echo "✓ [RAW] téléphones done"
+
+    echo "📥 [RAW] Importing groupes vus depuis mandats..."
+    import_json_to_raw_table "$LEGISLATURE_DIR/$GROUPES_VU_DES_MANDATS_JSON" "groupes_parlementaires_raw" "project_groupes_parlementaires"
+    echo "✓ [RAW] groupes mandats done"
+    echo " ------------- "
 
     echo "----------------------------------------------"
     echo "  ✅ Legislature $LEGISLATURE complete"

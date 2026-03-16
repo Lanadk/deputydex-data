@@ -43,7 +43,7 @@ export class ScrutinsExtractor implements IExtractor {
             votesDeputes: this.votesDeputes,
             scrutinsAgregats: this.scrutinsAgregats,
             scrutinsGroupesAgregats: this.scrutinsGroupesAgregats,
-            groupes: Array.from(this.groupesSet).map(id => {
+            groupesVuDesScrutins: Array.from(this.groupesSet).map(id => {
                 const obj = { id, legislature_snapshot: this.legislatureSnapshot };
                 return { ...obj, row_hash: computeRowHash(obj) };
             }),

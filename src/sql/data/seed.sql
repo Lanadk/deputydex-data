@@ -30,7 +30,7 @@ ON CONFLICT (legislature_id) DO UPDATE SET number = EXCLUDED.number;
 
 INSERT INTO ref_data_domains (code, description)
 VALUES
-    ('acteurs', 'Personne physique'),
+    ('acteurs', 'Deputes sénateurs ministres mandats organes'),
     ('scrutins', 'Votes et scrutins publics')
 ON CONFLICT (code) DO NOTHING;
 
@@ -43,8 +43,8 @@ VALUES
     (
         (SELECT id FROM ref_data_domains WHERE code = 'acteurs'),
         (SELECT id FROM param_legislatures WHERE number = 16),
-        'https://data.assemblee-nationale.fr/static/openData/repository/16/amo/acteurs_mandats_organes_divises/AMO50_acteurs_mandats_organes_divises.json.zip',
-        'AMO50_acteurs_mandats_organes_divises.json.zip'
+        'https://data.assemblee-nationale.fr/static/openData/repository/16/amo/deputes_senateurs_ministres_legislature/AMO20_dep_sen_min_tous_mandats_et_organes.json.zip',
+        'AMO20_dep_sen_min_tous_mandats_et_organes.json.zip'
     ),
     (
         (SELECT id FROM ref_data_domains WHERE code = 'scrutins'),
@@ -63,8 +63,8 @@ VALUES
     (
         (SELECT id FROM ref_data_domains WHERE code = 'acteurs'),
         (SELECT id FROM param_legislatures WHERE number = 17),
-        'https://data.assemblee-nationale.fr/static/openData/repository/17/amo/acteurs_mandats_organes_divises/AMO50_acteurs_mandats_organes_divises.json.zip',
-        'AMO50_acteurs_mandats_organes_divises.json.zip'
+        'https://data.assemblee-nationale.fr/static/openData/repository/17/amo/deputes_senateurs_ministres_legislature/AMO20_dep_sen_min_tous_mandats_et_organes.json.zip',
+        'AMO20_dep_sen_min_tous_mandats_et_organes.json.zip'
     ),
     (
         (SELECT id FROM ref_data_domains WHERE code = 'scrutins'),

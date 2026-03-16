@@ -5,8 +5,6 @@ set -e
 # DEPUTYDEX - MAIN MENU
 # ==============================================================================
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 # ==============================================================================
 # FUNCTIONS
 # ==============================================================================
@@ -18,7 +16,6 @@ run_download_all()              { npx ts-node ./workflow/download/job/trtCollect
 run_parser_all()                { npx ts-node ./workflow/parser/job/trtCheckCollecte.ts; }
 run_parser_acteurs()            { npx ts-node ./workflow/parser/job/unit-parser/parseActeurs.ts; }
 run_parser_scrutins()           { npx ts-node ./workflow/parser/job/unit-parser/parseScrutins.ts; }
-run_parser_mandats()            { npx ts-node ./workflow/parser/job/unit-parser/parseMandats.ts; }
 
 # -- Import --------------------------------------------------------------------
 run_import_all()                { ./workflow/import/job/trtImportCollecte.sh "$1"; }
@@ -36,7 +33,7 @@ run_aggregate_acteurs_refresh() { ./workflow/aggregat/job/unit-aggregation/acteu
 run_update_all_referentials_tables() { ./workflow/referentials/job/trtUpdateReferentials.sh; }
 
 # -- Enrichment  ---------------------------------------------------------------
-run_all_enrichment_tables() { ./workflow/referentials/job/trtEnrichmentCollecte.sh; }
+run_all_enrichment_tables() { ./workflow/enrichment/job/trtEnrichmentCollecte.sh; }
 
 # ==============================================================================
 # WORKFLOWS
@@ -213,8 +210,8 @@ while true; do
     echo " ----------- "
     echo "  WORKFLOWS"
     echo " ----------- "
-    echo "  1) Init          (Download + Parse + Import + Aggregate CREATE + Referentials UPDATE)"
-    echo "  2) Update        (Download + Parse + Import + Aggregate REFRESH + Referentials UPDATE)"
+    echo "  1) Init          (Download + Parse + Import + Aggregate CREATE + Referentials CREATE + Enrichment)"
+    echo "  2) Update        (Download + Parse + Import + Aggregate REFRESH + Referentials UPDATE + Enrichment)"
     echo " "
     echo " ----------- "
     echo "  FULL JOBS"
@@ -224,7 +221,7 @@ while true; do
     echo "  5) Import All"
     echo "  6) Aggregate All (Refresh)"
     echo "  7) Aggregate All (One shot)"
-    echo "  8) Referentials Update"
+    echo "  8) Referentials Create / Update"
     echo "  9) Enrichment All"
     echo " "
     echo " ----------- "

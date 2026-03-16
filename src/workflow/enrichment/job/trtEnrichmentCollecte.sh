@@ -28,7 +28,7 @@ echo "=============================================="
 echo ""
 
 echo "Enrichment of acteurs_groupes table"
-run_sql_file "//src/sql/scripts/acteurs/enrichment/acteurs_groupes.sql"
+run_sql_file "//sql/scripts/acteurs/enrichment/acteurs_groupes.sql"
 
 
 # -- Verification --------------------------------------------------------------
