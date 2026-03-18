@@ -1,4 +1,4 @@
-import {DownloadItem} from "../../../download/types/types";
+import {DownloadItem} from "../../../download/domain/models/entities/DownloadItem.entity";
 
 export interface DataSourceFilters {
     legislature?: number;
