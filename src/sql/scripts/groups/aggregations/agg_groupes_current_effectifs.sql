@@ -55,4 +55,4 @@ GROUP BY m.groupe_id,
          rg.libelle,
          rg.code;
 
-CREATE UNIQUE INDEX ON agg_groupes_stats_cohesion (groupe_id, legislature);
+CREATE UNIQUE INDEX ON agg_groupes_current_effectifs(groupe_id, legislature);
