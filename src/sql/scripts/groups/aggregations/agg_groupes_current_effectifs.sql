@@ -25,49 +25,34 @@
 --   - taux_cohesion_politique : % d'alignement politique interne
 -- ============================================================
 
-CREATE MATERIALIZED VIEW agg_groupes_stats_cohesion AS
-SELECT vd.groupe_id,
-       vd.groupe_legislature AS legislature,
-       rg.code,
+CREATE MATERIALIZED VIEW agg_groupes_current_effectifs AS
+WITH legislatures_ref AS (SELECT pl.number AS legislature,
+                                 CASE
+                                     WHEN pl.number IN (SELECT number FROM param_current_legislatures)
+                                         THEN CURRENT_DATE
+                                     ELSE pl.end_date
+                                     END   AS date_reference
+                          FROM param_legislatures pl),
+     members_at_ref_date AS (SELECT ag.groupe_id,
+                                    ag.groupe_legislature,
+                                    ag.acteur_uid
+                             FROM acteurs_groupes ag
+                                      INNER JOIN legislatures_ref lr
+                                                 ON lr.legislature = ag.groupe_legislature
+                             WHERE lr.date_reference IS NOT NULL
+                               AND ag.date_debut <= lr.date_reference
+                               AND (ag.date_fin IS NULL OR ag.date_fin >= lr.date_reference))
+SELECT m.groupe_id,
+       m.groupe_legislature         AS legislature,
        rg.libelle,
-       COUNT(DISTINCT vd.scrutin_uid) FILTER (
-           WHERE sg.position_majoritaire IN ('pour', 'contre', 'abstention')
-               AND vd.position IN ('pour', 'contre', 'abstention')
-           )                 AS nb_scrutins_couverts,
-       COUNT(*) FILTER (
-           WHERE sg.position_majoritaire IN ('pour', 'contre', 'abstention')
-               AND vd.position IN ('pour', 'contre', 'abstention')
-           )                 AS nb_votes_eligibles,
-       COUNT(*) FILTER (
-           WHERE sg.position_majoritaire IN ('pour', 'contre', 'abstention')
-               AND vd.position = sg.position_majoritaire
-           )                 AS nb_votes_alignes,
-       ROUND(
-                       COUNT(*) FILTER (
-                   WHERE sg.position_majoritaire IN ('pour', 'contre', 'abstention')
-                       AND vd.position = sg.position_majoritaire
-                   )::numeric
-                   / NULLIF(
-                                       COUNT(*) FILTER (
-                                   WHERE sg.position_majoritaire IN ('pour', 'contre', 'abstention')
-                                       AND vd.position IN ('pour', 'contre', 'abstention')
-                                   ),
-                                       0
-                     ) * 100,
-                       2
-       )                     AS taux_cohesion_politique
-FROM votes_deputes vd
-         INNER JOIN scrutins_groupes sg
-                    ON sg.scrutin_uid = vd.scrutin_uid
-                        AND sg.groupe_id = vd.groupe_id
-                        AND sg.groupe_legislature = vd.groupe_legislature
+       rg.code,
+       COUNT(DISTINCT m.acteur_uid) AS nb_acteurs
+FROM members_at_ref_date m
          LEFT JOIN ref_groupes rg
-                   ON rg.groupe_id = vd.groupe_id
-                       AND rg.groupe_legislature = vd.groupe_legislature
-WHERE vd.groupe_id IS NOT NULL
-GROUP BY vd.groupe_id,
-         vd.groupe_legislature,
-         rg.code,
-         rg.libelle;
+                   ON rg.groupe_id = m.groupe_id
+GROUP BY m.groupe_id,
+         m.groupe_legislature,
+         rg.libelle,
+         rg.code;
 
 CREATE UNIQUE INDEX ON agg_groupes_stats_cohesion (groupe_id, legislature);

@@ -10,9 +10,12 @@ async function main() {
         DROP MATERIALIZED VIEW IF EXISTS agg_acteurs_stats_geographie_election CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_acteurs_stats_geographie_naissance CASCADE;
         
-        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_cohesion CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_current_effectifs CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_legislature_effectifs CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_cohesion CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_couverture_scrutins CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_participation_legislature CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_participation_mensuelle CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_votes_participation CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_votes_positions CASCADE;
     `);
