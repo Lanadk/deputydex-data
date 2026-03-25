@@ -15,7 +15,7 @@ source "$SCRIPT_DIR/../utils/sql-utils.sh"
 # MAIN
 # ==============================================================================
 echo "=============================================="
-echo "  ACTEURS AGGREGATION SCRIPT"
+echo "  ACTEURS AGGREGATION REFRESH SCRIPT"
 echo "=============================================="
 echo ""
 
@@ -27,5 +27,5 @@ refresh_view "agg_acteurs_stats_geographie_naissance"
 
 echo ""
 echo "=============================================="
-echo "  ✅ ACTEURS AGGREGATION COMPLETED"
+echo "  ✅ ACTEURS AGGREGATION REFRESHED"
 echo "=============================================="
