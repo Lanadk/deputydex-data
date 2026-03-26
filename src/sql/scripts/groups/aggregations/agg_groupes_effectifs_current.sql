@@ -1,3 +1,5 @@
+-- OK VALIDE MAIS IL SEMBLE MANQUER 2 MEMBRES , UN DANS NI-17 , UN DANS LIOT
+
 -- ============================================================
 -- VIEW : agg_groupes_stats_cohesion
 -- ============================================================
@@ -25,7 +27,7 @@
 --   - taux_cohesion_politique : % d'alignement politique interne
 -- ============================================================
 
-CREATE MATERIALIZED VIEW agg_groupes_current_effectifs AS
+CREATE MATERIALIZED VIEW agg_groupes_effectifs_current AS
 WITH legislatures_ref AS (SELECT pl.number AS legislature,
                                  CASE
                                      WHEN pl.number IN (SELECT number FROM param_current_legislatures)
@@ -55,4 +57,4 @@ GROUP BY m.groupe_id,
          rg.libelle,
          rg.code;
 
-CREATE UNIQUE INDEX ON agg_groupes_current_effectifs(groupe_id, legislature);
+CREATE UNIQUE INDEX ON agg_groupes_effectifs_current(groupe_id, legislature);

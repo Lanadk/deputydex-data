@@ -1,46 +1,112 @@
+-- OK VALIDE
+
 -- ============================================================
--- VIEW : agg_groupes_votes_positions
+-- VIEW : agg_groupes_stats_votes_participation
 -- ============================================================
--- Répartition des positions de vote par groupe parlementaire
+-- Participation des groupes parlementaires aux scrutins
+-- votes exprimés / positions totales
 --
+-- Ratio basé sur les positions
 -- Logique :
---   - Agrégation des votes individuels des députés
---   - Calcul du volume total de votes par groupe et législature
---   - Calcul du pourcentage de chaque position
+--   - Agrégation des positions de vote par groupe à partir des
+--     agrégats de scrutin par groupe
+--   - Distinction entre :
+--       * participation politique : pour, contre, abstention
+--       * non participation : non_votants, non_votants_volontaires
+--   - Calcul d'un taux global de participation
+--   - Seuls les scrutins disposant d'un agrégat exploitable sont comptés
+--
 --
 -- Colonnes :
---   - groupe_id     : identifiant technique du groupe
---   - libelle       : nom du groupe (référentiel)
---   - code          : code court du groupe
---   - legislature   : législature du groupe
---   - position      : position de vote (pour, contre, abstention, non_votant)
---   - nb_votes      : nombre de votes pour cette position
---   - total_votes   : total des votes du groupe
---   - pourcentage   : part (%) de cette position dans les votes du groupe
+--   - groupe_id                   : identifiant technique du groupe
+--   - legislature                 : législature du groupe
+--   - code                        : code court du groupe
+--   - libelle                     : nom du groupe
+--   - nb_scrutins                 : nombre de scrutins agrégés pour le groupe
+--   - nb_positions_participantes  : total des positions pour/contre/abstention
+--   - nb_non_votants              : total des non votants
+--   - total_positions             : total de toutes les positions de vote
+--   - taux_participation          : % de participation politique
 -- ============================================================
 
 CREATE MATERIALIZED VIEW agg_groupes_stats_votes_positions AS
-SELECT
-    vd.groupe_id,
-    rg.libelle,
-    rg.code,
-    vd.groupe_legislature AS legislature,
-    vd.position,
-    COUNT(*) AS nb_votes,
-    SUM(COUNT(*)) OVER (
-        PARTITION BY vd.groupe_id, vd.groupe_legislature
-        ) AS total_votes,
-    ROUND(
-            COUNT(*)::numeric * 100
-                / SUM(COUNT(*)) OVER (
-                PARTITION BY vd.groupe_id, vd.groupe_legislature
-                ),
-            2
-    ) AS pourcentage
-FROM votes_deputes vd
-         LEFT JOIN ref_groupes rg
-                   ON rg.groupe_id = vd.groupe_id
-WHERE vd.groupe_id IS NOT NULL
-GROUP BY vd.groupe_id, rg.libelle, rg.code, vd.groupe_legislature, vd.position;
+WITH scrutins_legislature AS (SELECT s.legislature_snapshot AS legislature,
+                                     COUNT(*)               AS nb_scrutins_legislature
+                              FROM scrutins s
+                              GROUP BY s.legislature_snapshot)
+SELECT sg.groupe_id,
+       sg.groupe_legislature           AS legislature,
+       rg.code,
+       rg.libelle,
 
-CREATE UNIQUE INDEX ON agg_groupes_stats_votes_positions(groupe_id, legislature, position);
+       -- couverture
+       COUNT(DISTINCT sga.scrutin_uid) AS nb_scrutins,
+
+       sl.nb_scrutins_legislature,
+
+       ROUND(
+               COUNT(DISTINCT sga.scrutin_uid)::numeric
+                   / NULLIF(sl.nb_scrutins_legislature, 0) * 100,
+               2
+       )                               AS taux_couverture_scrutins,
+
+       -- participation
+       SUM(
+               COALESCE(sga.pour, 0)
+                   + COALESCE(sga.contre, 0)
+                   + COALESCE(sga.abstentions, 0)
+       )                               AS nb_positions_participantes,
+
+       SUM(
+               COALESCE(sga.non_votants, 0)
+                   + COALESCE(sga.non_votants_volontaires, 0)
+       )                               AS nb_non_votants,
+
+       SUM(
+               COALESCE(sga.pour, 0)
+                   + COALESCE(sga.contre, 0)
+                   + COALESCE(sga.abstentions, 0)
+                   + COALESCE(sga.non_votants, 0)
+                   + COALESCE(sga.non_votants_volontaires, 0)
+       )                               AS total_positions,
+
+       ROUND(
+               SUM(
+                       COALESCE(sga.pour, 0)
+                           + COALESCE(sga.contre, 0)
+                           + COALESCE(sga.abstentions, 0)
+               )::numeric
+                   / NULLIF(
+                       SUM(
+                               COALESCE(sga.pour, 0)
+                                   + COALESCE(sga.contre, 0)
+                                   + COALESCE(sga.abstentions, 0)
+                                   + COALESCE(sga.non_votants, 0)
+                                   + COALESCE(sga.non_votants_volontaires, 0)
+                       ),
+                       0
+                     ) * 100,
+               2
+       )                               AS taux_expression_votes
+
+FROM scrutins_groupes sg
+
+         LEFT JOIN scrutins_groupes_agregats sga
+                   ON sga.scrutin_uid = sg.scrutin_uid
+                       AND sga.groupe_id = sg.groupe_id
+                       AND sga.groupe_legislature = sg.groupe_legislature
+
+         LEFT JOIN ref_groupes rg
+                   ON rg.groupe_id = sg.groupe_id
+                       AND rg.groupe_legislature = sg.groupe_legislature
+
+         LEFT JOIN scrutins_legislature sl
+                   ON sl.legislature = sg.groupe_legislature
+
+GROUP BY sg.groupe_id,
+         sg.groupe_legislature,
+         rg.code,
+         rg.libelle,
+         sl.nb_scrutins_legislature;
+
+CREATE UNIQUE INDEX ON agg_groupes_stats_votes_positions (groupe_id, legislature);

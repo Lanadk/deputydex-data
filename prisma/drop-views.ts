@@ -10,14 +10,31 @@ async function main() {
         DROP MATERIALIZED VIEW IF EXISTS agg_acteurs_stats_geographie_election CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_acteurs_stats_geographie_naissance CASCADE;
         
-        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_current_effectifs CASCADE;
-        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_legislature_effectifs CASCADE;
-        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_cohesion CASCADE;
+        
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_effectifs_current CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_effectifs_legislature CASCADE;
+        
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_cohesion_mensuelle CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_cohesion_legislature CASCADE;
+        
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_couverture_scrutins CASCADE;
+        
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_participation_legislature CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_participation_mensuelle CASCADE;
-        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_votes_participation CASCADE;
+        
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_votes_positions CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_votes_positions_politiques CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_votes_positions_comptables CASCADE;
+        
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_demographie_legislature CASCADE;
+        
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_stabilite CASCADE;
+        
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_proximite_votes_legislature CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_proximite_votes_mensuelle CASCADE;
+        
+        
+        DROP MATERIALIZED VIEW IF EXISTS agg_assemblee_stats_participation_legislature CASCADE;
     `);
 
     console.log('✅ Vues matérialisées supprimées');
