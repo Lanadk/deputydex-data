@@ -147,7 +147,7 @@ FROM stabilite_brute sb
          LEFT JOIN ref_groupes rg
                    ON rg.groupe_id = sb.groupe_id
                        AND rg.groupe_legislature = sb.legislature
-         LEFT JOIN agg_groupes_legislature_effectifs gle
+         LEFT JOIN agg_groupes_effectifs_legislature gle
                    ON gle.groupe_id = sb.groupe_id
                        AND gle.legislature = sb.legislature;
 

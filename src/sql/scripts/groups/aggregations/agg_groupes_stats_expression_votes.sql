@@ -134,4 +134,4 @@ GROUP BY sg.groupe_id,
          rg.libelle,
          sl.nb_scrutins_legislature;
 
-CREATE UNIQUE INDEX ON agg_groupes_stats_votes_positions (groupe_id, legislature);
+CREATE UNIQUE INDEX ON agg_groupes_stats_expression_votes (groupe_id, legislature);
