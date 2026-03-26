@@ -11,6 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 SCRIPTS=(
   "$SCRIPT_DIR/acteurs/aggregation-oneshot.sh"
+  "$SCRIPT_DIR/groups/aggregation-oneshot.sh"
   # ajouter ici les futurs domaines
 )
 

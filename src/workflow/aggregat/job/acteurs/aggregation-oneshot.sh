@@ -22,9 +22,9 @@ echo "  ACTEURS AGGREGATION - CREATE (ONE SHOT)"
 echo "=============================================="
 echo ""
 
-create_view "agg_acteurs_stats_professions"      "$SQL_SCRIPTS_DIR/agg_acteurs_stats_professions.sql"
-create_view "agg_acteurs_stats_genre"            "$SQL_SCRIPTS_DIR/agg_acteurs_stats_genre.sql"
-create_view "agg_acteurs_stats_age"              "$SQL_SCRIPTS_DIR/agg_acteurs_stats_age.sql"
+create_view "agg_acteurs_stats_professions"          "$SQL_SCRIPTS_DIR/agg_acteurs_stats_professions.sql"
+create_view "agg_acteurs_stats_genre"                "$SQL_SCRIPTS_DIR/agg_acteurs_stats_genre.sql"
+create_view "agg_acteurs_stats_age"                  "$SQL_SCRIPTS_DIR/agg_acteurs_stats_age.sql"
 create_view "agg_acteurs_stats_geographie_election"  "$SQL_SCRIPTS_DIR/agg_acteurs_stats_geographie_election.sql"
 create_view "agg_acteurs_stats_geographie_naissance" "$SQL_SCRIPTS_DIR/agg_acteurs_stats_geographie_naissance.sql"
 

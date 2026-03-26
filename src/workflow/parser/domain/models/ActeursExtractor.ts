@@ -7,19 +7,25 @@ import {
     ActeurReseauSocial,
     ActeurTelephone
 } from "./entities/Acteur.entity";
+import {Mandat, MandatSuppleant} from "./entities/Mandat.entity";
 import {IExtractor} from "../../infrastructure/IExtractor";
 import {computeRowHash} from "../../../../utils/hash";
+import {extractNilableValue} from "../../infrastructure/impl/xml-nil.utils";
 
 
 export class ActeursExtractor implements IExtractor {
     private acteurs: Acteur[] = [];
     private acteursAdressesPostales: ActeurAdressePostale[] = [];
+    private groupesSet = new Set<string>();
     private acteursAdressesMails: ActeurAdresseMail[] = [];
     private acteursReseauxSociaux: ActeurReseauSocial[] = [];
     private acteursTelephones: ActeurTelephone[] = [];
+    private mandats: Mandat[] = [];
+    private mandatsSuppleants: MandatSuppleant[] = [];
     private errors: Array<{ file: string; error: string }> = [];
 
-    constructor(private readonly legislatureSnapshot: number) {}
+    constructor(private readonly legislatureSnapshot: number) {
+    }
 
     async processFile(filePath: string): Promise<void> {
         try {
@@ -40,7 +46,13 @@ export class ActeursExtractor implements IExtractor {
             acteursAdressesPostales: this.acteursAdressesPostales,
             acteursAdressesMails: this.acteursAdressesMails,
             acteursReseauxSociaux: this.acteursReseauxSociaux,
-            acteursTelephones: this.acteursTelephones
+            acteursTelephones: this.acteursTelephones,
+            mandats: this.mandats,
+            mandatsSuppleants: this.mandatsSuppleants,
+            groupesVuDesMandats: Array.from(this.groupesSet).map(id => {
+                const obj = { id, legislature_snapshot: this.legislatureSnapshot };
+                return { ...obj, row_hash: computeRowHash(obj) };
+            }),
         };
     }
 
@@ -54,38 +66,136 @@ export class ActeursExtractor implements IExtractor {
 
         const uid = typeof acteur.uid === 'string' ? acteur.uid : acteur.uid['#text'];
 
-        // legislature_snapshot est inclus dans le hash pour qu'un même acteur
-        // dans deux législatures différentes ait un hash différent
         const acteurObj = {
             uid,
-            civilite: acteur.etatCivil?.ident?.civ || null,
-            prenom: acteur.etatCivil?.ident?.prenom || null,
-            nom: acteur.etatCivil?.ident?.nom || null,
-            nom_alpha: acteur.etatCivil?.ident?.alpha || null,
-            trigramme: acteur.etatCivil?.ident?.trigramme || null,
-            date_naissance: acteur.etatCivil?.infoNaissance?.dateNais || null,
-            ville_naissance: acteur.etatCivil?.infoNaissance?.villeNais || null,
-            departement_naissance: acteur.etatCivil?.infoNaissance?.depNais || null,
-            pays_naissance: acteur.etatCivil?.infoNaissance?.paysNais || null,
-            date_deces: acteur.etatCivil?.dateDeces || null,
-            profession_libelle: acteur.profession?.libelleCourant || null,
-            profession_categorie: acteur.profession?.socProcINSEE?.catSocPro || null,
-            profession_famille: acteur.profession?.socProcINSEE?.famSocPro || null,
-            uri_hatvp: acteur.uri_hatvp || null,
+            civilite: extractNilableValue(acteur.etatCivil?.ident?.civ),
+            prenom: extractNilableValue(acteur.etatCivil?.ident?.prenom),
+            nom: extractNilableValue(acteur.etatCivil?.ident?.nom),
+            nom_alpha: extractNilableValue(acteur.etatCivil?.ident?.alpha),
+            trigramme: extractNilableValue(acteur.etatCivil?.ident?.trigramme),
+            date_naissance: extractNilableValue(acteur.etatCivil?.infoNaissance?.dateNais),
+            ville_naissance: extractNilableValue(acteur.etatCivil?.infoNaissance?.villeNais),
+            departement_naissance: extractNilableValue(acteur.etatCivil?.infoNaissance?.depNais),
+            pays_naissance: extractNilableValue(acteur.etatCivil?.infoNaissance?.paysNais),
+            date_deces: extractNilableValue(acteur.etatCivil?.dateDeces),
+            profession_libelle: extractNilableValue(acteur.profession?.libelleCourant),
+            profession_categorie: extractNilableValue(acteur.profession?.socProcINSEE?.catSocPro),
+            profession_famille: extractNilableValue(acteur.profession?.socProcINSEE?.famSocPro),
+            uri_hatvp: extractNilableValue(acteur.uri_hatvp),
             legislature_snapshot: this.legislatureSnapshot,
         };
-        this.acteurs.push({ ...acteurObj, row_hash: computeRowHash(acteurObj) });
+        this.acteurs.push({...acteurObj, row_hash: computeRowHash(acteurObj)});
 
-        if (!acteur.adresses?.adresse) return;
+        // Adresses (inchangé)
+        if (acteur.adresses?.adresse) {
+            const adresses = Array.isArray(acteur.adresses.adresse)
+                ? acteur.adresses.adresse
+                : [acteur.adresses.adresse];
 
-        const adresses = Array.isArray(acteur.adresses.adresse)
-            ? acteur.adresses.adresse
-            : [acteur.adresses.adresse];
-
-        for (const adresse of adresses) {
-            if (!adresse) continue;
-            this.extractAdresse(uid, adresse);
+            for (const adresse of adresses) {
+                if (!adresse) continue;
+                this.extractAdresse(uid, adresse);
+            }
         }
+
+        //idempotent si absent
+        if (acteur.mandats?.mandat) {
+            const mandats = Array.isArray(acteur.mandats.mandat)
+                ? acteur.mandats.mandat
+                : [acteur.mandats.mandat];
+
+            for (const mandat of mandats) {
+                if (!mandat) continue;
+                this.extractMandat(uid, mandat);
+            }
+        }
+    }
+
+    private extractMandat(acteurUid: string, mandat: any): void {
+        if (!mandat.uid) return;
+
+        const uid = typeof mandat.uid === 'string' ? mandat.uid : mandat.uid['#text'];
+        const election = mandat.election;
+        const mandature = mandat.mandature;
+
+        //extraction du groupe parlementaire vu des mandats
+        const groupeId = this.extractOrganeRef(mandat.organes);
+        if (mandat.typeOrgane === 'GP' && groupeId) {
+            this.groupesSet.add(groupeId);
+        }
+
+        const mandatObj = {
+            uid,
+            acteur_uid: acteurUid,
+            legislature: parseInt(mandat.legislature) || 0,
+            type_organe: mandat.typeOrgane || '',
+            date_debut: mandat.dateDebut || '',
+            date_fin: mandat.dateFin || null,
+            date_publication: mandat.datePublication || null,
+            preseance: parseInt(mandat.preseance) || 0,
+            nomin_principale: parseInt(mandat.nominPrincipale) || 0,
+            code_qualite: mandat.infosQualite?.codeQualite || '',
+            lib_qualite: mandat.infosQualite?.libQualite || '',
+            lib_qualite_sex: mandat.infosQualite?.libQualiteSex || '',
+            organe_uid: groupeId,
+            // Élection
+            election_region: extractNilableValue(election?.lieu?.region),
+            election_region_type: extractNilableValue(election?.lieu?.regionType),
+            election_departement: extractNilableValue(election?.lieu?.departement),
+            election_num_departement: extractNilableValue(election?.lieu?.numDepartement),
+            election_num_circo: extractNilableValue(election?.lieu?.numCirco),
+            election_cause_mandat: extractNilableValue(election?.causeMandat),
+            election_ref_circonscription: extractNilableValue(election?.refCirconscription),
+
+            // Mandature
+            mandature_date_prise_fonction: extractNilableValue(mandature?.datePriseFonction),
+            mandature_cause_fin: extractNilableValue(mandature?.causeFin),
+            mandature_premiere_election:
+                mandature?.premiereElection === '1' ||
+                mandature?.premiereElection === true ||
+                mandature?.premiereElection === 1
+                    ? true
+                    : mandature?.premiereElection != null ? false : null,
+            mandature_place_hemicycle: extractNilableValue(mandature?.placeHemicycle),
+            mandature_mandat_remplace_ref: extractNilableValue(mandature?.mandatRemplaceRef),
+
+            legislature_snapshot: this.legislatureSnapshot,
+        };
+
+        this.mandats.push({...mandatObj, row_hash: computeRowHash(mandatObj)});
+
+        // Suppléants
+        if (mandat.suppleants?.suppleant) {
+            const suppleants = Array.isArray(mandat.suppleants.suppleant)
+                ? mandat.suppleants.suppleant
+                : [mandat.suppleants.suppleant];
+
+            for (const suppleant of suppleants) {
+                if (!suppleant?.suppleantRef) continue;
+
+                const suppleantObj = {
+                    mandat_uid: uid,
+                    suppleant_uid: suppleant.suppleantRef,
+                    date_debut: suppleant.dateDebut || '',
+                    date_fin: suppleant.dateFin || null,
+                    legislature_snapshot: this.legislatureSnapshot,
+                };
+
+                this.mandatsSuppleants.push({...suppleantObj, row_hash: computeRowHash(suppleantObj)});
+            }
+        }
+    }
+
+    private extractOrganeRef(organes: any): string {
+        if (!organes) return '';
+        if (typeof organes.organeRef === 'string') return organes.organeRef;
+        if (organes.organeRef?.['#text']) return organes.organeRef['#text'];
+        if (Array.isArray(organes.organeRef) && organes.organeRef.length > 0) {
+            return typeof organes.organeRef[0] === 'string'
+                ? organes.organeRef[0]
+                : organes.organeRef[0]['#text'] || '';
+        }
+        return '';
     }
 
     private extractAdresse(acteurUid: string, adresse: any): void {
@@ -106,7 +216,7 @@ export class ActeursExtractor implements IExtractor {
                     ville: adresse.ville || null,
                     legislature_snapshot: this.legislatureSnapshot,
                 };
-                this.acteursAdressesPostales.push({ ...obj, row_hash: computeRowHash(obj) });
+                this.acteursAdressesPostales.push({...obj, row_hash: computeRowHash(obj)});
                 break;
             }
 
@@ -119,7 +229,7 @@ export class ActeursExtractor implements IExtractor {
                     email: adresse.valElec || '',
                     legislature_snapshot: this.legislatureSnapshot,
                 };
-                this.acteursAdressesMails.push({ ...obj, row_hash: computeRowHash(obj) });
+                this.acteursAdressesMails.push({...obj, row_hash: computeRowHash(obj)});
                 break;
             }
 
@@ -133,7 +243,7 @@ export class ActeursExtractor implements IExtractor {
                     identifiant: adresse.valElec || '',
                     legislature_snapshot: this.legislatureSnapshot,
                 };
-                this.acteursReseauxSociaux.push({ ...obj, row_hash: computeRowHash(obj) });
+                this.acteursReseauxSociaux.push({...obj, row_hash: computeRowHash(obj)});
                 break;
             }
 
@@ -147,7 +257,7 @@ export class ActeursExtractor implements IExtractor {
                     numero: adresse.valElec || '',
                     legislature_snapshot: this.legislatureSnapshot,
                 };
-                this.acteursTelephones.push({ ...obj, row_hash: computeRowHash(obj) });
+                this.acteursTelephones.push({...obj, row_hash: computeRowHash(obj)});
                 break;
             }
         }

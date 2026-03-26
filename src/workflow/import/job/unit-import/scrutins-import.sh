@@ -22,7 +22,7 @@ SQL_SCRIPTS_DIR="//sql/scripts/scrutins"
 
 SCHEMA_NAME="scrutins.schema.sql"
 DEPUTES_JSON="deputes.json"
-GROUPES_JSON="groupes.json"
+GROUPES_VU_DES_SCRUTINS_JSON="groupesVuDesScrutins.json"
 SCRUTINS_JSON="scrutins.json"
 SCRUTINS_GROUPES_JSON="scrutinsGroupes.json"
 VOTES_DEPUTES_JSON="votesDeputes.json"
@@ -131,7 +131,7 @@ for LEGISLATURE_DIR in "$TABLES_DIR"/*/; do
     echo " ------------- "
 
     echo "📥 [RAW] Importing groupes parlementaires..."
-    import_json_to_raw_table "$LEGISLATURE_DIR/$GROUPES_JSON" "groupes_parlementaires_raw" "project_groupes_parlementaires"
+    import_json_to_raw_table "$LEGISLATURE_DIR/$GROUPES_VU_DES_SCRUTINS_JSON" "groupes_parlementaires_raw" "project_groupes_parlementaires"
     echo "✓ [RAW] groupes parlementaires done"
     echo " ------------- "
 

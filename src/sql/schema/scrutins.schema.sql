@@ -9,31 +9,31 @@ DROP TABLE IF EXISTS votes_deputes_raw CASCADE;
 DROP TABLE IF EXISTS scrutins_agregats_raw CASCADE;
 DROP TABLE IF EXISTS scrutins_groupes_agregats_raw CASCADE;
 
-CREATE TABLE deputes_raw
+CREATE TABLE IF NOT EXISTS deputes_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE groupes_parlementaires_raw
+CREATE TABLE IF NOT EXISTS groupes_parlementaires_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE scrutins_raw
+CREATE TABLE IF NOT EXISTS scrutins_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE scrutins_groupes_raw
+CREATE TABLE IF NOT EXISTS scrutins_groupes_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE votes_deputes_raw
+CREATE TABLE IF NOT EXISTS votes_deputes_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE scrutins_agregats_raw
+CREATE TABLE IF NOT EXISTS scrutins_agregats_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE scrutins_groupes_agregats_raw
+CREATE TABLE IF NOT EXISTS scrutins_groupes_agregats_raw
 (
     data JSONB NOT NULL
 );
@@ -42,29 +42,21 @@ CREATE TABLE scrutins_groupes_agregats_raw
 -- SNAPSHOT TABLES
 -- ==============================================================================
 DROP TABLE IF EXISTS deputes_snapshot CASCADE;
-DROP TABLE IF EXISTS groupes_parlementaires_snapshot CASCADE;
 DROP TABLE IF EXISTS scrutins_snapshot CASCADE;
 DROP TABLE IF EXISTS scrutins_groupes_snapshot CASCADE;
 DROP TABLE IF EXISTS votes_deputes_snapshot CASCADE;
 DROP TABLE IF EXISTS scrutins_agregats_snapshot CASCADE;
 DROP TABLE IF EXISTS scrutins_groupes_agregats_snapshot CASCADE;
+DROP TABLE IF EXISTS groupes_parlementaires_snapshot CASCADE;
 
-CREATE TABLE deputes_snapshot
+CREATE TABLE IF NOT EXISTS deputes_snapshot
 (
     id                   TEXT PRIMARY KEY,
     row_hash             TEXT    NOT NULL,
     legislature_snapshot INTEGER NOT NULL
 );
 
-CREATE TABLE groupes_parlementaires_snapshot
-(
-    id                   TEXT    NOT NULL,
-    legislature_snapshot INTEGER NOT NULL,
-    row_hash             TEXT    NOT NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE TABLE scrutins_snapshot
+CREATE TABLE IF NOT EXISTS scrutins_snapshot
 (
     uid                  TEXT PRIMARY KEY,
     numero               TEXT,
@@ -80,7 +72,7 @@ CREATE TABLE scrutins_snapshot
     legislature_snapshot INTEGER NOT NULL
 );
 
-CREATE TABLE scrutins_groupes_snapshot
+CREATE TABLE IF NOT EXISTS scrutins_groupes_snapshot
 (
     scrutin_uid          TEXT    NOT NULL,
     groupe_id            TEXT    NOT NULL,
@@ -92,7 +84,7 @@ CREATE TABLE scrutins_groupes_snapshot
     PRIMARY KEY (scrutin_uid, groupe_id)
 );
 
-CREATE TABLE votes_deputes_snapshot
+CREATE TABLE IF NOT EXISTS votes_deputes_snapshot
 (
     scrutin_uid          TEXT    NOT NULL,
     depute_id            TEXT    NOT NULL,
@@ -107,7 +99,7 @@ CREATE TABLE votes_deputes_snapshot
     PRIMARY KEY (scrutin_uid, depute_id)
 );
 
-CREATE TABLE scrutins_agregats_snapshot
+CREATE TABLE IF NOT EXISTS scrutins_agregats_snapshot
 (
     scrutin_uid                   TEXT PRIMARY KEY,
     nombre_votants                INTEGER,
@@ -122,7 +114,7 @@ CREATE TABLE scrutins_agregats_snapshot
     legislature_snapshot          INTEGER NOT NULL
 );
 
-CREATE TABLE scrutins_groupes_agregats_snapshot
+CREATE TABLE IF NOT EXISTS scrutins_groupes_agregats_snapshot
 (
     scrutin_uid             TEXT    NOT NULL,
     groupe_id               TEXT    NOT NULL,
@@ -135,4 +127,12 @@ CREATE TABLE scrutins_groupes_agregats_snapshot
     row_hash                TEXT    NOT NULL,
     legislature_snapshot    INTEGER NOT NULL,
     PRIMARY KEY (scrutin_uid, groupe_id)
+);
+
+CREATE TABLE IF NOT EXISTS groupes_parlementaires_snapshot
+(
+    id                   TEXT    NOT NULL,
+    legislature_snapshot INTEGER NOT NULL,
+    row_hash             TEXT    NOT NULL,
+    PRIMARY KEY (id)
 );

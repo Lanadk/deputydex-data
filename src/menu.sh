@@ -5,8 +5,6 @@ set -e
 # DEPUTYDEX - MAIN MENU
 # ==============================================================================
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 # ==============================================================================
 # FUNCTIONS
 # ==============================================================================
@@ -18,7 +16,6 @@ run_download_all()              { npx ts-node ./workflow/download/job/trtCollect
 run_parser_all()                { npx ts-node ./workflow/parser/job/trtCheckCollecte.ts; }
 run_parser_acteurs()            { npx ts-node ./workflow/parser/job/unit-parser/parseActeurs.ts; }
 run_parser_scrutins()           { npx ts-node ./workflow/parser/job/unit-parser/parseScrutins.ts; }
-run_parser_mandats()            { npx ts-node ./workflow/parser/job/unit-parser/parseMandats.ts; }
 
 # -- Import --------------------------------------------------------------------
 run_import_all()                { ./workflow/import/job/trtImportCollecte.sh "$1"; }
@@ -29,38 +26,40 @@ run_import_mandats()            { ./workflow/import/job/unit-import/mandats-impo
 # -- Aggregation ---------------------------------------------------------------
 run_aggregate_all_one_shot()    { ./workflow/aggregat/job/trtAggregatCollecte-oneshot.sh; }
 run_aggregate_all_refresh()     { ./workflow/aggregat/job/trtAggregatCollecte.sh; }
-run_aggregate_acteurs_one_shot(){ ./workflow/aggregat/job/unit-aggregation/acteurs-aggregation-oneshot.sh; }
-run_aggregate_acteurs_refresh() { ./workflow/aggregat/job/unit-aggregation/acteurs-aggregation.sh; }
+run_aggregate_acteurs_one_shot(){ ./workflow/aggregat/job/acteurs/aggregation-oneshot.sh; }
+run_aggregate_acteurs_refresh() { ./workflow/aggregat/job/acteurs/aggregation.sh; }
+run_aggregate_groupes_one_shot(){ ./workflow/aggregat/job/groupes/aggregation-oneshot.sh; }
+run_aggregate_groupes_refresh() { ./workflow/aggregat/job/groupes/aggregation.sh; }
 
 # -- Referentiels  ---------------------------------------------------------------
 run_update_all_referentials_tables() { ./workflow/referentials/job/trtUpdateReferentials.sh; }
 
 # -- Enrichment  ---------------------------------------------------------------
-run_all_enrichment_tables() { ./workflow/referentials/job/trtEnrichmentCollecte.sh; }
+run_all_enrichment_tables() { ./workflow/enrichment/job/trtEnrichmentCollecte.sh; }
 
 # ==============================================================================
 # WORKFLOWS
 # ==============================================================================
 
 workflow_init() {
-    echo "🚀 Running INIT Workflow (Download + Parser + Import + Aggregate ONE SHOT + Enrichment)..."
+    echo "🚀 Running INIT Workflow (Download + Parser + Import + Ref CREATION + Enrichment + Aggregate CREATION)..."
     run_download_all
     run_parser_all
     run_import_all --auto-cleanup
-    run_aggregate_all_one_shot
     run_update_all_referentials_tables
     run_all_enrichment_tables
+    run_aggregate_all_one_shot
     echo "✅ Init Workflow completed"
 }
 
 workflow_update() {
-    echo "🔄 Running UPDATE Workflow (Download + Parser + Import + Aggregate Refresh + Enrichment)..."
+    echo "🔄 Running UPDATE Workflow (Download + Parser + Import + Ref UPDATE + Enrichment + Aggregate UPDATE)..."
     run_download_all
     run_parser_all
     run_import_all --auto-cleanup
-    run_aggregate_all_refresh
     run_update_all_referentials_tables
     run_all_enrichment_tables
+    run_aggregate_all_refresh
     echo "✅ Update Workflow completed"
 }
 
@@ -150,6 +149,8 @@ aggregate_menu() {
         echo "2) Aggregate All (Create - One shot)"
         echo "3) Aggregate Acteurs (Refresh)"
         echo "4) Aggregate Acteurs (Create - One shot)"
+        echo "5) Aggregate Groupes (Refresh)"
+        echo "6) Aggregate Groupes (Create - One shot)"
         echo "0) Back"
         echo ""
         echo "=============================================="
@@ -167,6 +168,12 @@ aggregate_menu() {
                 read -p "⚠️  ONE SHOT - À lancer une seule fois. Confirmer ? (y/n) " -n 1 -r
                 echo
                 if [[ $REPLY =~ ^[Yy]$ ]]; then run_aggregate_acteurs_one_shot; fi
+                ;;
+            5) run_aggregate_groupes_refresh ;;
+            6)
+                read -p "⚠️  ONE SHOT - À lancer une seule fois. Confirmer ? (y/n) " -n 1 -r
+                echo
+                if [[ $REPLY =~ ^[Yy]$ ]]; then run_aggregate_groupes_one_shot; fi
                 ;;
             0) return ;;
             *) echo "⚠️  Invalid option, please try again." ;;
@@ -213,8 +220,8 @@ while true; do
     echo " ----------- "
     echo "  WORKFLOWS"
     echo " ----------- "
-    echo "  1) Init          (Download + Parse + Import + Aggregate CREATE + Referentials UPDATE)"
-    echo "  2) Update        (Download + Parse + Import + Aggregate REFRESH + Referentials UPDATE)"
+    echo "  1) Init          (Download + Parse + Import + Referentials CREATE + Enrichment + Aggregate CREATE)"
+    echo "  2) Update        (Download + Parse + Import + Referentials UPDATE + Enrichment + Aggregate UPDATE)"
     echo " "
     echo " ----------- "
     echo "  FULL JOBS"
@@ -224,7 +231,7 @@ while true; do
     echo "  5) Import All"
     echo "  6) Aggregate All (Refresh)"
     echo "  7) Aggregate All (One shot)"
-    echo "  8) Referentials Update"
+    echo "  8) Referentials Create / Update"
     echo "  9) Enrichment All"
     echo " "
     echo " ----------- "

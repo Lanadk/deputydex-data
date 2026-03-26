@@ -5,7 +5,7 @@ import {ScrutinsExtractor} from "../../domain/models/ScrutinsExtractor";
 import {
     acteursSourceDirectoryName,
     baseInData,
-    baseOutData, mandatsSourceDirectoryName,
+    baseOutData,
     outTableDirectoryName,
     scrutinsSourceDirectoryName
 } from "../const";
@@ -18,7 +18,7 @@ import {BatchProcessor} from "../../domain/models/BatchProcessor";
 import {ParseFilesUseCase} from "../../domain/usecases/ParseFilesUseCase";
 import {MandatsExtractor} from "../../domain/models/MandatExtractor";
 
-export type ParserDomain = 'acteurs' | 'scrutins' | 'mandats';
+export type ParserDomain = 'acteurs' | 'scrutins';
 
 export interface ParserJobRunnerConfig {
     domain: ParserDomain;
@@ -31,7 +31,6 @@ export class ParserJobFactory {
     private static readonly SOURCE_DIRS: Record<ParserDomain, string> = {
         acteurs: acteursSourceDirectoryName,
         scrutins: scrutinsSourceDirectoryName,
-        mandats: mandatsSourceDirectoryName
     };
 
     // ==============================================================================
@@ -41,7 +40,6 @@ export class ParserJobFactory {
         switch (domain) {
             case 'acteurs':  return new ActeursExtractor(legislatureSnapshot);
             case 'scrutins': return new ScrutinsExtractor(legislatureSnapshot);
-            case 'mandats':  return new MandatsExtractor(legislatureSnapshot);
         }
     }
 
@@ -81,7 +79,7 @@ export class ParserJobFactory {
 
         logger.info(`🏛️  Législatures trouvées : ${legislatures.join(', ')}`);
 
-        const domains: ParserDomain[] = ['acteurs', 'scrutins', 'mandats'];
+        const domains: ParserDomain[] = ['acteurs', 'scrutins'];
 
         for (const legislature of legislatures) {
             logger.info(`\n📅 Legislature ${legislature}`);

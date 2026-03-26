@@ -2858,155 +2858,155 @@ INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, 
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3070, 'PA718910', 16, 'public/tribun/16/photos_deputes_nobg/138_Claire_Colomb-Pitollat.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3070, 'PA718910', 16, '/tribun/16/photos_deputes_nobg/138_Claire_Colomb-Pitollat.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3078, 'PA267780', 16, 'public/tribun/16/photos_deputes_nobg/216_Agnès_Firmin_Le_Bodo.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3078, 'PA267780', 16, '/tribun/16/photos_deputes_nobg/216_Agnès_Firmin_Le_Bodo.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3076, 'PA793964', 16, 'public/tribun/16/photos_deputes_nobg/164_Grégoire_de_Fournas.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3076, 'PA793964', 16, '/tribun/16/photos_deputes_nobg/164_Grégoire_de_Fournas.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3073, 'PA720932', 16, 'public/tribun/16/photos_deputes_nobg/156_Dominique_Da_Silva.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3073, 'PA720932', 16, '/tribun/16/photos_deputes_nobg/156_Dominique_Da_Silva.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3071, 'PA719006', 16, 'public/tribun/16/photos_deputes_nobg/346_Fabrice_Le_Vigoureux.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3071, 'PA719006', 16, '/tribun/16/photos_deputes_nobg/346_Fabrice_Le_Vigoureux.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3069, 'PA1874', 16, 'public/tribun/16/photos_deputes_nobg/335_Marc_Le_Fur.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3069, 'PA1874', 16, '/tribun/16/photos_deputes_nobg/335_Marc_Le_Fur.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3074, 'PA721466', 16, 'public/tribun/16/photos_deputes_nobg/339_Gilles_Le_Gendre.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3074, 'PA721466', 16, '/tribun/16/photos_deputes_nobg/339_Gilles_Le_Gendre.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3072, 'PA720002', 16, 'public/tribun/16/photos_deputes_nobg/195_Sarah_El_Haïry.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3072, 'PA720002', 16, '/tribun/16/photos_deputes_nobg/195_Sarah_El_Haïry.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3075, 'PA793190', 16, 'public/tribun/16/photos_deputes_nobg/283_Laurence_Heydel_Grillere.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3075, 'PA793190', 16, '/tribun/16/photos_deputes_nobg/283_Laurence_Heydel_Grillere.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3098, 'PA795644', 16, 'public/tribun/16/photos_deputes_nobg/155_Nathalie_Da_Conceicao_Carvalho.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3098, 'PA795644', 16, '/tribun/16/photos_deputes_nobg/155_Nathalie_Da_Conceicao_Carvalho.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3114, 'PA942', 16, 'public/tribun/16/photos_deputes_nobg/163_Charles_de_Courson.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3114, 'PA942', 16, '/tribun/16/photos_deputes_nobg/163_Charles_de_Courson.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3079, 'PA795184', 16, 'public/tribun/16/photos_deputes_nobg/338_Tematai_Le_Gayic.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3079, 'PA795184', 16, '/tribun/16/photos_deputes_nobg/338_Tematai_Le_Gayic.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3111, 'PA841837', 17, 'public/tribun/17/photos_deputes_nobg/321_Le_Bourgeois.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3111, 'PA841837', 17, '/tribun/17/photos_deputes_nobg/321_Le_Bourgeois.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3090, 'PA720386', 16, 'public/tribun/16/photos_deputes_nobg/178_Fabien_Di_Filippo.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3090, 'PA720386', 16, '/tribun/16/photos_deputes_nobg/178_Fabien_Di_Filippo.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3101, 'PA840657', 17, 'public/tribun/17/photos_deputes_nobg/474_Ricourt_Vaginay.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3101, 'PA840657', 17, '/tribun/17/photos_deputes_nobg/474_Ricourt_Vaginay.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3083, 'PA608172', 16, 'public/tribun/16/photos_deputes_nobg/480_Christine_Pirès_Beaune.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3083, 'PA608172', 16, '/tribun/16/photos_deputes_nobg/480_Christine_Pirès_Beaune.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3094, 'PA794426', 16, 'public/tribun/16/photos_deputes_nobg/341_Anne_Le_Hénanff.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3094, 'PA794426', 16, '/tribun/16/photos_deputes_nobg/341_Anne_Le_Hénanff.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3082, 'PA606573', 17, 'public/tribun/17/photos_deputes_nobg/173_Dombre_Coste.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3082, 'PA606573', 17, '/tribun/17/photos_deputes_nobg/173_Dombre_Coste.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3096, 'PA795240', 16, 'public/tribun/16/photos_deputes_nobg/511_Mereana_Reid_Arbelot.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3096, 'PA795240', 16, '/tribun/16/photos_deputes_nobg/511_Mereana_Reid_Arbelot.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3089, 'PA720342', 16, 'public/tribun/16/photos_deputes_nobg/344_Nicole_Le_Peih.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3089, 'PA720342', 16, '/tribun/16/photos_deputes_nobg/344_Nicole_Le_Peih.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3109, 'PA841701', 17, 'public/tribun/17/photos_deputes_nobg/024_Balage_El_Mariky.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3109, 'PA841701', 17, '/tribun/17/photos_deputes_nobg/024_Balage_El_Mariky.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3099, 'PA795672', 16, 'public/tribun/16/photos_deputes_nobg/337_Arnaud_Le_Gall.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3099, 'PA795672', 16, '/tribun/16/photos_deputes_nobg/337_Arnaud_Le_Gall.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3106, 'PA841515', 17, 'public/tribun/17/photos_deputes_nobg/325_Le_Coq.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3106, 'PA841515', 17, '/tribun/17/photos_deputes_nobg/325_Le_Coq.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3107, 'PA841613', 17, 'public/tribun/17/photos_deputes_nobg/206_de_Fleurian.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3107, 'PA841613', 17, '/tribun/17/photos_deputes_nobg/206_de_Fleurian.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3084, 'PA642988', 16, 'public/tribun/16/photos_deputes_nobg/165_Hervé_de_Lépinau.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3084, 'PA642988', 16, '/tribun/16/photos_deputes_nobg/165_Hervé_de_Lépinau.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3081, 'PA345722', 16, 'public/tribun/16/photos_deputes_nobg/340_Constance_Le_Grip.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3081, 'PA345722', 16, '/tribun/16/photos_deputes_nobg/340_Constance_Le_Grip.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3103, 'PA840979', 17, 'public/tribun/17/photos_deputes_nobg/328_Le_Fur.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3103, 'PA840979', 17, '/tribun/17/photos_deputes_nobg/328_Le_Fur.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3095, 'PA795156', 16, 'public/tribun/16/photos_deputes_nobg/311_Fatiha_Keloua_Hachi.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3095, 'PA795156', 16, '/tribun/16/photos_deputes_nobg/311_Fatiha_Keloua_Hachi.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3100, 'PA795998', 16, 'public/tribun/16/photos_deputes_nobg/619_Émeline_KBidi.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3100, 'PA795998', 16, '/tribun/16/photos_deputes_nobg/619_Émeline_KBidi.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3092, 'PA721296', 16, 'public/tribun/16/photos_deputes_nobg/251_Guillaume_Gouffier_Valente.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3092, 'PA721296', 16, '/tribun/16/photos_deputes_nobg/251_Guillaume_Gouffier_Valente.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3097, 'PA795454', 16, 'public/tribun/16/photos_deputes_nobg/049_Karim_Ben_Cheikh.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3097, 'PA795454', 16, '/tribun/16/photos_deputes_nobg/049_Karim_Ben_Cheikh.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3085, 'PA719388', 16, 'public/tribun/16/photos_deputes_nobg/342_Annaïg_Le_Meur.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3085, 'PA719388', 16, '/tribun/16/photos_deputes_nobg/342_Annaïg_Le_Meur.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3087, 'PA719412', 16, 'public/tribun/16/photos_deputes_nobg/334_Sandrine_Le_Feur.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3087, 'PA719412', 16, '/tribun/16/photos_deputes_nobg/334_Sandrine_Le_Feur.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3088, 'PA719756', 16, 'public/tribun/16/photos_deputes_nobg/343_Christine_Le_Nabour.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3088, 'PA719756', 16, '/tribun/16/photos_deputes_nobg/343_Christine_Le_Nabour.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3105, 'PA841359', 17, 'public/tribun/17/photos_deputes_nobg/435_de_Pélichy.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3105, 'PA841359', 17, '/tribun/17/photos_deputes_nobg/435_de_Pélichy.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3086, 'PA719404', 16, 'public/tribun/16/photos_deputes_nobg/336_Didier_Le_Gac.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3086, 'PA719404', 16, '/tribun/16/photos_deputes_nobg/336_Didier_Le_Gac.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3091, 'PA720614', 16, 'public/tribun/16/photos_deputes_nobg/345_Marine_Le_Pen.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3091, 'PA720614', 16, '/tribun/16/photos_deputes_nobg/345_Marine_Le_Pen.png', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;
-INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3093, 'PA793382', 16, 'public/tribun/17/photos_deputes_nobg/526_Taché.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
+INSERT INTO public.ref_acteurs_photos (id, acteur_uid, legislature, photo_path, created_at) VALUES (3093, 'PA793382', 16, '/tribun/17/photos_deputes_nobg/526_Taché.jpg', '2026-03-12 00:20:54.764213') ON CONFLICT (id) DO UPDATE SET
   acteur_uid = EXCLUDED.acteur_uid,
   legislature = EXCLUDED.legislature,
   photo_path = EXCLUDED.photo_path;

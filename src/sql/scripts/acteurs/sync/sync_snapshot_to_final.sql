@@ -165,3 +165,15 @@ UPDATE SET
 WHERE acteurs_telephones.row_hash != EXCLUDED.row_hash;
 
 COMMIT;
+
+-- =====================================================
+-- GROUPES PARLEMENTAIRES
+-- =====================================================
+
+INSERT INTO groupes_parlementaires (id, legislature_snapshot, row_hash)
+SELECT id, legislature_snapshot, row_hash
+FROM groupes_parlementaires_snapshot
+ON CONFLICT (id) DO UPDATE
+    SET legislature_snapshot = EXCLUDED.legislature_snapshot,
+        row_hash             = EXCLUDED.row_hash
+WHERE groupes_parlementaires.row_hash != EXCLUDED.row_hash;

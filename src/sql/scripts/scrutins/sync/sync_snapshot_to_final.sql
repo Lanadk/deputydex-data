@@ -34,23 +34,6 @@ ON CONFLICT (id) DO UPDATE SET legislature_snapshot = EXCLUDED.legislature_snaps
                                row_hash             = EXCLUDED.row_hash
 WHERE groupes_parlementaires.row_hash != EXCLUDED.row_hash;
 
-CREATE
-    TEMP TABLE tmp_groupes_to_delete AS
-SELECT g.id, g.legislature_snapshot
-FROM groupes_parlementaires g
-WHERE g.legislature_snapshot IN (SELECT number FROM param_current_legislatures)
-  AND NOT EXISTS (SELECT 1
-                  FROM groupes_parlementaires_snapshot s
-                  WHERE s.id = g.id
-                    AND s.legislature_snapshot = g.legislature_snapshot
-);
-
-DELETE
-FROM groupes_parlementaires g USING tmp_groupes_to_delete x
-WHERE g.id = x.id
-  AND g.legislature_snapshot = x.legislature_snapshot;
-DROP TABLE tmp_groupes_to_delete;
-
 -- =====================================================
 -- SCRUTINS
 -- =====================================================

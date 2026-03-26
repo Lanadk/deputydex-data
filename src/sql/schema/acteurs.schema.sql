@@ -6,24 +6,29 @@ DROP TABLE IF EXISTS acteurs_adresses_postales_raw CASCADE;
 DROP TABLE IF EXISTS acteurs_adresses_mails_raw CASCADE;
 DROP TABLE IF EXISTS acteurs_reseaux_sociaux_raw CASCADE;
 DROP TABLE IF EXISTS acteurs_telephones_raw CASCADE;
+DROP TABLE IF EXISTS groupes_parlementaires_raw CASCADE;
 
-CREATE TABLE acteurs_raw
+CREATE TABLE IF NOT EXISTS acteurs_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE acteurs_adresses_postales_raw
+CREATE TABLE IF NOT EXISTS acteurs_adresses_postales_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE acteurs_adresses_mails_raw
+CREATE TABLE IF NOT EXISTS acteurs_adresses_mails_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE acteurs_reseaux_sociaux_raw
+CREATE TABLE IF NOT EXISTS acteurs_reseaux_sociaux_raw
 (
     data JSONB NOT NULL
 );
-CREATE TABLE acteurs_telephones_raw
+CREATE TABLE IF NOT EXISTS acteurs_telephones_raw
+(
+    data JSONB NOT NULL
+);
+CREATE TABLE IF NOT EXISTS groupes_parlementaires_raw
 (
     data JSONB NOT NULL
 );
@@ -36,8 +41,9 @@ DROP TABLE IF EXISTS acteurs_adresses_postales_snapshot CASCADE;
 DROP TABLE IF EXISTS acteurs_adresses_mails_snapshot CASCADE;
 DROP TABLE IF EXISTS acteurs_reseaux_sociaux_snapshot CASCADE;
 DROP TABLE IF EXISTS acteurs_telephones_snapshot CASCADE;
+DROP TABLE IF EXISTS groupes_parlementaires_snapshot CASCADE;
 
-CREATE TABLE acteurs_snapshot
+CREATE TABLE IF NOT EXISTS acteurs_snapshot
 (
     uid                   TEXT PRIMARY KEY,
     civilite              TEXT,
@@ -58,7 +64,7 @@ CREATE TABLE acteurs_snapshot
     legislature_snapshot  INTEGER NOT NULL
 );
 
-CREATE TABLE acteurs_adresses_postales_snapshot
+CREATE TABLE IF NOT EXISTS acteurs_adresses_postales_snapshot
 (
     acteur_uid           TEXT,
     uid_adresse          TEXT PRIMARY KEY,
@@ -74,7 +80,7 @@ CREATE TABLE acteurs_adresses_postales_snapshot
     legislature_snapshot INTEGER NOT NULL
 );
 
-CREATE TABLE acteurs_adresses_mails_snapshot
+CREATE TABLE IF NOT EXISTS acteurs_adresses_mails_snapshot
 (
     acteur_uid           TEXT,
     uid_adresse          TEXT PRIMARY KEY,
@@ -85,7 +91,7 @@ CREATE TABLE acteurs_adresses_mails_snapshot
     legislature_snapshot INTEGER NOT NULL
 );
 
-CREATE TABLE acteurs_reseaux_sociaux_snapshot
+CREATE TABLE IF NOT EXISTS acteurs_reseaux_sociaux_snapshot
 (
     acteur_uid           TEXT,
     uid_adresse          TEXT PRIMARY KEY,
@@ -97,7 +103,7 @@ CREATE TABLE acteurs_reseaux_sociaux_snapshot
     legislature_snapshot INTEGER NOT NULL
 );
 
-CREATE TABLE acteurs_telephones_snapshot
+CREATE TABLE IF NOT EXISTS acteurs_telephones_snapshot
 (
     acteur_uid           TEXT,
     uid_adresse          TEXT PRIMARY KEY,
@@ -107,4 +113,12 @@ CREATE TABLE acteurs_telephones_snapshot
     numero               TEXT,
     row_hash             TEXT,
     legislature_snapshot INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS groupes_parlementaires_snapshot
+(
+    id                   TEXT    NOT NULL,
+    legislature_snapshot INTEGER NOT NULL,
+    row_hash             TEXT    NOT NULL,
+    PRIMARY KEY (id)
 );

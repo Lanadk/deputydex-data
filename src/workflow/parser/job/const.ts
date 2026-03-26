@@ -5,6 +5,5 @@ export const outTableDirectoryName = 'tables';
 
 /** Domains const **/
 export const scrutinsSourceDirectoryName = 'scrutins';
-export const acteursSourceDirectoryName = 'acteurs/acteur';
-export const mandatsSourceDirectoryName = 'acteurs/mandat'
+export const acteursSourceDirectoryName = 'acteurs/json/acteur';
 
