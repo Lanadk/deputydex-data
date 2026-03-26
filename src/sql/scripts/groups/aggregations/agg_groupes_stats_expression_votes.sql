@@ -1,35 +1,60 @@
 -- OK VALIDE
 
 -- ============================================================
--- VIEW : agg_groupes_stats_votes_participation
+-- VIEW : agg_groupes_stats_expression_votes
 -- ============================================================
--- Participation des groupes parlementaires aux scrutins
--- votes exprimés / positions totales
+-- Participation comptable des groupes parlementaires aux scrutins
 --
--- Ratio basé sur les positions
+-- En d'autres termes :
+--   dans ce groupe, sur l’ensemble des positions observées,
+--   quelle part correspond à une participation politique
+--   (pour / contre / abstention) par rapport à l’ensemble des positions
+--   (y compris non votants)
+--
 -- Logique :
 --   - Agrégation des positions de vote par groupe à partir des
---     agrégats de scrutin par groupe
+--     agrégats de scrutin par groupe (scrutins_groupes_agregats)
 --   - Distinction entre :
---       * participation politique : pour, contre, abstention
---       * non participation : non_votants, non_votants_volontaires
---   - Calcul d'un taux global de participation
---   - Seuls les scrutins disposant d'un agrégat exploitable sont comptés
---
+--       * participation politique :
+--           - pour
+--           - contre
+--           - abstention
+--       * non participation :
+--           - non_votants
+--           - non_votants_volontaires
+--   - Calcul :
+--       * du nombre total de positions politiques
+--       * du nombre de non votants
+--       * du total de positions observées
+--       * du taux d’expression politique
+--   - Calcul également de la couverture des scrutins :
+--       part des scrutins pour lesquels le groupe dispose d’un agrégat
 --
 -- Colonnes :
 --   - groupe_id                   : identifiant technique du groupe
 --   - legislature                 : législature du groupe
 --   - code                        : code court du groupe
 --   - libelle                     : nom du groupe
---   - nb_scrutins                 : nombre de scrutins agrégés pour le groupe
---   - nb_positions_participantes  : total des positions pour/contre/abstention
---   - nb_non_votants              : total des non votants
---   - total_positions             : total de toutes les positions de vote
---   - taux_participation          : % de participation politique
+--
+--   - nb_scrutins                 : nombre de scrutins avec agrégat pour le groupe
+--   - nb_scrutins_legislature     : nombre total de scrutins de la législature
+--   - taux_couverture_scrutins    : part (%) des scrutins couverts par le groupe
+--
+--   - nb_positions_participantes  : total des positions politiques (pour/contre/abstention)
+--   - nb_non_votants              : total des non votants (incluant volontaires)
+--   - total_positions             : total de toutes les positions observées
+--
+--   - taux_expression_votes       : % de positions politiques
+--                                  = participation politique / total positions
+--
+-- Remarque :
+--   - Cette vue est une synthèse globale par groupe et législature
+--   - Elle ne donne pas la répartition des positions (voir vues :
+--       * agg_groupes_stats_votes_positions_comptables
+--       * agg_groupes_stats_votes_positions_politiques)
 -- ============================================================
 
-CREATE MATERIALIZED VIEW agg_groupes_stats_votes_positions AS
+CREATE MATERIALIZED VIEW agg_groupes_stats_expression_votes AS
 WITH scrutins_legislature AS (SELECT s.legislature_snapshot AS legislature,
                                      COUNT(*)               AS nb_scrutins_legislature
                               FROM scrutins s

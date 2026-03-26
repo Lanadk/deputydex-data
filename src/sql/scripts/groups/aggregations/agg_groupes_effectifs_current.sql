@@ -1,30 +1,28 @@
 -- OK VALIDE MAIS IL SEMBLE MANQUER 2 MEMBRES , UN DANS NI-17 , UN DANS LIOT
 
 -- ============================================================
--- VIEW : agg_groupes_stats_cohesion
+-- VIEW : agg_groupes_effectifs_current
 -- ============================================================
--- Cohésion politique interne des groupes parlementaires
+-- Effectif actuel / de référence des groupes parlementaires
 --
 -- Logique :
---   - Comparaison entre :
---       * le vote individuel du député
---       * la position majoritaire politique du groupe sur le scrutin
---   - Sont pris en compte uniquement les votes politiques explicites :
---       * pour
---       * contre
---       * abstention
---   - Exclusion :
---       * des scrutins sans position majoritaire définie
---       * des votes individuels non politiques (non-votant, etc.)
+--   - Pour chaque législature, on définit une date de référence :
+--       * CURRENT_DATE pour la législature en cours
+--       * end_date pour les législatures terminées
+--   - On reconstitue les appartenances actives à cette date
+--   - Un acteur ne compte qu'une seule fois par groupe
 --
 -- Colonnes :
---   - groupe_id           : identifiant technique du groupe
---   - legislature         : législature du groupe
---   - code                : code court du groupe
---   - libelle             : nom du groupe
---   - nb_votes_eligibles  : nombre de votes individuels comparables
---   - nb_votes_alignes    : nombre de votes alignés avec la majorité du groupe
---   - taux_cohesion_politique : % d'alignement politique interne
+--   - groupe_id     : identifiant technique du groupe
+--   - legislature   : législature du groupe
+--   - libelle       : nom du groupe
+--   - code          : code court du groupe
+--   - nb_acteurs    : nombre de membres du groupe à la date de référence
+--
+-- Remarque :
+--   - Cette vue donne une "photo" du groupe :
+--       * photo actuelle pour la législature en cours
+--       * photo de fin de législature pour les législatures passées
 -- ============================================================
 
 CREATE MATERIALIZED VIEW agg_groupes_effectifs_current AS

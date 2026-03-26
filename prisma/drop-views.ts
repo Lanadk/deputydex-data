@@ -22,7 +22,8 @@ async function main() {
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_participation_legislature CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_participation_mensuelle CASCADE;
         
-        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_votes_positions CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_expression_votes CASCADE;
+        
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_votes_positions_politiques CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_votes_positions_comptables CASCADE;
         

@@ -24,7 +24,8 @@ create_view "agg_groupes_stats_couverture_scrutins"       "$SQL_SCRIPTS_DIR/agg_
 create_view "agg_groupes_stats_participation_legislature" "$SQL_SCRIPTS_DIR/agg_groupes_stats_participation_legislature.sql"
 create_view "agg_groupes_stats_participation_mensuelle"   "$SQL_SCRIPTS_DIR/agg_groupes_stats_participation_mensuelle.sql"
 
-create_view "agg_groupes_stats_votes_positions"           "$SQL_SCRIPTS_DIR/agg_groupes_stats_votes_positions.sql"
+create_view "agg_groupes_stats_expression_votes"           "$SQL_SCRIPTS_DIR/agg_groupes_stats_expression_votes.sql"
+
 create_view "agg_groupes_stats_votes_positions_politiques" "$SQL_SCRIPTS_DIR/agg_groupes_stats_votes_positions_politiques.sql"
 create_view "agg_groupes_stats_votes_positions_comptables" "$SQL_SCRIPTS_DIR/agg_groupes_stats_votes_positions_comptables.sql"
 

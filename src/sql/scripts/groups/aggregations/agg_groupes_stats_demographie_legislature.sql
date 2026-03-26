@@ -1,7 +1,7 @@
 -- OK VALIDE
 
 -- ============================================================
--- VIEW : agg_groupes_demographie_legislature
+-- VIEW : agg_groupes_stats_demographie_legislature
 -- ============================================================
 -- Photo démographique des groupes parlementaires par législature
 --

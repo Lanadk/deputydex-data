@@ -22,7 +22,8 @@ refresh_view "agg_groupes_stats_couverture_scrutins"
 refresh_view "agg_groupes_stats_participation_legislature"
 refresh_view "agg_groupes_stats_participation_mensuelle"
 
-refresh_view "agg_groupes_stats_votes_positions"
+refresh_view "agg_groupes_stats_expression_votes"
+
 refresh_view "agg_groupes_stats_votes_positions_politiques"
 refresh_view "agg_groupes_stats_votes_positions_comptables"
 
