@@ -36,8 +36,12 @@ create_view "agg_groupes_stats_stabilite" "$SQL_SCRIPTS_DIR/agg_groupes_stats_st
 create_view "agg_groupes_stats_proximite_votes_legislature" "$SQL_SCRIPTS_DIR/agg_groupes_stats_proximite_votes_legislature.sql"
 create_view "agg_groupes_stats_proximite_votes_mensuelle" "$SQL_SCRIPTS_DIR/agg_groupes_stats_proximite_votes_mensuelle.sql"
 
+create_view "mv_groupes_presidents" "$SQL_SCRIPTS_DIR/mv_groupes_presidents.sql"
+
 #### Assemblée nationale
 create_view "agg_assemblee_stats_participation_legislature" "$SQL_SCRIPTS_DIR/agg_assemblee_stats_participation_legislature.sql"
+
+create_view "mv_assemblee_presidents" "$SQL_SCRIPTS_DIR/mv_assemblee_presidents.sql"
 
 echo ""
 echo "=============================================="

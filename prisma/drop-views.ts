@@ -4,13 +4,14 @@ async function main() {
     console.log('🗑️ Suppression des vues matérialisées...');
 
     await prisma.$executeRawUnsafe(`
+     -- ACTEURS VIEWS
         DROP MATERIALIZED VIEW IF EXISTS agg_acteurs_stats_professions CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_acteurs_stats_genre CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_acteurs_stats_age CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_acteurs_stats_geographie_election CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_acteurs_stats_geographie_naissance CASCADE;
         
-        
+     -- ASSEMBLEE VIEWS
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_effectifs_current CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_effectifs_legislature CASCADE;
         
@@ -34,7 +35,11 @@ async function main() {
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_proximite_votes_legislature CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_proximite_votes_mensuelle CASCADE;
         
+        DROP MATERIALIZED VIEW IF EXISTS mv_groupes_presidents CASCADE;
         
+     -- ASSEMBLEE VIEWS
+        DROP MATERIALIZED VIEW IF EXISTS mv_assemblee_presidents CASCADE;
+       
         DROP MATERIALIZED VIEW IF EXISTS agg_assemblee_stats_participation_legislature CASCADE;
     `);
 

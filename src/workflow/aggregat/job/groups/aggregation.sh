@@ -34,8 +34,12 @@ refresh_view "agg_groupes_stats_stabilite"
 refresh_view "agg_groupes_stats_proximite_votes"
 refresh_view "agg_groupes_stats_proximite_votes_mensuelle"
 
+refresh_view "mv_groupes_presidents"
+
 ### Assemblée nationale
 refresh_view "agg_assemblee_stats_participation_legislature"
+
+refresh_view "mv_assemblee_presidents"
 
 echo ""
 echo "=============================================="
