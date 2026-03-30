@@ -33,8 +33,15 @@ refresh_view "agg_groupes_stats_stabilite"
 
 refresh_view "agg_groupes_stats_proximite_votes"
 refresh_view "agg_groupes_stats_proximite_votes_mensuelle"
+refresh_view "agg_groupes_stats_proximite_votes_mensuelle"
+
+refresh_view "agg_groupes_stats_professions"
+refresh_view "agg_groupes_stats_professions_categories"
+refresh_view "agg_groupes_stats_professions_familles"
 
 refresh_view "mv_groupes_presidents"
+
+refresh_view "agg_groupes_fiche_infos"
 
 ### Assemblée nationale
 refresh_view "agg_assemblee_stats_participation_legislature"

@@ -36,7 +36,13 @@ create_view "agg_groupes_stats_stabilite" "$SQL_SCRIPTS_DIR/agg_groupes_stats_st
 create_view "agg_groupes_stats_proximite_votes_legislature" "$SQL_SCRIPTS_DIR/agg_groupes_stats_proximite_votes_legislature.sql"
 create_view "agg_groupes_stats_proximite_votes_mensuelle" "$SQL_SCRIPTS_DIR/agg_groupes_stats_proximite_votes_mensuelle.sql"
 
+create_view "agg_groupes_stats_professions" "$SQL_SCRIPTS_DIR/agg_groupes_stats_professions.sql"
+create_view "agg_groupes_stats_professions_categories" "$SQL_SCRIPTS_DIR/agg_groupes_stats_professions_categories.sql"
+create_view "agg_groupes_stats_professions_familles" "$SQL_SCRIPTS_DIR/agg_groupes_stats_professions_familles.sql"
+
 create_view "mv_groupes_presidents" "$SQL_SCRIPTS_DIR/mv_groupes_presidents.sql"
+
+create_view "agg_groupes_fiche_infos" "$SQL_SCRIPTS_DIR/agg_groupes_fiche_infos.sql"
 
 #### Assemblée nationale
 create_view "agg_assemblee_stats_participation_legislature" "$SQL_SCRIPTS_DIR/agg_assemblee_stats_participation_legislature.sql"
