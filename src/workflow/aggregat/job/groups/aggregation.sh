@@ -42,6 +42,13 @@ refresh_view "agg_groupes_stats_professions_familles"
 refresh_view "mv_groupes_presidents"
 
 refresh_view "agg_groupes_fiche_infos"
+refresh_view "agg_groupes_stats_age"
+refresh_view "agg_groupes_stats_parite"
+refresh_view "agg_groupes_stats_cumul_mandats"
+refresh_view "agg_groupes_stats_geographie_election"
+refresh_view "agg_groupes_stats_geographie_dep_naissance"
+refresh_view "agg_groupes_stats_geographie_pays_naissance"
+refresh_view "agg_groupes_stats_tranche_age"
 
 ### Assemblée nationale
 refresh_view "agg_assemblee_stats_participation_legislature"

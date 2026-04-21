@@ -1,3 +1,5 @@
+-- OK VALIDE
+
 CREATE MATERIALIZED VIEW agg_groupes_fiche_infos AS
 WITH total_effectifs AS (SELECT ael.legislature,
                                 SUM(ael.nb_acteurs_photo) AS total_nb_acteurs_photo
@@ -7,9 +9,9 @@ SELECT rg.groupe_id,
        rg.groupe_legislature             AS legislature,
        rg.libelle                        AS groupe_label,
        rg.code                           AS groupe_code,
-       NULL::text                        AS groupe_position,
+       NULL::text                         AS groupe_position,
        COALESCE(ael.nb_acteurs_photo, 0) AS groupe_count_members,
-       NULL::integer                     AS groupe_rank,
+       ael.groupe_rank                   AS groupe_rank,
        NULL::text                        AS groupe_year_of_creation,
        NULL::text                        AS groupe_web_site,
        NULL::text                        AS groupe_color,

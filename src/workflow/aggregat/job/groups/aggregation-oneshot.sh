@@ -43,6 +43,13 @@ create_view "agg_groupes_stats_professions_familles" "$SQL_SCRIPTS_DIR/agg_group
 create_view "mv_groupes_presidents" "$SQL_SCRIPTS_DIR/mv_groupes_presidents.sql"
 
 create_view "agg_groupes_fiche_infos" "$SQL_SCRIPTS_DIR/agg_groupes_fiche_infos.sql"
+create_view "agg_groupes_stats_age" "$SQL_SCRIPTS_DIR/agg_groupes_stats_age.sql"
+create_view "agg_groupes_stats_parite" "$SQL_SCRIPTS_DIR/agg_groupes_stats_parite.sql"
+create_view "agg_groupes_stats_cumul_mandats" "$SQL_SCRIPTS_DIR/agg_groupes_stats_cumul_mandats.sql"
+create_view "agg_groupes_stats_geographie_election" "$SQL_SCRIPTS_DIR/agg_groupes_stats_geographie_election.sql"
+create_view "agg_groupes_stats_geographie_dep_naissance" "$SQL_SCRIPTS_DIR/agg_groupes_stats_geographie_dep_naissance.sql"
+create_view "agg_groupes_stats_geographie_pays_naissance" "$SQL_SCRIPTS_DIR/agg_groupes_stats_geographie_pays_naissance.sql"
+create_view "agg_groupes_stats_tranche_age" "$SQL_SCRIPTS_DIR/agg_groupes_stats_tranche_age.sql"
 
 #### Assemblée nationale
 create_view "agg_assemblee_stats_participation_legislature" "$SQL_SCRIPTS_DIR/agg_assemblee_stats_participation_legislature.sql"

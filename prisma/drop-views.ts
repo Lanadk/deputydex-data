@@ -30,6 +30,13 @@ async function main() {
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_professions_categories CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_professions_familles CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS agg_groupes_fiche_infos CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_age CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_parite CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_cumul_mandats CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_geographie_election CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_geographie_dep_naissance CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_geographie_pays_naissance CASCADE;
+        DROP MATERIALIZED VIEW IF EXISTS agg_groupes_stats_tranche_age CASCADE;
         DROP MATERIALIZED VIEW IF EXISTS mv_groupes_presidents CASCADE;
         
      -- ASSEMBLEE VIEWS
