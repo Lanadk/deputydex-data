@@ -33,7 +33,8 @@
 -- ============================================================
 
 CREATE MATERIALIZED VIEW agg_groupes_stats_cohesion_mensuelle AS
-WITH cohesion_par_scrutin AS (SELECT vd.groupe_id,
+WITH cohesion_par_scrutin AS (
+                              SELECT vd.groupe_id,
                                      vd.groupe_legislature                     AS legislature,
                                      vd.scrutin_uid,
                                      date_trunc('month', s.date_scrutin)::date AS mois,

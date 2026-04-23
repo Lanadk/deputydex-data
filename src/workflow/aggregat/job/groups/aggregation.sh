@@ -31,7 +31,6 @@ refresh_view "agg_groupes_stats_demographie_legislature"
 
 refresh_view "agg_groupes_stats_stabilite"
 
-refresh_view "agg_groupes_stats_proximite_votes"
 refresh_view "agg_groupes_stats_proximite_votes_mensuelle"
 refresh_view "agg_groupes_stats_proximite_votes_mensuelle"
 
