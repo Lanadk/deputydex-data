@@ -25,6 +25,13 @@ export class ParseFilesUseCase {
         outputDir: string,
         options: ParseOptions = { exportSeparateFiles: true }
     ): Promise<ParseResult> {
+        if (options.exportSingleFile && this.processor.isFlushConfigured()) {
+            // A single combined export needs the whole dataset in memory at once,
+            // which defeats the point of periodic flushing (and would silently
+            // produce an incomplete complete.json, missing every already-flushed batch).
+            throw new Error('exportSingleFile is incompatible with a BatchProcessor configured for periodic flushing');
+        }
+
         // Process files
         await this.processor.process();
 
@@ -34,7 +41,7 @@ export class ParseFilesUseCase {
         // Export
         if (options.exportSeparateFiles) {
             this.logger.info('Exporting to separate files...');
-            this.fileWriter.writeToSeparateFiles(tables, outputDir);
+            await this.fileWriter.writeToSeparateFiles(tables, outputDir);
         }
 
         if (options.exportSingleFile) {

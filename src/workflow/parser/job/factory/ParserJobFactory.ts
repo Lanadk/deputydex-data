@@ -9,7 +9,8 @@ import {
     baseOutData,
     outTableDirectoryName,
     scrutinsSourceDirectoryName,
-    amendementsSourceDirectoryName, dossiersSourceDirectoryName, documentsSourceDirectoryName
+    amendementsSourceDirectoryName, dossiersSourceDirectoryName, documentsSourceDirectoryName,
+    parseFlushEveryFiles
 } from "../const";
 import {ParserJob} from "../parser/ParserJob";
 import path from "path";
@@ -67,7 +68,10 @@ export class ParserJobFactory {
         const extractor = this.createExtractor(config.domain, config.legislature);
         const fileWriter = new JsonFileWriter();
 
-        const processor = new BatchProcessor(fileSource, extractor, logger);
+        const processor = new BatchProcessor(fileSource, extractor, logger, {
+            everyFiles: parseFlushEveryFiles,
+            onFlush: (tables) => fileWriter.writeToSeparateFiles(tables, outputDir),
+        });
         const parseUseCase = new ParseFilesUseCase(processor, fileWriter, logger);
         const job = new ParserJob(parseUseCase, logger);
 

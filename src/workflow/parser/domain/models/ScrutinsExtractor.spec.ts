@@ -184,4 +184,51 @@ describe('ScrutinsExtractor', () => {
 
         expect(extractor.getErrors()).toHaveLength(1);
     });
+
+    it('clearTables empties the record tables and the pending deputes/groupes, without re-emitting already-seen ids', async () => {
+        const extractor = new ScrutinsExtractor(17);
+        const data = baseScrutin({
+            ventilationVotes: {
+                organe: {
+                    groupes: {
+                        groupe: {
+                            organeRef: 'PO1',
+                            nombreMembresGroupe: '1',
+                            vote: { decompteNominatif: { pours: { votant: { acteurRef: 'PA1' } } } },
+                        },
+                    },
+                },
+            },
+        });
+        const { filePath, cleanup: c } = writeTempJsonFile(data);
+        cleanup = c;
+
+        await extractor.processFile(filePath);
+        expect(extractor.getTables().groupesVuDesScrutins.map(g => g.id)).toEqual(['PO1']);
+        expect(extractor.getTables().deputes.map(d => d.id)).toEqual(['PA1']);
+
+        extractor.clearTables();
+        expect(extractor.getTables()).toMatchObject({ scrutins: [], groupesVuDesScrutins: [], deputes: [] });
+
+        // Same groupe/depute referenced again by a later scrutin: already flushed, must not reappear.
+        const second = writeTempJsonFile(baseScrutin({
+            uid: 'VTANR1L17V2',
+            ventilationVotes: {
+                organe: {
+                    groupes: {
+                        groupe: {
+                            organeRef: 'PO1',
+                            nombreMembresGroupe: '1',
+                            vote: { decompteNominatif: { pours: { votant: { acteurRef: 'PA1' } } } },
+                        },
+                    },
+                },
+            },
+        }));
+        cleanup = () => second.cleanup();
+        await extractor.processFile(second.filePath);
+
+        expect(extractor.getTables().groupesVuDesScrutins).toEqual([]);
+        expect(extractor.getTables().deputes).toEqual([]);
+    });
 });

@@ -69,6 +69,17 @@ export class DossiersParlementairesExtractor implements IExtractor {
         };
     }
 
+    clearTables(): void {
+        this.dossiers = [];
+        this.initiateurs = [];
+        this.actes = [];
+        this.rapporteurs = [];
+        this.textesAssocies = [];
+        this.reunions = [];
+        this.votes = [];
+        this.decisions = [];
+    }
+
     private extractData(data: any): void {
         const dossier = data.dossierParlementaire || data;
 

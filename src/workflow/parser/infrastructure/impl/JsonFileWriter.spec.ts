@@ -16,23 +16,6 @@ describe('JsonFileWriter', () => {
         fs.rmSync(workDir, { recursive: true, force: true });
     });
 
-    // writeToSeparateFiles delegates to formatJsonForImport, a fire-and-forget
-    // stream writer (see utils.spec.ts): poll until the file content settles
-    // instead of assuming it's flushed synchronously.
-    async function readOnceFlushed(filePath: string): Promise<string> {
-        const deadline = Date.now() + 2000;
-        let previous: string | null = null;
-
-        while (Date.now() < deadline) {
-            const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf-8') : null;
-            if (current !== null && current === previous) return current;
-            previous = current;
-            await new Promise(resolve => setTimeout(resolve, 20));
-        }
-
-        throw new Error(`Timed out waiting for ${filePath} to be flushed`);
-    }
-
     describe('writeToSingleFile', () => {
         it('writes the full dataset as pretty-printed JSON', () => {
             const outputPath = path.join(workDir, 'complete.json');
@@ -57,28 +40,41 @@ describe('JsonFileWriter', () => {
     describe('writeToSeparateFiles', () => {
         it('creates the output directory and writes one NDJSON file per table', async () => {
             const outputDir = path.join(workDir, 'nested', 'out');
-            writer.writeToSeparateFiles({ acteurs: [{ id: 1 }, { id: 2 }] }, outputDir);
+            await writer.writeToSeparateFiles({ acteurs: [{ id: 1 }, { id: 2 }] }, outputDir);
 
-            const content = await readOnceFlushed(path.join(outputDir, 'acteurs.json'));
+            const content = fs.readFileSync(path.join(outputDir, 'acteurs.json'), 'utf-8');
             expect(content.trim().split('\n').map(l => JSON.parse(l))).toEqual([{ id: 1 }, { id: 2 }]);
         });
 
         it('updates the summary from the written tables', async () => {
             const outputDir = path.join(workDir, 'out');
-            writer.writeToSeparateFiles({ acteurs: [{ id: 1 }], mandats: [{ id: 1 }, { id: 2 }] }, outputDir);
-
-            // Wait for both fire-and-forget writes to settle before the
-            // surrounding afterEach removes workDir, otherwise the stream
-            // can still be opening the file once its directory is gone.
-            await Promise.all([
-                readOnceFlushed(path.join(outputDir, 'acteurs.json')),
-                readOnceFlushed(path.join(outputDir, 'mandats.json')),
-            ]);
+            await writer.writeToSeparateFiles({ acteurs: [{ id: 1 }], mandats: [{ id: 1 }, { id: 2 }] }, outputDir);
 
             expect(writer.getSummary()).toMatchObject({
                 totalTables: 2,
                 totalRecords: 3,
                 tables: { acteurs: 1, mandats: 2 },
+            });
+        });
+
+        it('appends subsequent calls for the same table instead of truncating (periodic flush)', async () => {
+            const outputDir = path.join(workDir, 'flushed');
+            await writer.writeToSeparateFiles({ acteurs: [{ id: 1 }] }, outputDir);
+            await writer.writeToSeparateFiles({ acteurs: [{ id: 2 }] }, outputDir);
+
+            const content = fs.readFileSync(path.join(outputDir, 'acteurs.json'), 'utf-8');
+            expect(content.trim().split('\n').map(l => JSON.parse(l))).toEqual([{ id: 1 }, { id: 2 }]);
+        });
+
+        it('accumulates the summary totals across multiple flushes rather than replacing them', async () => {
+            const outputDir = path.join(workDir, 'flushed-summary');
+            await writer.writeToSeparateFiles({ acteurs: [{ id: 1 }] }, outputDir);
+            await writer.writeToSeparateFiles({ acteurs: [{ id: 2 }], mandats: [{ id: 1 }] }, outputDir);
+
+            expect(writer.getSummary()).toMatchObject({
+                totalTables: 2,
+                totalRecords: 3,
+                tables: { acteurs: 2, mandats: 1 },
             });
         });
     });

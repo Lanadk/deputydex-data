@@ -22,6 +22,7 @@ function createMockExtractor(): jest.Mocked<IExtractor> {
         processFile: jest.fn().mockResolvedValue(undefined),
         getTables: jest.fn().mockReturnValue({}),
         getErrors: jest.fn().mockReturnValue([]),
+        clearTables: jest.fn(),
     };
 }
 
@@ -92,5 +93,58 @@ describe('BatchProcessor', () => {
 
         expect(processor.getTables()).toBe(tables);
         expect(processor.getErrors()).toBe(errors);
+    });
+
+    describe('periodic flush', () => {
+        it('is not configured by default', () => {
+            const processor = new BatchProcessor(createMockDirectorySource([]), createMockExtractor(), createMockLogger());
+            expect(processor.isFlushConfigured()).toBe(false);
+        });
+
+        it('reports flush as configured when flush options are passed', () => {
+            const processor = new BatchProcessor(
+                createMockDirectorySource([]),
+                createMockExtractor(),
+                createMockLogger(),
+                { everyFiles: 2, onFlush: jest.fn() }
+            );
+            expect(processor.isFlushConfigured()).toBe(true);
+        });
+
+        it('flushes and clears the extractor every N files, but not after the last file', async () => {
+            const directorySource = createMockDirectorySource(['a.json', 'b.json', 'c.json', 'd.json']);
+            const extractor = createMockExtractor();
+            const onFlush = jest.fn().mockResolvedValue(undefined);
+            const processor = new BatchProcessor(
+                directorySource,
+                extractor,
+                createMockLogger(),
+                { everyFiles: 2, onFlush }
+            );
+
+            await processor.process();
+
+            // Flushes after file 2 and file 4 would double-count the tail, so the
+            // last file's batch is left for the caller to read and write itself.
+            expect(onFlush).toHaveBeenCalledTimes(1);
+            expect(extractor.clearTables).toHaveBeenCalledTimes(1);
+        });
+
+        it('never flushes when the file count never reaches a full batch', async () => {
+            const directorySource = createMockDirectorySource(['a.json']);
+            const extractor = createMockExtractor();
+            const onFlush = jest.fn().mockResolvedValue(undefined);
+            const processor = new BatchProcessor(
+                directorySource,
+                extractor,
+                createMockLogger(),
+                { everyFiles: 10, onFlush }
+            );
+
+            await processor.process();
+
+            expect(onFlush).not.toHaveBeenCalled();
+            expect(extractor.clearTables).not.toHaveBeenCalled();
+        });
     });
 });

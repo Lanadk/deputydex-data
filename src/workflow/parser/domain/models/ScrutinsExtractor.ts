@@ -11,8 +11,12 @@ import {IExtractor} from "../../infrastructure/IExtractor";
 import {computeRowHash} from "../../../../utils/hash";
 
 export class ScrutinsExtractor implements IExtractor {
-    private deputesSet = new Set<string>(); //Depute
-    private groupesSet = new Set<string>(); //GroupeParlementaire
+    // *Seen dedupes across the whole run and is never cleared; *Pending holds
+    // only the ids not yet flushed to disk (see clearTables).
+    private deputesSeen = new Set<string>();
+    private deputesPending = new Set<string>();
+    private groupesSeen = new Set<string>();
+    private groupesPending = new Set<string>();
     private scrutins: Scrutin[] = [];
     private scrutinsGroupes: ScrutinGroupe[] = [];
     private votesDeputes: VoteDepute[] = [];
@@ -43,11 +47,11 @@ export class ScrutinsExtractor implements IExtractor {
             votesDeputes: this.votesDeputes,
             scrutinsAgregats: this.scrutinsAgregats,
             scrutinsGroupesAgregats: this.scrutinsGroupesAgregats,
-            groupesVuDesScrutins: Array.from(this.groupesSet).map(id => {
+            groupesVuDesScrutins: Array.from(this.groupesPending).map(id => {
                 const obj = { id, legislature_snapshot: this.legislatureSnapshot };
                 return { ...obj, row_hash: computeRowHash(obj) };
             }),
-            deputes: Array.from(this.deputesSet).map(id => {
+            deputes: Array.from(this.deputesPending).map(id => {
                 const obj = { id, legislature_snapshot: this.legislatureSnapshot };
                 return { ...obj, row_hash: computeRowHash(obj) };
             })
@@ -56,6 +60,16 @@ export class ScrutinsExtractor implements IExtractor {
 
     getErrors(): Array<{ file: string; error: string }> {
         return this.errors;
+    }
+
+    clearTables(): void {
+        this.scrutins = [];
+        this.scrutinsGroupes = [];
+        this.votesDeputes = [];
+        this.scrutinsAgregats = [];
+        this.scrutinsGroupesAgregats = [];
+        this.groupesPending.clear();
+        this.deputesPending.clear();
     }
 
     private extractData(data: any): void {
@@ -118,7 +132,10 @@ export class ScrutinsExtractor implements IExtractor {
         for (const group of groupsArray) {
             if (!group || !group.organeRef) continue;
 
-            this.groupesSet.add(group.organeRef);
+            if (!this.groupesSeen.has(group.organeRef)) {
+                this.groupesSeen.add(group.organeRef);
+                this.groupesPending.add(group.organeRef);
+            }
             this.extractScrutinGroupe(scrutinUid, group);
 
             if (group.vote?.decompteVoix) {
@@ -171,7 +188,10 @@ export class ScrutinsExtractor implements IExtractor {
         for (const voter of votersArray) {
             if (!voter.acteurRef) continue;
 
-            this.deputesSet.add(voter.acteurRef);
+            if (!this.deputesSeen.has(voter.acteurRef)) {
+                this.deputesSeen.add(voter.acteurRef);
+                this.deputesPending.add(voter.acteurRef);
+            }
 
             const voteData = {
                 scrutin_uid: scrutinUid,

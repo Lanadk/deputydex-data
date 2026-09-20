@@ -184,4 +184,23 @@ describe('DocumentParlementaireExtractor', () => {
         expect(extractor.getErrors()).toHaveLength(1);
         expect(extractor.getTables().documents).toEqual([]);
     });
+
+    it('clearTables empties every accumulated table', async () => {
+        const extractor = new DocumentParlementaireExtractor(17);
+        const { filePath, cleanup: c } = writeTempJsonFile(baseDocument());
+        cleanup = c;
+
+        await extractor.processFile(filePath);
+        extractor.clearTables();
+
+        expect(extractor.getTables()).toEqual({
+            documents: [],
+            documentsClassifications: [],
+            documentsAuteurs: [],
+            documentsCoSignataires: [],
+            documentsOrganesReferents: [],
+            documentsImprimeries: [],
+            documentsDepotsAmendements: [],
+        });
+    });
 });

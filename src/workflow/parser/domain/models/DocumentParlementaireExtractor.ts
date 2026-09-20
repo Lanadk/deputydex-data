@@ -62,6 +62,16 @@ export class DocumentParlementaireExtractor implements IExtractor{
         };
     }
 
+    clearTables(): void {
+        this.documents = [];
+        this.classifications = [];
+        this.auteurs = [];
+        this.coSignataires = [];
+        this.organesReferents = [];
+        this.imprimeries = [];
+        this.depotsAmendements = [];
+    }
+
 
     private extractData(data: any): void {
         const document = data.document ?? data;

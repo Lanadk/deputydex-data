@@ -271,6 +271,31 @@ describe('ActeursExtractor', () => {
         expect(extractor.getErrors()[0].error).toMatch(/JSON/i);
     });
 
+    it('clearTables empties the record tables and the pending groupes, without re-emitting an already-seen groupe', async () => {
+        const extractor = new ActeursExtractor(17);
+        const data = baseActeur({
+            mandats: { mandat: { uid: 'MA1', legislature: '17', typeOrgane: 'GP', dateDebut: '2024-07-08', organes: { organeRef: 'PO1' } } },
+        });
+        const { filePath, cleanup: c } = writeTempJsonFile(data);
+        cleanup = c;
+
+        await extractor.processFile(filePath);
+        expect(extractor.getTables().groupesVuDesMandats.map(g => g.id)).toEqual(['PO1']);
+
+        extractor.clearTables();
+        expect(extractor.getTables()).toMatchObject({ acteurs: [], mandats: [], groupesVuDesMandats: [] });
+
+        // Same groupe referenced again by a later file: already flushed, must not reappear.
+        const second = writeTempJsonFile(baseActeur({
+            uid: 'PA2',
+            mandats: { mandat: { uid: 'MA2', legislature: '17', typeOrgane: 'GP', dateDebut: '2024-07-08', organes: { organeRef: 'PO1' } } },
+        }));
+        cleanup = () => second.cleanup();
+        await extractor.processFile(second.filePath);
+
+        expect(extractor.getTables().groupesVuDesMandats).toEqual([]);
+    });
+
     it('accumulates rows across multiple processFile calls', async () => {
         const extractor = new ActeursExtractor(17);
         const first = writeTempJsonFile(baseActeur());

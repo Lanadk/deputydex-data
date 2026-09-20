@@ -16,7 +16,10 @@ import {extractNilableValue} from "../../infrastructure/impl/xml-nil.utils";
 export class ActeursExtractor implements IExtractor {
     private acteurs: Acteur[] = [];
     private acteursAdressesPostales: ActeurAdressePostale[] = [];
-    private groupesSet = new Set<string>();
+    // groupesSeen dedupes across the whole run and is never cleared; groupesPending
+    // holds only the ids not yet flushed to disk (see clearTables).
+    private groupesSeen = new Set<string>();
+    private groupesPending = new Set<string>();
     private acteursAdressesMails: ActeurAdresseMail[] = [];
     private acteursReseauxSociaux: ActeurReseauSocial[] = [];
     private acteursTelephones: ActeurTelephone[] = [];
@@ -49,7 +52,7 @@ export class ActeursExtractor implements IExtractor {
             acteursTelephones: this.acteursTelephones,
             mandats: this.mandats,
             mandatsSuppleants: this.mandatsSuppleants,
-            groupesVuDesMandats: Array.from(this.groupesSet).map(id => {
+            groupesVuDesMandats: Array.from(this.groupesPending).map(id => {
                 const obj = { id, legislature_snapshot: this.legislatureSnapshot };
                 return { ...obj, row_hash: computeRowHash(obj) };
             }),
@@ -58,6 +61,17 @@ export class ActeursExtractor implements IExtractor {
 
     getErrors(): Array<{ file: string; error: string }> {
         return this.errors;
+    }
+
+    clearTables(): void {
+        this.acteurs = [];
+        this.acteursAdressesPostales = [];
+        this.acteursAdressesMails = [];
+        this.acteursReseauxSociaux = [];
+        this.acteursTelephones = [];
+        this.mandats = [];
+        this.mandatsSuppleants = [];
+        this.groupesPending.clear();
     }
 
     private extractData(data: any): void {
@@ -120,8 +134,9 @@ export class ActeursExtractor implements IExtractor {
 
         //extraction du groupe parlementaire vu des mandats
         const groupeId = this.extractOrganeRef(mandat.organes);
-        if (mandat.typeOrgane === 'GP' && groupeId) {
-            this.groupesSet.add(groupeId);
+        if (mandat.typeOrgane === 'GP' && groupeId && !this.groupesSeen.has(groupeId)) {
+            this.groupesSeen.add(groupeId);
+            this.groupesPending.add(groupeId);
         }
 
         const mandatObj = {

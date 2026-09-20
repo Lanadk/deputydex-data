@@ -15,6 +15,7 @@ function createMockProcessor(overrides: Partial<Record<keyof BatchProcessor, any
         getTables: jest.fn().mockReturnValue(tables),
         getErrors: jest.fn().mockReturnValue(errors),
         getProcessedFilesCount: jest.fn().mockReturnValue(5),
+        isFlushConfigured: jest.fn().mockReturnValue(false),
         ...overrides,
     } as unknown as jest.Mocked<BatchProcessor>;
 }
@@ -107,5 +108,16 @@ describe('ParseFilesUseCase', () => {
         const result = await useCase.execute('/out');
 
         expect(result.totalFiles).toBe(0);
+    });
+
+    it('rejects exportSingleFile when the processor has periodic flushing configured', async () => {
+        const processor = createMockProcessor({ isFlushConfigured: jest.fn().mockReturnValue(true) });
+        const writer = createMockWriter();
+        const useCase = new ParseFilesUseCase(processor, writer, createMockLogger());
+
+        await expect(useCase.execute('/out', { exportSingleFile: true })).rejects.toThrow(
+            /incompatible with a BatchProcessor configured for periodic flushing/
+        );
+        expect(processor.process).not.toHaveBeenCalled();
     });
 });

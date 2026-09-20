@@ -144,4 +144,17 @@ describe('AmendementExtractor', () => {
 
         expect(extractor.getErrors()).toHaveLength(1);
     });
+
+    it('clearTables empties the accumulated rows so a later flush does not resend them', async () => {
+        const extractor = new AmendementExtractor(17);
+        const data = baseAmendement();
+        data.amendement.signataires.cosignataires = { acteurRef: 'PA2' };
+        const { filePath, cleanup: c } = writeTempJsonFile(data);
+        cleanup = c;
+
+        await extractor.processFile(filePath);
+        extractor.clearTables();
+
+        expect(extractor.getTables()).toEqual({ amendements: [], amendementsCoAuteurs: [] });
+    });
 });

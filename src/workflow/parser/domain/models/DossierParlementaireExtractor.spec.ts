@@ -172,4 +172,24 @@ describe('DossiersParlementairesExtractor', () => {
 
         expect(extractor.getErrors()).toHaveLength(1);
     });
+
+    it('clearTables empties every accumulated table', async () => {
+        const extractor = new DossiersParlementairesExtractor(17);
+        const { filePath, cleanup: c } = writeTempJsonFile(baseDossier());
+        cleanup = c;
+
+        await extractor.processFile(filePath);
+        extractor.clearTables();
+
+        expect(extractor.getTables()).toEqual({
+            dossiersParlementaire: [],
+            dossiersInitiateur: [],
+            acteLegislatif: [],
+            acteRapporteur: [],
+            acteTexteAssocie: [],
+            acteReunion: [],
+            acteVote: [],
+            acteDecision: [],
+        });
+    });
 });

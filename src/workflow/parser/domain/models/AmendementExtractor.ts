@@ -36,6 +36,11 @@ export class AmendementExtractor implements IExtractor {
         return this.errors;
     }
 
+    clearTables(): void {
+        this.amendements = [];
+        this.coAuteurs = [];
+    }
+
     private extractData(data: any): void {
         const amend = data.amendement || data;
         if (!amend.uid) throw new Error('Missing uid');
