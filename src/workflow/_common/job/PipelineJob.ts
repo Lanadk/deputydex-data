@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 import { Logger } from "../../../utils/logger";
-import { runSqlFile, refreshMaterializedView } from "../infrastructure/db/sqlRunner";
+import { runSqlFile, refreshMaterializedView, grantSelectToReader } from "../infrastructure/db/sqlRunner";
 import { importJsonLinesToRaw } from "../infrastructure/db/copyJsonLinesToRaw";
 
 export type Step =
@@ -40,6 +40,13 @@ export class PipelineJob {
         this.logger.info("=".repeat(25));
     }
 
+    private async grantReader(viewName: string): Promise<void> {
+        const reader = await grantSelectToReader(this.pool, viewName);
+        if (!reader) {
+            this.logger.warn(`DB_USER_READER non défini : pas de GRANT SELECT sur ${viewName} (l'app ne pourra pas la lire)`);
+        }
+    }
+
     private async runStep(step: Step): Promise<void> {
         switch (step.kind) {
             case "sqlFile":
@@ -47,6 +54,9 @@ export class PipelineJob {
                 const result = await runSqlFile(this.pool, step.path);
                 if (result.rows.length > 0) {
                     console.table(result.rows);
+                }
+                if (step.kind === "createView") {
+                    await this.grantReader(step.viewName);
                 }
                 return;
             }

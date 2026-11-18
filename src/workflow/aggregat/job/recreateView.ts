@@ -1,6 +1,6 @@
 import { Logger, LogLevel } from "../../../utils/logger";
 import { writerPool } from "../../_common/infrastructure/db/pool";
-import { runSqlFile } from "../../_common/infrastructure/db/sqlRunner";
+import { grantSelectToReader, runSqlFile } from "../../_common/infrastructure/db/sqlRunner";
 import { VIEW_REGISTRY } from "../registry";
 
 // ==============================================================================
@@ -60,6 +60,11 @@ async function main(): Promise<void> {
 
         logger.info(`▶ Recreating ${viewName} from ${sqlPath}...`);
         await runSqlFile(writerPool, sqlPath);
+
+        // Le DROP a emporté les grants : sans ça, l'app (rôle lecteur) ne peut plus lire la vue.
+        const reader = await grantSelectToReader(writerPool, viewName);
+        if (reader) logger.info(`▶ GRANT SELECT ON ${viewName} TO ${reader}`);
+        else logger.warn(`DB_USER_READER non défini : pas de GRANT SELECT sur ${viewName} (l'app ne pourra pas la lire)`);
 
         logger.success(`✓ ${viewName} recreated`);
     }
