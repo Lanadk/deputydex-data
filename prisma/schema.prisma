@@ -536,6 +536,8 @@ model amendements {
   legislature_snapshot Int    @db.Integer
 
   co_auteurs amendements_co_auteurs[]
+
+  @@index([acteur_uid, legislature_snapshot])
 }
 
 model amendements_co_auteurs {
