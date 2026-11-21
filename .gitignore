@@ -22,3 +22,5 @@ data/**/*.zip
 /generated
 /local
 docker-compose.yml
+# Rapport de couverture (npm run test:coverage)
+/coverage

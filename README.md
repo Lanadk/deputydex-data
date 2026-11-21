@@ -1,5 +1,12 @@
 # DeputedexData 🏛️
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex-data&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex-data)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex-data&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex-data)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex-data&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex-data)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex-data&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex-data)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex-data&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex-data)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex-data&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex-data)
+
 Pipeline ETL qui télécharge, parse et charge les données ouvertes de l'**Assemblée nationale française**
 (acteurs, mandats, groupes, scrutins, votes, amendements, dossiers et documents parlementaires) dans une base
 PostgreSQL, via [Prisma](https://www.prisma.io/).

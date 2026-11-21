@@ -6,6 +6,11 @@ module.exports = {
     // successful run against real Postgres. Harmless for the unit project,
     // which has no open handles to force-close in the first place.
     forceExit: true,
+    // Couverture (`npm run test:coverage`) : résumé dans le terminal + lcov,
+    // lu par SonarQube Cloud (sonar-project.properties, job `sonar` de la CI).
+    coverageReporters: ['text-summary', 'lcov'],
+    // Option globale (ignorée dans `projects`) : tout src/, testé ou non.
+    collectCoverageFrom: ['src/**/*.ts', '!src/**/*.spec.ts'],
     projects: [
         {
             displayName: 'unit',
