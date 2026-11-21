@@ -7,7 +7,8 @@ import { Logger, LogLevel } from "../../utils/logger";
 // ==============================================================================
 // Point d'entrée du cron quotidien en prod (deputydex-cd > deploy-cron-jobs).
 // Enchaîne download → parse → import (--auto-cleanup) → referentials →
-// enrichment → refresh des vues matérialisées → log de monitoring, et s'arrête
+// enrichment → refresh des vues matérialisées → log de monitoring → vidage du
+// cache du front (revalidateFrontCache.ts), et s'arrête
 // à la première étape en échec (code de sortie non nul -> visible dans le log
 // du cron).
 //
@@ -32,6 +33,8 @@ export const UPDATE_STEPS: UpdateStep[] = [
     { label: "Enrichment", script: "workflow/enrichment/job/trtEnrichmentCollecte.ts" },
     { label: "Aggregat (refresh)", script: "workflow/aggregat/job/trtAggregatCollecte.ts" },
     { label: "Dataset update monitoring", script: "workflow/_common/job/logDatasetUpdate.ts" },
+    // En dernier : le front relit la base (données ET date de mise à jour ci-dessus).
+    { label: "Front cache revalidation", script: "workflow/_common/job/revalidateFrontCache.ts" },
 ];
 
 const srcDir = path.resolve(__dirname, "../..");

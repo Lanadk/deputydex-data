@@ -195,6 +195,8 @@ DB_USER_READER=user_app_reader
 DB_PASSWORD_READER=toto
 ```
 
+En fin d'update, la dernière étape d'`updateAll` vide le cache serveur du front. Sans configuration (poste local), elle est ignorée ; en prod, sa configuration est déployée par `deputydex-cd`.
+
 ### 4. Premier setup
 
 ```bash
