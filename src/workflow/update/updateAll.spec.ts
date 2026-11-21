@@ -17,6 +17,10 @@ describe("updateAll", () => {
         expect(importStep?.args).toContain("--auto-cleanup");
     });
 
+    it("revalidates the front cache last, once the data and the update date are in the DB", () => {
+        expect(UPDATE_STEPS[UPDATE_STEPS.length - 1].script).toBe("workflow/_common/job/revalidateFrontCache.ts");
+    });
+
     it("refreshes views instead of the non-idempotent one-shot creation", () => {
         expect(UPDATE_STEPS.some(step => step.script.includes("oneshot"))).toBe(false);
     });
