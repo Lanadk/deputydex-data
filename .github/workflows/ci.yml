@@ -109,7 +109,8 @@ jobs:
         with:
           fetch-depth: 0
       - id: filter
-        uses: dorny/paths-filter@v3
+        # Épinglée sur le commit de la v3.0.4 (action tierce).
+        uses: dorny/paths-filter@0e4a8c6effa4802afeda77dc8d303f8176d7dfad # v3.0.4
         with:
           filters: |
             schema:
@@ -143,7 +144,8 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-      - uses: peter-evans/repository-dispatch@v3
+      # Épinglée sur le commit de la v3.0.0 (action tierce qui reçoit un jeton).
+      - uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # v3.0.0
         with:
           token: ${{ secrets.CD_DISPATCH_TOKEN }}
           repository: lanadk/deputydex-cd

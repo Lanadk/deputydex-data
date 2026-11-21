@@ -23,6 +23,14 @@ describe('computeRowHash', () => {
         expect(a).not.toBe(b);
     });
 
+    it('keeps the exact digests already stored in the DB (key order: UTF-16, not locale)', () => {
+        // Majuscules, `_` et chiffres : un tri localeCompare changerait l'ordre des
+        // clés, donc toutes les empreintes déjà en base.
+        const digest = computeRowHash({ uid: 'PA1', Nom: 'Dupont', _meta: 1, nom_usage: 'x', a10: 2, a2: 3, row_hash: 'stale' });
+
+        expect(digest).toBe('31e67b5abb05b8c3c29bb2f80fffcab7');
+    });
+
     it('does not mutate the input object', () => {
         const input = { a: 1, row_hash: 'stale' };
         computeRowHash(input);
