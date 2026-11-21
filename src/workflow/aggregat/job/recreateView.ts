@@ -29,7 +29,7 @@ async function main(): Promise<void> {
 
     if (viewNames.length === 0) {
         logger.error("Usage: recreateView.ts <viewName> [<viewName> ...] --yes");
-        logger.info(`Vues connues : ${Object.keys(VIEW_REGISTRY).sort().join(", ")}`);
+        logger.info(`Vues connues : ${Object.keys(VIEW_REGISTRY).sort((a, b) => a.localeCompare(b)).join(", ")}`);
         process.exitCode = 1;
         return;
     }
@@ -37,7 +37,7 @@ async function main(): Promise<void> {
     const unknown = viewNames.filter(viewName => !VIEW_REGISTRY[viewName]);
     if (unknown.length > 0) {
         logger.error(`Vue(s) inconnue(s) du registre : ${unknown.join(", ")}`);
-        logger.info(`Vues connues : ${Object.keys(VIEW_REGISTRY).sort().join(", ")}`);
+        logger.info(`Vues connues : ${Object.keys(VIEW_REGISTRY).sort((a, b) => a.localeCompare(b)).join(", ")}`);
         process.exitCode = 1;
         return;
     }

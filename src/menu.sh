@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# ts-node du projet (node_modules), comme le cron : jamais téléchargé à la volée.
+TS_NODE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/node_modules/.bin/ts-node"
+
 # ==============================================================================
 # DEPUTYDEX - MAIN MENU
 # ==============================================================================
@@ -10,36 +13,36 @@ set -e
 # ==============================================================================
 
 # -- Download ------------------------------------------------------------------
-run_download_all()              { npx ts-node ./workflow/download/job/trtCollecteData.ts; }
+run_download_all()              { "$TS_NODE" ./workflow/download/job/trtCollecteData.ts; }
 
 # -- Parser --------------------------------------------------------------------
-run_parser_all()                { npx ts-node ./workflow/parser/job/trtCheckCollecte.ts; }
-run_parser_acteurs()            { npx ts-node ./workflow/parser/job/unit-parser/parseActeurs.ts; }
-run_parser_scrutins()           { npx ts-node ./workflow/parser/job/unit-parser/parseScrutins.ts; }
-run_parser_amendements()        { npx ts-node ./workflow/parser/job/unit-parser/parseAmendements.ts; }
-run_parser_dossiers()           { npx ts-node ./workflow/parser/job/unit-parser/parseDossiers.ts; }
-run_parser_documents()          { npx ts-node ./workflow/parser/job/unit-parser/parseDocuments.ts; }
+run_parser_all()                { "$TS_NODE" ./workflow/parser/job/trtCheckCollecte.ts; }
+run_parser_acteurs()            { "$TS_NODE" ./workflow/parser/job/unit-parser/parseActeurs.ts; }
+run_parser_scrutins()           { "$TS_NODE" ./workflow/parser/job/unit-parser/parseScrutins.ts; }
+run_parser_amendements()        { "$TS_NODE" ./workflow/parser/job/unit-parser/parseAmendements.ts; }
+run_parser_dossiers()           { "$TS_NODE" ./workflow/parser/job/unit-parser/parseDossiers.ts; }
+run_parser_documents()          { "$TS_NODE" ./workflow/parser/job/unit-parser/parseDocuments.ts; }
 
 # -- Import --------------------------------------------------------------------
-run_import_all()                { npx ts-node ./workflow/import/job/trtImportCollecte.ts "$1"; }
-run_import_acteurs()            { npx ts-node ./workflow/import/job/unit-import/importActeurs.ts; }
-run_import_scrutins()           { npx ts-node ./workflow/import/job/unit-import/importScrutins.ts; }
-run_import_mandats()            { npx ts-node ./workflow/import/job/unit-import/importMandats.ts; }
-run_import_amendements()        { npx ts-node ./workflow/import/job/unit-import/importAmendements.ts; }
-run_import_dossiers()           { npx ts-node ./workflow/import/job/unit-import/importDossiers.ts; }
-run_import_documents()          { npx ts-node ./workflow/import/job/unit-import/importDocuments.ts; }
+run_import_all()                { "$TS_NODE" ./workflow/import/job/trtImportCollecte.ts "$1"; }
+run_import_acteurs()            { "$TS_NODE" ./workflow/import/job/unit-import/importActeurs.ts; }
+run_import_scrutins()           { "$TS_NODE" ./workflow/import/job/unit-import/importScrutins.ts; }
+run_import_mandats()            { "$TS_NODE" ./workflow/import/job/unit-import/importMandats.ts; }
+run_import_amendements()        { "$TS_NODE" ./workflow/import/job/unit-import/importAmendements.ts; }
+run_import_dossiers()           { "$TS_NODE" ./workflow/import/job/unit-import/importDossiers.ts; }
+run_import_documents()          { "$TS_NODE" ./workflow/import/job/unit-import/importDocuments.ts; }
 
 # -- Aggregation ---------------------------------------------------------------
-run_aggregate_all_one_shot()      { npx ts-node ./workflow/aggregat/job/trtAggregatCollecte-oneshot.ts; }
-run_aggregate_all_refresh()       { npx ts-node ./workflow/aggregat/job/trtAggregatCollecte.ts; }
-run_aggregate_acteurs_one_shot()  { npx ts-node ./workflow/aggregat/job/acteurs/aggregation-oneshot.ts; }
-run_aggregate_acteurs_refresh()   { npx ts-node ./workflow/aggregat/job/acteurs/aggregation.ts; }
-run_aggregate_groupes_one_shot()  { npx ts-node ./workflow/aggregat/job/groups/aggregation-oneshot.ts; }
-run_aggregate_groupes_refresh()   { npx ts-node ./workflow/aggregat/job/groups/aggregation.ts; }
-run_aggregate_calendar_one_shot() { npx ts-node ./workflow/aggregat/job/calendar/aggregation-oneshot.ts; }
-run_aggregate_calendar_refresh()  { npx ts-node ./workflow/aggregat/job/calendar/aggregation.ts; }
-run_aggregate_deputes_one_shot()  { npx ts-node ./workflow/aggregat/job/deputes/aggregation-oneshot.ts; }
-run_aggregate_deputes_refresh()   { npx ts-node ./workflow/aggregat/job/deputes/aggregation.ts; }
+run_aggregate_all_one_shot()      { "$TS_NODE" ./workflow/aggregat/job/trtAggregatCollecte-oneshot.ts; }
+run_aggregate_all_refresh()       { "$TS_NODE" ./workflow/aggregat/job/trtAggregatCollecte.ts; }
+run_aggregate_acteurs_one_shot()  { "$TS_NODE" ./workflow/aggregat/job/acteurs/aggregation-oneshot.ts; }
+run_aggregate_acteurs_refresh()   { "$TS_NODE" ./workflow/aggregat/job/acteurs/aggregation.ts; }
+run_aggregate_groupes_one_shot()  { "$TS_NODE" ./workflow/aggregat/job/groups/aggregation-oneshot.ts; }
+run_aggregate_groupes_refresh()   { "$TS_NODE" ./workflow/aggregat/job/groups/aggregation.ts; }
+run_aggregate_calendar_one_shot() { "$TS_NODE" ./workflow/aggregat/job/calendar/aggregation-oneshot.ts; }
+run_aggregate_calendar_refresh()  { "$TS_NODE" ./workflow/aggregat/job/calendar/aggregation.ts; }
+run_aggregate_deputes_one_shot()  { "$TS_NODE" ./workflow/aggregat/job/deputes/aggregation-oneshot.ts; }
+run_aggregate_deputes_refresh()   { "$TS_NODE" ./workflow/aggregat/job/deputes/aggregation.ts; }
 
 # DROP + recréation à la demande d'une/plusieurs vue(s) déjà créée(s) — seul
 # moyen de propager un changement de définition SQL sur une vue existante (ni
@@ -54,20 +57,20 @@ run_aggregate_recreate_view() {
     echo "⚠️  Ceci va DROP (CASCADE) puis recréer : $views"
     read -p "Confirmer ? (y/N) : " confirm
     if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
-        npx ts-node ./workflow/aggregat/job/recreateView.ts $views --yes
+        "$TS_NODE" ./workflow/aggregat/job/recreateView.ts $views --yes
     else
         echo "Annulé."
     fi
 }
 
 # -- Referentiels  ---------------------------------------------------------------
-run_update_all_referentials_tables() { npx ts-node ./workflow/referentials/job/trtUpdateReferentials.ts; }
+run_update_all_referentials_tables() { "$TS_NODE" ./workflow/referentials/job/trtUpdateReferentials.ts; }
 
 # -- Enrichment  ---------------------------------------------------------------
-run_all_enrichment_tables() { npx ts-node ./workflow/enrichment/job/trtEnrichmentCollecte.ts; }
+run_all_enrichment_tables() { "$TS_NODE" ./workflow/enrichment/job/trtEnrichmentCollecte.ts; }
 
 # -- Dataset update monitoring  ---------------------------------------------------------------
-run_monitor_dataset_update() { npx ts-node ./workflow/_common/job/logDatasetUpdate.ts; }
+run_monitor_dataset_update() { "$TS_NODE" ./workflow/_common/job/logDatasetUpdate.ts; }
 
 # ==============================================================================
 # WORKFLOWS
