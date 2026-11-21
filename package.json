@@ -11,6 +11,7 @@
     "test:unit": "jest --selectProjects unit",
     "test:integration": "jest --selectProjects integration --runInBand",
     "test:all": "jest --runInBand",
+    "test:coverage": "jest --selectProjects unit --coverage",
     "docker:db": "ts-node local/local-db-init.ts",
     "docker-image:build": "docker build -t deputydex-db-image .",
     "drop-views": "ts-node prisma/drop-views.ts",
