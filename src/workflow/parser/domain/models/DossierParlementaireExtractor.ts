@@ -89,7 +89,7 @@ export class DossiersParlementairesExtractor implements IExtractor {
 
         const dossierObj = {
             uid: dossier.uid,
-            legislature: parseInt(dossier.legislature) || 0,
+            legislature: Number.parseInt(dossier.legislature) || 0,
             titre: dossier.titreDossier?.titre ?? "",
             titre_chemin: extractNilableValue(dossier.titreDossier?.titreChemin),
             senat_chemin: extractNilableValue(dossier.titreDossier?.senatChemin),

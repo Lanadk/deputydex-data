@@ -54,7 +54,7 @@ if (!inputFile || !maxSizeMB) {
     process.exit(1);
 }
 
-splitJsonFile(inputFile, parseInt(maxSizeMB))
+splitJsonFile(inputFile, Number.parseInt(maxSizeMB))
     .catch(err => {
         console.error('[ERROR  ❌ ]: Split error:', err.message);
         process.exit(1);
