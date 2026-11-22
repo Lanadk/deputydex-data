@@ -580,6 +580,23 @@ model RefEvenementsInstitutionnels {
   @@map("ref_evenements_institutionnels")
 }
 
+/// Définitions des fonctions institutionnelles (présidence de l'Assemblée,
+/// questure, secrétariat du Bureau, rangs du gouvernement…), affichées en
+/// bulle d'information dans les organigrammes du front.
+model RefFonctionsDefinitions {
+  id         Int      @id @default(autoincrement())
+  /// Clé lue par le front (ex. `assemblee-questeur`, `ministre-delegue`).
+  slug       String   @unique @db.VarChar(50)
+  libelle    String   @db.VarChar(100)
+  definition String   @db.Text
+  /// Texte de référence (ex. « Constitution, art. 12 »).
+  source     String?  @db.VarChar(200)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@map("ref_fonctions_definitions")
+}
+
 // ============================================
 // AMENDEMENTS
 // ============================================

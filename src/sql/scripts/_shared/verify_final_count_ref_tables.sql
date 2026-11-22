@@ -18,4 +18,6 @@ UNION ALL
 SELECT 'ref_mandats_presidentiels', COUNT(*) FROM ref_mandats_presidentiels
 UNION ALL
 SELECT 'ref_evenements_institutionnels', COUNT(*) FROM ref_evenements_institutionnels
+UNION ALL
+SELECT 'ref_fonctions_definitions', COUNT(*) FROM ref_fonctions_definitions
 ORDER BY table_name;

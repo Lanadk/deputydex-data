@@ -63,6 +63,11 @@ async function main(): Promise<void> {
         },
         {
             kind: "sqlFile",
+            label: "Creating institutional functions definitions referentials table",
+            path: path.join(scriptsDir, "institutions/referentials/ref_fonctions_definitions.sql"),
+        },
+        {
+            kind: "sqlFile",
             label: "[VERIFY] Final row counts",
             path: path.join(scriptsDir, "_shared/verify_final_count_ref_tables.sql"),
         },
