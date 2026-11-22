@@ -11,6 +11,8 @@ export const parseFlushEveryFiles = 10_000;
 /** Domains const **/
 export const scrutinsSourceDirectoryName = 'scrutins';
 export const acteursSourceDirectoryName = 'acteurs/json/acteur';
+/** Même archive AMO que les acteurs : commissions, groupes, ministères, gouvernements… */
+export const organesSourceDirectoryName = 'acteurs/json/organe';
 export const amendementsSourceDirectoryName = 'amendements';
 export const dossiersSourceDirectoryName = 'dossiers_legislatifs/json/dossierParlementaire';
 export const documentsSourceDirectoryName = 'dossiers_legislatifs/json/document';

@@ -88,6 +88,13 @@ async function main(): Promise<void> {
                 jsonFile: path.join(dir, "groupesVuDesMandats.json"),
                 rawTable: "groupes_parlementaires_raw",
                 projectionSqlFile: path.join(SCRIPTS_DIR, "projections/project_groupes_parlementaires.sql"),
+            },
+            {
+                kind: "importRaw",
+                label: `[RAW ${legislature}] organes`,
+                jsonFile: path.join(dir, "organes.json"),
+                rawTable: "organes_raw",
+                projectionSqlFile: path.join(SCRIPTS_DIR, "projections/project_organes.sql"),
             }
         );
     }
