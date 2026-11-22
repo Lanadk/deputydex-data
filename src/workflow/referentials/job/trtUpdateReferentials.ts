@@ -48,6 +48,21 @@ async function main(): Promise<void> {
         },
         {
             kind: "sqlFile",
+            label: "Creating portraits referentials table",
+            path: path.join(scriptsDir, "institutions/referentials/ref_portraits.sql"),
+        },
+        {
+            kind: "sqlFile",
+            label: "Creating presidential terms referentials table",
+            path: path.join(scriptsDir, "institutions/referentials/ref_mandats_presidentiels.sql"),
+        },
+        {
+            kind: "sqlFile",
+            label: "Creating institutional events referentials table",
+            path: path.join(scriptsDir, "institutions/referentials/ref_evenements_institutionnels.sql"),
+        },
+        {
+            kind: "sqlFile",
             label: "[VERIFY] Final row counts",
             path: path.join(scriptsDir, "_shared/verify_final_count_ref_tables.sql"),
         },

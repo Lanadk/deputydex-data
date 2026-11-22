@@ -492,6 +492,59 @@ model RefActeursPhotos {
   @@map("ref_acteurs_photos")
 }
 
+// Référentiels manuels : données publiques absentes de l'open data de l'AN,
+// saisies et sourcées dans src/sql/scripts/institutions/referentials/.
+
+/// Portraits de personnalités sans photo de député (Président, Premiers ministres
+/// non députés…), avec leur crédit : auteur et licence sont à afficher.
+/// `photo_path` : chemin servi par le front (dossier public/).
+model RefPortraits {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique @db.VarChar(100)
+  /// Identifiant AN (PAxxx) si la personne existe dans `acteurs` ; pas de clé
+  /// étrangère : le référentiel ne doit pas dépendre des réimports d'acteurs.
+  acteur_uid  String?  @unique @db.VarChar(50)
+  photo_path  String   @db.Text
+  auteur      String   @db.Text
+  licence     String   @db.VarChar(50)
+  licence_url String?  @db.Text
+  source_url  String   @db.Text
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@map("ref_portraits")
+}
+
+/// Mandats présidentiels de la Ve République (dates de début et de fin de
+/// mandat, pas d'investiture ; `fin` null = en cours).
+model RefMandatsPresidentiels {
+  id            Int       @id @default(autoincrement())
+  president     String    @db.VarChar(100)
+  mandat_numero Int
+  debut         DateTime  @unique @db.Date
+  fin           DateTime? @db.Date
+  /// Clé de `ref_portraits.slug`.
+  portrait_slug String?   @db.VarChar(100)
+  created_at    DateTime  @default(now()) @db.Timestamp(6)
+  updated_at    DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@map("ref_mandats_presidentiels")
+}
+
+/// Événements institutionnels marquants (dissolution, élections législatives…).
+model RefEvenementsInstitutionnels {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @db.Date
+  /// `dissolution` | `elections_legislatives`
+  type        String   @db.VarChar(50)
+  libelle     String   @db.VarChar(200)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@unique([date, type])
+  @@map("ref_evenements_institutionnels")
+}
+
 // ============================================
 // AMENDEMENTS
 // ============================================
