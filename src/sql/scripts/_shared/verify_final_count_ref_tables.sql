@@ -12,4 +12,10 @@ UNION ALL
 SELECT 'ref_groupes_fondation', COUNT(*) FROM ref_groupes_fondation
 UNION ALL
 SELECT 'ref_acteurs_photos', COUNT(*) FROM ref_acteurs_photos
+UNION ALL
+SELECT 'ref_portraits', COUNT(*) FROM ref_portraits
+UNION ALL
+SELECT 'ref_mandats_presidentiels', COUNT(*) FROM ref_mandats_presidentiels
+UNION ALL
+SELECT 'ref_evenements_institutionnels', COUNT(*) FROM ref_evenements_institutionnels
 ORDER BY table_name;
