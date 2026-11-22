@@ -81,7 +81,7 @@ export class FileDownloader implements IFileDownloader {
                     return;
                 }
 
-                totalBytes = parseInt(response.headers['content-length'] || '0', 10);
+                totalBytes = Number.parseInt(response.headers['content-length'] || '0', 10);
 
                 const truncated = () =>
                     response.complete === false || (totalBytes > 0 && downloadedBytes !== totalBytes);

@@ -111,14 +111,14 @@ export class ScrutinsExtractor implements IExtractor {
     private extractScrutinAgregats(scrutin: any): void {
         const agregatsData = {
             scrutin_uid: scrutin.uid,
-            nombre_votants: parseInt(scrutin.syntheseVote.nombreVotants) || 0,
-            suffrages_exprimes: parseInt(scrutin.syntheseVote.suffragesExprimes) || 0,
-            suffrages_requis: parseInt(scrutin.syntheseVote.nbrSuffragesRequis) || 0,
-            total_pour: parseInt(scrutin.syntheseVote.decompte?.pour) || 0,
-            total_contre: parseInt(scrutin.syntheseVote.decompte?.contre) || 0,
-            total_abstentions: parseInt(scrutin.syntheseVote.decompte?.abstentions) || 0,
-            total_non_votants: parseInt(scrutin.syntheseVote.decompte?.nonVotants) || 0,
-            total_non_votants_volontaires: parseInt(scrutin.syntheseVote.decompte?.nonVotantsVolontaires) || 0,
+            nombre_votants: Number.parseInt(scrutin.syntheseVote.nombreVotants) || 0,
+            suffrages_exprimes: Number.parseInt(scrutin.syntheseVote.suffragesExprimes) || 0,
+            suffrages_requis: Number.parseInt(scrutin.syntheseVote.nbrSuffragesRequis) || 0,
+            total_pour: Number.parseInt(scrutin.syntheseVote.decompte?.pour) || 0,
+            total_contre: Number.parseInt(scrutin.syntheseVote.decompte?.contre) || 0,
+            total_abstentions: Number.parseInt(scrutin.syntheseVote.decompte?.abstentions) || 0,
+            total_non_votants: Number.parseInt(scrutin.syntheseVote.decompte?.nonVotants) || 0,
+            total_non_votants_volontaires: Number.parseInt(scrutin.syntheseVote.decompte?.nonVotantsVolontaires) || 0,
             legislature_snapshot: this.legislatureSnapshot,
         };
         this.scrutinsAgregats.push({...agregatsData, row_hash: computeRowHash(agregatsData)});
@@ -157,7 +157,7 @@ export class ScrutinsExtractor implements IExtractor {
             scrutin_uid: scrutinUid,
             groupe_id: group.organeRef,
             groupe_legislature: this.legislatureSnapshot,
-            nombre_membres: parseInt(group.nombreMembresGroupe) || 0,
+            nombre_membres: Number.parseInt(group.nombreMembresGroupe) || 0,
             position_majoritaire: group.vote?.positionMajoritaire || '',
             legislature_snapshot: this.legislatureSnapshot,
         };
@@ -169,11 +169,11 @@ export class ScrutinsExtractor implements IExtractor {
             scrutin_uid: scrutinUid,
             groupe_id: group.organeRef,
             groupe_legislature: this.legislatureSnapshot,
-            pour: parseInt(group.vote.decompteVoix.pour) || 0,
-            contre: parseInt(group.vote.decompteVoix.contre) || 0,
-            abstentions: parseInt(group.vote.decompteVoix.abstentions) || 0,
-            non_votants: parseInt(group.vote.decompteVoix.nonVotants) || 0,
-            non_votants_volontaires: parseInt(group.vote.decompteVoix.nonVotantsVolontaires) || 0,
+            pour: Number.parseInt(group.vote.decompteVoix.pour) || 0,
+            contre: Number.parseInt(group.vote.decompteVoix.contre) || 0,
+            abstentions: Number.parseInt(group.vote.decompteVoix.abstentions) || 0,
+            non_votants: Number.parseInt(group.vote.decompteVoix.nonVotants) || 0,
+            non_votants_volontaires: Number.parseInt(group.vote.decompteVoix.nonVotantsVolontaires) || 0,
             legislature_snapshot: this.legislatureSnapshot,
         };
         this.scrutinsGroupesAgregats.push({...groupeAgregatsData, row_hash: computeRowHash(groupeAgregatsData)});

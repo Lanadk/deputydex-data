@@ -50,7 +50,7 @@ run_aggregate_deputes_refresh()   { "$TS_NODE" ./workflow/aggregat/job/deputes/a
 # demande une confirmation explicite avant de passer --yes au job.
 run_aggregate_recreate_view() {
     read -p "Nom(s) de vue(s) à recréer (séparés par un espace) : " views
-    if [ -z "$views" ]; then
+    if [[ -z "$views" ]]; then
         echo "⚠️  Aucune vue saisie, annulé."
         return
     fi

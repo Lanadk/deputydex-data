@@ -14,6 +14,8 @@ export interface ParseResult {
     errors: number;
 }
 
+const DEFAULT_PARSE_OPTIONS: Readonly<ParseOptions> = Object.freeze({ exportSeparateFiles: true });
+
 export class ParseFilesUseCase {
     constructor(
         private processor: BatchProcessor,
@@ -23,7 +25,7 @@ export class ParseFilesUseCase {
 
     async execute(
         outputDir: string,
-        options: ParseOptions = { exportSeparateFiles: true }
+        options: ParseOptions = DEFAULT_PARSE_OPTIONS
     ): Promise<ParseResult> {
         if (options.exportSingleFile && this.processor.isFlushConfigured()) {
             // A single combined export needs the whole dataset in memory at once,

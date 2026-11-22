@@ -157,7 +157,7 @@ export class ParserJobFactory {
         return fs.readdirSync(unzipBaseDir)
             .filter(entry => fs.statSync(path.join(unzipBaseDir, entry)).isDirectory())
             .map(Number)
-            .filter(n => !isNaN(n))
+            .filter(n => !Number.isNaN(n))
             .sort();
     }
 }
