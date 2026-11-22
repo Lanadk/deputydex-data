@@ -15,6 +15,8 @@ if (existsSync(envPath)) config({ path: envPath });
 async function main() {
     try {
         await ParserJobFactory.runByDomain('acteurs', LogLevel.INFO);
+        // Même archive AMO, importés ensemble par importActeurs.ts.
+        await ParserJobFactory.runByDomain('organes', LogLevel.INFO);
     } catch (error) {
         console.error('[ERROR  ❌ ]: Job failed:', error);
         process.exit(1);

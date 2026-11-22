@@ -177,3 +177,32 @@ ON CONFLICT (id) DO UPDATE
     SET legislature_snapshot = EXCLUDED.legislature_snapshot,
         row_hash             = EXCLUDED.row_hash
 WHERE groupes_parlementaires.row_hash != EXCLUDED.row_hash;
+
+-- =====================================================
+-- ORGANES (référencés par mandats.organe_uid ; pas de clé étrangère : un
+-- mandat peut viser un organe absent des archives importées)
+-- =====================================================
+
+INSERT INTO organes (uid, code_type, libelle, libelle_edition, libelle_abrege, libelle_abrev,
+                     date_debut, date_fin, organe_parent_uid, organe_precedent_uid,
+                     preseance, legislature, row_hash, legislature_snapshot)
+SELECT uid, code_type, libelle, libelle_edition, libelle_abrege, libelle_abrev,
+       date_debut, date_fin, organe_parent_uid, organe_precedent_uid,
+       preseance, legislature, row_hash, legislature_snapshot
+FROM organes_snapshot
+ON CONFLICT (uid) DO UPDATE
+    SET code_type            = EXCLUDED.code_type,
+        libelle              = EXCLUDED.libelle,
+        libelle_edition      = EXCLUDED.libelle_edition,
+        libelle_abrege       = EXCLUDED.libelle_abrege,
+        libelle_abrev        = EXCLUDED.libelle_abrev,
+        date_debut           = EXCLUDED.date_debut,
+        date_fin             = EXCLUDED.date_fin,
+        organe_parent_uid    = EXCLUDED.organe_parent_uid,
+        organe_precedent_uid = EXCLUDED.organe_precedent_uid,
+        preseance            = EXCLUDED.preseance,
+        legislature          = EXCLUDED.legislature,
+        row_hash             = EXCLUDED.row_hash,
+        legislature_snapshot = EXCLUDED.legislature_snapshot,
+        updated_at           = now()
+WHERE organes.row_hash != EXCLUDED.row_hash;

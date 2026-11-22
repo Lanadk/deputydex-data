@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS acteurs_adresses_mails_raw CASCADE;
 DROP TABLE IF EXISTS acteurs_reseaux_sociaux_raw CASCADE;
 DROP TABLE IF EXISTS acteurs_telephones_raw CASCADE;
 DROP TABLE IF EXISTS groupes_parlementaires_raw CASCADE;
+DROP TABLE IF EXISTS organes_raw CASCADE;
 
 CREATE TABLE IF NOT EXISTS acteurs_raw
 (
@@ -32,6 +33,10 @@ CREATE TABLE IF NOT EXISTS groupes_parlementaires_raw
 (
     data JSONB NOT NULL
 );
+CREATE TABLE IF NOT EXISTS organes_raw
+(
+    data JSONB NOT NULL
+);
 
 -- ==============================================================================
 -- SNAPSHOT TABLES
@@ -42,6 +47,7 @@ DROP TABLE IF EXISTS acteurs_adresses_mails_snapshot CASCADE;
 DROP TABLE IF EXISTS acteurs_reseaux_sociaux_snapshot CASCADE;
 DROP TABLE IF EXISTS acteurs_telephones_snapshot CASCADE;
 DROP TABLE IF EXISTS groupes_parlementaires_snapshot CASCADE;
+DROP TABLE IF EXISTS organes_snapshot CASCADE;
 
 CREATE TABLE IF NOT EXISTS acteurs_snapshot
 (
@@ -121,4 +127,22 @@ CREATE TABLE IF NOT EXISTS groupes_parlementaires_snapshot
     legislature_snapshot INTEGER     NOT NULL,
     row_hash             TEXT UNIQUE NOT NULL,
     PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS organes_snapshot
+(
+    uid                  TEXT PRIMARY KEY,
+    code_type            TEXT        NOT NULL,
+    libelle              TEXT,
+    libelle_edition      TEXT,
+    libelle_abrege       TEXT,
+    libelle_abrev        TEXT,
+    date_debut           DATE,
+    date_fin             DATE,
+    organe_parent_uid    TEXT,
+    organe_precedent_uid TEXT,
+    preseance            INTEGER,
+    legislature          INTEGER,
+    row_hash             TEXT UNIQUE NOT NULL,
+    legislature_snapshot INTEGER     NOT NULL
 );

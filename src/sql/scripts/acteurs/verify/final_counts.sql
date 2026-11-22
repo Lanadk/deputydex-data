@@ -14,4 +14,7 @@ SELECT 'telephones', COUNT(*)
 FROM acteurs_telephones
 UNION ALL
 SELECT 'groupes_parlementaires', COUNT(*)
-FROM groupes_parlementaires;
+FROM groupes_parlementaires
+UNION ALL
+SELECT 'organes', COUNT(*)
+FROM organes;

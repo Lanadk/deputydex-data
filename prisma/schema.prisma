@@ -436,6 +436,41 @@ model GroupesParlementaires {
   @@map("groupes_parlementaires")
 }
 
+/// Organes de l'Assemblée nationale (jeu AMO, fichiers `acteurs/json/organe`) :
+/// commissions (COMPER…), groupes (GP), ministères (MINISTERE), gouvernements
+/// (GOUVERNEMENT), Présidence de la République (PRESREP)… Référencés par
+/// `mandats.organe_uid`, sans clé étrangère : un mandat peut viser un organe
+/// absent des archives importées.
+model Organes {
+  uid                  String    @id @db.VarChar(50)
+  code_type            String    @db.VarChar(30)
+  libelle              String?   @db.Text
+  /// Forme à insérer dans une phrase : « de la commission des finances ».
+  libelle_edition      String?   @db.Text
+  /// Forme courte : « Finances », « Intérieur ».
+  libelle_abrege       String?   @db.Text
+  /// Sigle : « CION_FIN », « INT ».
+  libelle_abrev        String?   @db.VarChar(50)
+  date_debut           DateTime? @db.Date
+  date_fin             DateTime? @db.Date
+  /// Organe parent (ex. le gouvernement d'un ministère).
+  organe_parent_uid    String?   @db.VarChar(50)
+  /// Organe précédent (ex. le même ministère dans le gouvernement précédent).
+  organe_precedent_uid String?   @db.VarChar(50)
+  /// Rang protocolaire (ministères).
+  preseance            Int?
+  /// Législature de l'organe ; null pour un organe permanent.
+  legislature          Int?
+  legislature_snapshot Int
+  row_hash             String    @unique @db.Text
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+  updated_at           DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@index([code_type])
+  @@index([organe_parent_uid])
+  @@map("organes")
+}
+
 model RefGroupes {
   groupe_id          String   @id @db.VarChar(50)
   groupe_legislature Int
