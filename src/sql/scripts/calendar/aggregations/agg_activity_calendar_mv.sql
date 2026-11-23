@@ -55,6 +55,9 @@ UNION ALL
 -- =========================
 -- DEPUTE : VOTES
 -- =========================
+-- Un « non-votant » n'est pas une activité du député : exclu ici, pour que le
+-- calendrier du front lise cette vue (une ligne par jour) au lieu de compter
+-- la vue de détail à chaque requête.
 SELECT
     'depute',
     vd.depute_id,
@@ -65,6 +68,7 @@ SELECT
 FROM votes_deputes vd
          JOIN scrutins s ON s.uid = vd.scrutin_uid
 WHERE s.date_scrutin IS NOT NULL
+  AND vd.position <> 'non_votant'
 GROUP BY vd.depute_id, s.date_scrutin, vd.legislature_snapshot
 
 UNION ALL
