@@ -22,6 +22,7 @@ export const VIEWS = [
     "agg_deputes_stats_votes",
     "agg_deputes_stats_age",
     "agg_deputes_dossiers_contributions",
+    "agg_deputes_tendances_recentes",
 ];
 
 async function main(): Promise<void> {
