@@ -78,8 +78,12 @@ export class QuestionsExtractor implements IExtractor {
         const reponse = premierTexte(q.textesReponse?.texteReponse);
         const renouvellements = asArray(q.renouvellements?.renouvellement)
             .map((r) => toDateOrNull(r?.infoJO?.dateJO))
-            .filter((d): d is string => !!d)
-            .sort();
+            .filter((d): d is string => !!d);
+        // Dates ISO (AAAA-MM-JJ) : l'ordre des chaînes est l'ordre chronologique.
+        const dernierRenouvellement = renouvellements.reduce<string | null>(
+            (plusRecente, d) => (plusRecente === null || d.localeCompare(plusRecente) > 0 ? d : plusRecente),
+            null,
+        );
 
         const questionObj = {
             uid,
@@ -105,7 +109,7 @@ export class QuestionsExtractor implements IExtractor {
             libelle_cloture: extractNilableValue(q.cloture?.libelleCloture),
             date_cloture: toDateOrNull(q.cloture?.dateCloture),
             nb_renouvellements: renouvellements.length,
-            date_dernier_renouvellement: renouvellements.length ? renouvellements[renouvellements.length - 1] : null,
+            date_dernier_renouvellement: dernierRenouvellement,
             date_signalement: toDateOrNull(q.signalement?.dateDepotSignal),
             legislature_snapshot: this.legislatureSnapshot,
         };
