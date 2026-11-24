@@ -130,4 +130,43 @@ describe('DownloadFilesUsecase', () => {
         expect(results[1]).toMatchObject({ success: true, item: items[1] });
         expect(processor.process).toHaveBeenCalledTimes(2); // the failure did not stop the loop
     });
+
+    it('sans retryFailedAfterMs, ne retente pas les échecs', async () => {
+        const { usecase, paramDataSourceService, processor } = createDeps();
+        paramDataSourceService.getDownloadItems.mockResolvedValue([makeItem()]);
+        processor.process.mockRejectedValue(new Error('aborted'));
+
+        const results = await usecase.execute();
+
+        expect(processor.process).toHaveBeenCalledTimes(1);
+        expect(results[0].success).toBe(false);
+    });
+
+    it('avec retryFailedAfterMs, retente les échecs en fin de passe et remplace leur résultat', async () => {
+        const { usecase, paramDataSourceService, processor, monitorDataDownloadService } = createDeps();
+        const items = [makeItem({ id: 1, sourceId: 10, fileName: 'bad.zip' }), makeItem({ id: 2, sourceId: 20, fileName: 'ok.zip' })];
+        paramDataSourceService.getDownloadItems.mockResolvedValue(items);
+        processor.process
+            .mockRejectedValueOnce(new Error('aborted'))
+            .mockResolvedValueOnce({ success: true, item: items[1], path: '/tmp/ok.zip', checksum: 'c', fileSize: BigInt(1) })
+            .mockResolvedValueOnce({ success: true, item: items[0], path: '/tmp/bad.zip', checksum: 'c2', fileSize: BigInt(2) });
+
+        const results = await usecase.execute(undefined, { retryFailedAfterMs: 0 });
+
+        // bad.zip, ok.zip, puis bad.zip une seconde fois, après ok.zip.
+        expect(processor.process.mock.calls.map(([item]) => (item as DownloadItem).fileName)).toEqual(['bad.zip', 'ok.zip', 'bad.zip']);
+        expect(results.map((r) => [r.item.fileName, r.success])).toEqual([['bad.zip', true], ['ok.zip', true]]);
+        expect(monitorDataDownloadService.markAsDownloaded).toHaveBeenCalledWith('bad.zip', 10, 'c2', BigInt(2));
+    });
+
+    it('un échec persistant après la seconde passe reste en échec', async () => {
+        const { usecase, paramDataSourceService, processor } = createDeps();
+        paramDataSourceService.getDownloadItems.mockResolvedValue([makeItem()]);
+        processor.process.mockRejectedValue(new Error('aborted'));
+
+        const results = await usecase.execute(undefined, { retryFailedAfterMs: 0 });
+
+        expect(processor.process).toHaveBeenCalledTimes(2);
+        expect(results[0]).toMatchObject({ success: false, error: expect.any(Error) });
+    });
 });

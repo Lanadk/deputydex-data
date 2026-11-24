@@ -9,6 +9,15 @@ export interface DownloadProgress {
     percentage: number;
 }
 
+/** Attente maximale entre deux tentatives (backoff exponentiel 1 s, 2 s, 4 s… plafonné). */
+const MAX_RETRY_DELAY_MS = 30_000;
+
+/**
+ * Connexion sans aucun octet reçu pendant ce délai : abandonnée puis retentée,
+ * au lieu de rester pendue indéfiniment.
+ */
+const IDLE_TIMEOUT_MS = 60_000;
+
 export class FileDownloader implements IFileDownloader {
     constructor(private logger: Logger) {}
 
@@ -29,7 +38,7 @@ export class FileDownloader implements IFileDownloader {
                 this.logger.warn(`Attempt ${attempt} failed: ${lastError.message}`);
 
                 if (attempt < maxRetries) {
-                    const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
+                    const delay = Math.min(1000 * Math.pow(2, attempt - 1), MAX_RETRY_DELAY_MS);
                     this.logger.info(`Retrying in ${delay}ms...`);
                     await new Promise(resolve => setTimeout(resolve, delay));
                 }
@@ -74,7 +83,7 @@ export class FileDownloader implements IFileDownloader {
                 resolve();
             };
 
-            const request = https.get(url, (response) => {
+            const request = https.get(url, { timeout: IDLE_TIMEOUT_MS }, (response) => {
                 if (response.statusCode !== 200) {
                     response.resume();
                     fail(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
@@ -129,6 +138,11 @@ export class FileDownloader implements IFileDownloader {
             });
 
             request.on('error', (err) => fail(err));
+            // 'timeout' ne coupe rien de lui-même : on détruit la requête, ce qui
+            // déclenche 'error' (et donc fail) avec un message explicite.
+            request.on('timeout', () => {
+                request.destroy(new Error(`No data received for ${IDLE_TIMEOUT_MS / 1000}s: ${url}`));
+            });
         });
     }
 }
