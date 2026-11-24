@@ -12,10 +12,12 @@ import {
     outTableDirectoryName,
     scrutinsSourceDirectoryName,
     amendementsSourceDirectoryName, dossiersSourceDirectoryName, documentsSourceDirectoryName,
-    reunionsSourceDirectoryName,
+    reunionsSourceDirectoryName, questionsSourceDirectoryNames,
     parseFlushEveryFiles
 } from "../const";
 import {ReunionsExtractor} from "../../domain/models/ReunionsExtractor";
+import {QuestionsExtractor} from "../../domain/models/QuestionsExtractor";
+import {IDirectorySource} from "../../infrastructure/IDirectorySource";
 import {ParserJob} from "../parser/ParserJob";
 import path from "path";
 import fs from "fs";
@@ -26,9 +28,9 @@ import {ParseFilesUseCase} from "../../domain/usecases/ParseFilesUseCase";
 import {DossiersParlementairesExtractor} from "../../domain/models/DossierParlementaireExtractor";
 import {DocumentParlementaireExtractor} from "../../domain/models/DocumentParlementaireExtractor";
 
-export type ParserDomain = 'acteurs' | 'organes' | 'scrutins' | 'amendements' | 'dossiers_legislatifs' | 'documents_parlementaires' | 'reunions';
+export type ParserDomain = 'acteurs' | 'organes' | 'scrutins' | 'amendements' | 'dossiers_legislatifs' | 'documents_parlementaires' | 'reunions' | 'questions';
 
-const ALL_DOMAINS: ParserDomain[] = ['acteurs', 'organes', 'scrutins', 'amendements', 'dossiers_legislatifs', 'documents_parlementaires', 'reunions'];
+const ALL_DOMAINS: ParserDomain[] = ['acteurs', 'organes', 'scrutins', 'amendements', 'dossiers_legislatifs', 'documents_parlementaires', 'reunions', 'questions'];
 
 export interface ParserJobRunnerConfig {
     domain: ParserDomain;
@@ -38,7 +40,8 @@ export interface ParserJobRunnerConfig {
 
 export class ParserJobFactory {
 
-    private static readonly SOURCE_DIRS: Record<ParserDomain, string> = {
+    /** Un domaine peut lire plusieurs répertoires (ex. les trois archives de questions). */
+    private static readonly SOURCE_DIRS: Record<ParserDomain, string | string[]> = {
         acteurs: acteursSourceDirectoryName,
         organes: organesSourceDirectoryName,
         scrutins: scrutinsSourceDirectoryName,
@@ -46,6 +49,7 @@ export class ParserJobFactory {
         dossiers_legislatifs: dossiersSourceDirectoryName,
         documents_parlementaires: documentsSourceDirectoryName,
         reunions: reunionsSourceDirectoryName,
+        questions: questionsSourceDirectoryNames,
     };
 
     // ==============================================================================
@@ -60,21 +64,27 @@ export class ParserJobFactory {
             case "dossiers_legislatifs": return new DossiersParlementairesExtractor(legislatureSnapshot);
             case "documents_parlementaires": return new DocumentParlementaireExtractor(legislatureSnapshot);
             case "reunions": return new ReunionsExtractor(legislatureSnapshot);
+            case "questions": return new QuestionsExtractor(legislatureSnapshot);
         }}
+
+    /**
+     * Fichiers de tous les répertoires sources du domaine, dans l'ordre déclaré.
+     * Chaque répertoire est lu par un DirectorySource : un répertoire manquant
+     * (téléchargement raté) fait échouer le parsing au lieu d'être ignoré.
+     */
+    private static createFileSource(domain: ParserDomain, legislature: number): IDirectorySource {
+        const dirs = ([] as string[]).concat(this.SOURCE_DIRS[domain])
+            .map((dir) => path.resolve(__dirname, baseInData, legislature.toString(), dir));
+        if (dirs.length === 1) return new DirectorySource(dirs[0]);
+        return { getFiles: () => dirs.flatMap((dir) => new DirectorySource(dir).getFiles()) };
+    }
 
     static create(config: ParserJobRunnerConfig): { job: ParserJob; outputDir: string } {
         const logger = new Logger(config.logLevel || LogLevel.INFO);
 
-        const sourceDir = path.resolve(
-            __dirname,
-            baseInData,
-            config.legislature.toString(),
-            this.SOURCE_DIRS[config.domain],
-        );
-
         const outputDir = path.resolve(__dirname, baseOutData, outTableDirectoryName, config.legislature.toString());
 
-        const fileSource = new DirectorySource(sourceDir);
+        const fileSource = this.createFileSource(config.domain, config.legislature);
         const extractor = this.createExtractor(config.domain, config.legislature);
         const fileWriter = new JsonFileWriter();
 

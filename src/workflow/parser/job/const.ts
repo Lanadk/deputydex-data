@@ -18,3 +18,12 @@ export const dossiersSourceDirectoryName = 'dossiers_legislatifs/json/dossierPar
 export const documentsSourceDirectoryName = 'dossiers_legislatifs/json/document';
 /** Jeu « Réunions » (agenda) : commissions, séances publiques, groupes d'études… */
 export const reunionsSourceDirectoryName = 'reunions/json/reunion';
+/**
+ * Trois archives (une par type de question, même format), donc trois domaines
+ * de téléchargement, parsés ensemble dans le domaine « questions ».
+ */
+export const questionsSourceDirectoryNames = [
+    'questions_gouvernement/json',
+    'questions_orales_sans_debat/json',
+    'questions_ecrites/json',
+];

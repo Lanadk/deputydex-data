@@ -601,6 +601,87 @@ model ReunionsPointsOdjDossiers {
   @@map("reunions_points_odj_dossiers")
 }
 
+// ============================================
+// QUESTIONS (au Gouvernement, orales sans débat, écrites)
+// ============================================
+
+/// Question parlementaire. QG (au Gouvernement) et QOSD (orale sans débat) sont
+/// posées en séance : leur réponse est publiée au JO des débats et
+/// `date_reponse` est la date de la séance. QE (écrite) : question et réponse
+/// publiées au JO des questions, sans passage en séance. `acteur_uid`,
+/// `groupe_uid` et `ministere_uid` sans clé étrangère.
+/// Détails : src/sql/scripts/questions/README.md.
+model Questions {
+  uid                         String    @id @db.VarChar(30)
+  /// QG | QOSD | QE
+  type_question               String    @db.VarChar(10)
+  legislature                 Int?
+  numero                      Int?
+  /// Auteur déclaré (pour une QOSD, la question peut être posée en séance par un suppléant).
+  acteur_uid                  String    @db.VarChar(50)
+  mandat_uid                  String?   @db.VarChar(50)
+  /// Groupe de l'auteur au moment de la question.
+  groupe_uid                  String?   @db.VarChar(50)
+  groupe_abrege               String?   @db.VarChar(30)
+  rubrique                    String?   @db.Text
+  tete_analyse                String?   @db.Text
+  /// Analyse AN = intitulé court de la question (`analyse` est un mot réservé PostgreSQL).
+  libelle_analyse             String?   @db.Text
+  /// Ministère interrogé.
+  ministere_uid               String?   @db.VarChar(50)
+  ministere_abrege            String?   @db.Text
+  /// Publication de la question au JO (null pour une QG).
+  date_question               DateTime? @db.Date
+  texte_question              String?   @db.Text
+  /// Date du JO de la réponse (= date de la séance pour QG et QOSD).
+  date_reponse                DateTime? @db.Date
+  /// JO_DEBAT (réponse en séance) | JO_QUESTION (réponse écrite).
+  type_jo_reponse             String?   @db.VarChar(20)
+  page_jo_reponse             String?   @db.VarChar(20)
+  texte_reponse               String?   @db.Text
+  /// REP_PUB (réponse publiée), AU (retrait auteur), FM (fin de mandat), ANSE (séance annulée)…
+  code_cloture                String?   @db.VarChar(20)
+  libelle_cloture             String?   @db.Text
+  date_cloture                DateTime? @db.Date
+  /// Questions écrites : nombre de renouvellements (relances faute de réponse).
+  nb_renouvellements          Int       @default(0)
+  date_dernier_renouvellement DateTime? @db.Date
+  date_signalement            DateTime? @db.Date
+  legislature_snapshot        Int
+  row_hash                    String    @unique @db.Text
+  created_at                  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at                  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  ministeres_attributaires QuestionsMinisteresAttributaires[]
+
+  @@index([acteur_uid])
+  @@index([type_question])
+  @@index([date_reponse])
+  @@index([ministere_uid])
+  @@index([legislature_snapshot])
+  @@map("questions")
+}
+
+/// Ministère auquel une question a été attribuée ; plusieurs lignes quand la
+/// question est réattribuée (changement de gouvernement…). `ordre` = rang dans
+/// la source.
+model QuestionsMinisteresAttributaires {
+  question_uid         String    @db.VarChar(30)
+  ordre                Int
+  ministere_uid        String?   @db.VarChar(50)
+  ministere_abrege     String?   @db.Text
+  date_jo              DateTime? @db.Date
+  legislature_snapshot Int
+  row_hash             String    @unique @db.Text
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+
+  question Questions @relation(fields: [question_uid], references: [uid], onDelete: Cascade)
+
+  @@id([question_uid, ordre])
+  @@index([ministere_uid])
+  @@map("questions_ministeres_attributaires")
+}
+
 model RefGroupes {
   groupe_id          String   @id @db.VarChar(50)
   groupe_legislature Int
