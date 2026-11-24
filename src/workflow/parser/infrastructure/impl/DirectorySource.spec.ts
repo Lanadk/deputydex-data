@@ -37,6 +37,13 @@ describe('DirectorySource', () => {
         expect(files).toEqual([path.join(workDir, 'a.json')]);
     });
 
+    it('lists files of another extension when given one (e.g. .xml)', () => {
+        fs.writeFileSync(path.join(workDir, 'a.json'), '{}');
+        fs.writeFileSync(path.join(workDir, 'cr.xml'), '<compteRendu/>');
+
+        expect(new DirectorySource(workDir, '.xml').getFiles()).toEqual([path.join(workDir, 'cr.xml')]);
+    });
+
     it('recurses into nested subdirectories', () => {
         const nested = path.join(workDir, 'sub', 'deeper');
         fs.mkdirSync(nested, { recursive: true });

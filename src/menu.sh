@@ -24,6 +24,7 @@ run_parser_dossiers()           { "$TS_NODE" ./workflow/parser/job/unit-parser/p
 run_parser_documents()          { "$TS_NODE" ./workflow/parser/job/unit-parser/parseDocuments.ts; }
 run_parser_reunions()           { "$TS_NODE" ./workflow/parser/job/unit-parser/parseReunions.ts; }
 run_parser_questions()          { "$TS_NODE" ./workflow/parser/job/unit-parser/parseQuestions.ts; }
+run_parser_debats()             { "$TS_NODE" ./workflow/parser/job/unit-parser/parseDebats.ts; }
 
 # -- Import --------------------------------------------------------------------
 run_import_all()                { "$TS_NODE" ./workflow/import/job/trtImportCollecte.ts "$1"; }
@@ -35,6 +36,7 @@ run_import_dossiers()           { "$TS_NODE" ./workflow/import/job/unit-import/i
 run_import_documents()          { "$TS_NODE" ./workflow/import/job/unit-import/importDocuments.ts; }
 run_import_reunions()           { "$TS_NODE" ./workflow/import/job/unit-import/importReunions.ts; }
 run_import_questions()          { "$TS_NODE" ./workflow/import/job/unit-import/importQuestions.ts; }
+run_import_debats()             { "$TS_NODE" ./workflow/import/job/unit-import/importDebats.ts; }
 
 # -- Aggregation ---------------------------------------------------------------
 run_aggregate_all_one_shot()      { "$TS_NODE" ./workflow/aggregat/job/trtAggregatCollecte-oneshot.ts; }
@@ -144,6 +146,7 @@ parser_menu() {
         echo "6) Parse Documents"
         echo "7) Parse Réunions"
         echo "8) Parse Questions"
+        echo "9) Parse Débats"
         echo "0) Back"
         echo ""
         echo "=============================================="
@@ -158,6 +161,7 @@ parser_menu() {
             6) run_parser_documents ;;
             7) run_parser_reunions ;;
             8) run_parser_questions ;;
+            9) run_parser_debats ;;
             0) return ;;
             *) echo "⚠️  Invalid option, please try again." ;;
         esac
@@ -179,6 +183,7 @@ import_menu() {
         echo "7) Import Documents"
         echo "8) Import Réunions"
         echo "9) Import Questions"
+        echo "10) Import Débats"
         echo "0) Back"
         echo ""
         echo "=============================================="
@@ -194,6 +199,7 @@ import_menu() {
             7) run_import_documents;;
             8) run_import_reunions;;
             9) run_import_questions;;
+            10) run_import_debats;;
             0) return ;;
             *) echo "⚠️  Invalid option, please try again." ;;
         esac

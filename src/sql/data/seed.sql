@@ -38,7 +38,8 @@ VALUES
     ('reunions', 'Agenda : réunions de commission, séances publiques, groupes d''études'),
     ('questions_gouvernement', 'Questions au Gouvernement'),
     ('questions_orales_sans_debat', 'Questions orales sans débat'),
-    ('questions_ecrites', 'Questions écrites')
+    ('questions_ecrites', 'Questions écrites'),
+    ('debats', 'Comptes rendus intégraux des séances publiques (Syceron)')
 ON CONFLICT (code) DO NOTHING;
 
 -- ============================================
@@ -94,6 +95,12 @@ VALUES
         (SELECT id FROM param_legislatures WHERE number = 16),
         'https://data.assemblee-nationale.fr/static/openData/repository/16/questions/questions_ecrites/Questions_ecrites.json.zip',
         'Questions_ecrites.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'debats'),
+        (SELECT id FROM param_legislatures WHERE number = 16),
+        'https://data.assemblee-nationale.fr/static/openData/repository/16/vp/syceronbrut/syseron.xml.zip',
+        'syseron.xml.zip'
     )
 ON CONFLICT DO NOTHING;
 
@@ -150,6 +157,12 @@ VALUES
         (SELECT id FROM param_legislatures WHERE number = 17),
         'https://data.assemblee-nationale.fr/static/openData/repository/17/questions/questions_ecrites/Questions_ecrites.json.zip',
         'Questions_ecrites.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'debats'),
+        (SELECT id FROM param_legislatures WHERE number = 17),
+        'https://data.assemblee-nationale.fr/static/openData/repository/17/vp/syceronbrut/syseron.xml.zip',
+        'syseron.xml.zip'
     )
 ON CONFLICT DO NOTHING;
 

@@ -1,0 +1,35 @@
+-- date_seance arrive en heure de Paris sans fuseau (« 2024-07-18T15:00:00 »).
+INSERT INTO debats_comptes_rendus_snapshot (uid, seance_uid, session_ref, date_seance, date_seance_libelle, num_seance,
+                                            quantieme, legislature, session_libelle, num_jo, etat, validite, version,
+                                            row_hash, legislature_snapshot)
+SELECT data ->> 'uid',
+       data ->> 'seance_uid',
+       data ->> 'session_ref',
+       (data ->> 'date_seance')::timestamp AT TIME ZONE 'Europe/Paris',
+       data ->> 'date_seance_libelle',
+       (data ->> 'num_seance')::integer,
+       data ->> 'quantieme',
+       (data ->> 'legislature')::integer,
+       data ->> 'session_libelle',
+       data ->> 'num_jo',
+       data ->> 'etat',
+       data ->> 'validite',
+       data ->> 'version',
+       data ->> 'row_hash',
+       (data ->> 'legislature_snapshot')::integer
+FROM debats_comptes_rendus_raw
+ON CONFLICT (uid) DO UPDATE SET seance_uid           = EXCLUDED.seance_uid,
+                                session_ref          = EXCLUDED.session_ref,
+                                date_seance          = EXCLUDED.date_seance,
+                                date_seance_libelle  = EXCLUDED.date_seance_libelle,
+                                num_seance           = EXCLUDED.num_seance,
+                                quantieme            = EXCLUDED.quantieme,
+                                legislature          = EXCLUDED.legislature,
+                                session_libelle      = EXCLUDED.session_libelle,
+                                num_jo               = EXCLUDED.num_jo,
+                                etat                 = EXCLUDED.etat,
+                                validite             = EXCLUDED.validite,
+                                version              = EXCLUDED.version,
+                                row_hash             = EXCLUDED.row_hash,
+                                legislature_snapshot = EXCLUDED.legislature_snapshot
+WHERE debats_comptes_rendus_snapshot.row_hash != EXCLUDED.row_hash;

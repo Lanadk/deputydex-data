@@ -12,11 +12,12 @@ import {
     outTableDirectoryName,
     scrutinsSourceDirectoryName,
     amendementsSourceDirectoryName, dossiersSourceDirectoryName, documentsSourceDirectoryName,
-    reunionsSourceDirectoryName, questionsSourceDirectoryNames,
-    parseFlushEveryFiles
+    reunionsSourceDirectoryName, questionsSourceDirectoryNames, debatsSourceDirectoryName,
+    parseFlushEveryFiles, debatsFlushEveryFiles
 } from "../const";
 import {ReunionsExtractor} from "../../domain/models/ReunionsExtractor";
 import {QuestionsExtractor} from "../../domain/models/QuestionsExtractor";
+import {DebatsExtractor} from "../../domain/models/DebatsExtractor";
 import {IDirectorySource} from "../../infrastructure/IDirectorySource";
 import {ParserJob} from "../parser/ParserJob";
 import path from "path";
@@ -28,9 +29,9 @@ import {ParseFilesUseCase} from "../../domain/usecases/ParseFilesUseCase";
 import {DossiersParlementairesExtractor} from "../../domain/models/DossierParlementaireExtractor";
 import {DocumentParlementaireExtractor} from "../../domain/models/DocumentParlementaireExtractor";
 
-export type ParserDomain = 'acteurs' | 'organes' | 'scrutins' | 'amendements' | 'dossiers_legislatifs' | 'documents_parlementaires' | 'reunions' | 'questions';
+export type ParserDomain = 'acteurs' | 'organes' | 'scrutins' | 'amendements' | 'dossiers_legislatifs' | 'documents_parlementaires' | 'reunions' | 'questions' | 'debats';
 
-const ALL_DOMAINS: ParserDomain[] = ['acteurs', 'organes', 'scrutins', 'amendements', 'dossiers_legislatifs', 'documents_parlementaires', 'reunions', 'questions'];
+const ALL_DOMAINS: ParserDomain[] = ['acteurs', 'organes', 'scrutins', 'amendements', 'dossiers_legislatifs', 'documents_parlementaires', 'reunions', 'questions', 'debats'];
 
 export interface ParserJobRunnerConfig {
     domain: ParserDomain;
@@ -50,6 +51,17 @@ export class ParserJobFactory {
         documents_parlementaires: documentsSourceDirectoryName,
         reunions: reunionsSourceDirectoryName,
         questions: questionsSourceDirectoryNames,
+        debats: debatsSourceDirectoryName,
+    };
+
+    /** Extension des fichiers sources, quand ce n'est pas `.json`. */
+    private static readonly SOURCE_EXTENSIONS: Partial<Record<ParserDomain, string>> = {
+        debats: '.xml',
+    };
+
+    /** Fréquence de vidage mémoire, quand elle diffère de `parseFlushEveryFiles`. */
+    private static readonly FLUSH_EVERY_FILES: Partial<Record<ParserDomain, number>> = {
+        debats: debatsFlushEveryFiles,
     };
 
     // ==============================================================================
@@ -65,6 +77,7 @@ export class ParserJobFactory {
             case "documents_parlementaires": return new DocumentParlementaireExtractor(legislatureSnapshot);
             case "reunions": return new ReunionsExtractor(legislatureSnapshot);
             case "questions": return new QuestionsExtractor(legislatureSnapshot);
+            case "debats": return new DebatsExtractor(legislatureSnapshot);
         }}
 
     /**
@@ -75,8 +88,9 @@ export class ParserJobFactory {
     private static createFileSource(domain: ParserDomain, legislature: number): IDirectorySource {
         const dirs = ([] as string[]).concat(this.SOURCE_DIRS[domain])
             .map((dir) => path.resolve(__dirname, baseInData, legislature.toString(), dir));
-        if (dirs.length === 1) return new DirectorySource(dirs[0]);
-        return { getFiles: () => dirs.flatMap((dir) => new DirectorySource(dir).getFiles()) };
+        const extension = this.SOURCE_EXTENSIONS[domain];
+        if (dirs.length === 1) return new DirectorySource(dirs[0], extension);
+        return { getFiles: () => dirs.flatMap((dir) => new DirectorySource(dir, extension).getFiles()) };
     }
 
     static create(config: ParserJobRunnerConfig): { job: ParserJob; outputDir: string } {
@@ -89,7 +103,7 @@ export class ParserJobFactory {
         const fileWriter = new JsonFileWriter();
 
         const processor = new BatchProcessor(fileSource, extractor, logger, {
-            everyFiles: parseFlushEveryFiles,
+            everyFiles: this.FLUSH_EVERY_FILES[config.domain] ?? parseFlushEveryFiles,
             onFlush: (tables) => fileWriter.writeToSeparateFiles(tables, outputDir),
         });
         const parseUseCase = new ParseFilesUseCase(processor, fileWriter, logger);

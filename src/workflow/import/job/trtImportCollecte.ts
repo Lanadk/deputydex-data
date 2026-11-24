@@ -8,6 +8,7 @@ import { main as importDossiers } from "./unit-import/importDossiers";
 import { main as importDocuments } from "./unit-import/importDocuments";
 import { main as importReunions } from "./unit-import/importReunions";
 import { main as importQuestions } from "./unit-import/importQuestions";
+import { main as importDebats } from "./unit-import/importDebats";
 
 // ==============================================================================
 // IMPORT ALL JOB
@@ -24,6 +25,7 @@ const DOMAINS: Array<{ label: string; run: () => Promise<void> }> = [
     { label: "documents", run: importDocuments },
     { label: "reunions", run: importReunions },
     { label: "questions", run: importQuestions },
+    { label: "debats", run: importDebats },
 ];
 
 async function main(): Promise<void> {
