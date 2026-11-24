@@ -102,8 +102,14 @@ export class ReunionsExtractor implements IExtractor {
         const xsiType = r['@xsi:type'];
         const typeReunion = TYPES_REUNION[xsiType];
         if (!typeReunion) throw new Error(`Unknown reunion type ${xsiType} for ${uid}`);
+        // Une réunion à l'initiative d'un député (sous-type DEP, législature 16)
+        // n'est rattachée à aucun organe : c'est le demandeur qui l'identifie.
         const organeUid = extractNilableValue(r.organeReuniRef);
-        if (!organeUid) throw new Error(`Missing organeReuniRef for ${uid}`);
+        const demandeurActeurUid = extractNilableValue(r.demandeur?.acteur?.acteurRef);
+        const demandeurOrganeUid = extractNilableValue(r.demandeur?.organe?.organeRef);
+        if (!organeUid && !demandeurActeurUid && !demandeurOrganeUid) {
+            throw new Error(`Missing organeReuniRef and demandeur for ${uid}`);
+        }
         const dateDebut = extractNilableValue(r.timeStampDebut);
         if (!dateDebut) throw new Error(`Missing timeStampDebut for ${uid}`);
 
@@ -112,6 +118,8 @@ export class ReunionsExtractor implements IExtractor {
             type_reunion: typeReunion,
             legislature: legislatureFromUid(uid),
             organe_uid: organeUid,
+            demandeur_acteur_uid: demandeurActeurUid,
+            demandeur_organe_uid: demandeurOrganeUid,
             etat: extractNilableValue(r.cycleDeVie?.etat),
             date_debut: dateDebut,
             date_fin: extractNilableValue(r.timeStampFin),

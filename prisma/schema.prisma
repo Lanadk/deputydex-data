@@ -485,7 +485,12 @@ model Reunions {
   type_reunion               String    @db.VarChar(30)
   /// Législature portée par l'uid (RUANR5L17…).
   legislature                Int?
-  organe_uid                 String    @db.VarChar(50)
+  /// Organe réuni ; null pour une réunion à l'initiative d'un député (sous-type DEP).
+  organe_uid                 String?   @db.VarChar(50)
+  /// Député à l'initiative de la réunion (sous-type DEP).
+  demandeur_acteur_uid       String?   @db.VarChar(50)
+  /// Organe à l'initiative de la réunion (sous-type GP : groupe politique).
+  demandeur_organe_uid       String?   @db.VarChar(50)
   /// Confirmé, Annulé, Eventuel, Supprimé.
   etat                       String?   @db.VarChar(30)
   date_debut                 DateTime  @db.Timestamptz(6)
@@ -496,7 +501,7 @@ model Reunions {
   lieu_ref                   String?   @db.VarChar(50)
   lieu_libelle               String?   @db.Text
   format_reunion             String?   @db.VarChar(30)
-  /// Sous-type d'une réunion à l'initiative d'un parlementaire (GE = groupe d'études).
+  /// Sous-type d'une réunion à l'initiative d'un parlementaire (GE = groupe d'études, GP = groupe politique, DEP = député).
   sous_type_reunion          String?   @db.VarChar(30)
   visio_conference           Boolean?
   captation_video            Boolean?
@@ -519,6 +524,7 @@ model Reunions {
   points_odj   ReunionsPointsOdj[]
 
   @@index([organe_uid])
+  @@index([demandeur_acteur_uid])
   @@index([date_debut])
   @@index([type_reunion])
   @@index([legislature_snapshot])

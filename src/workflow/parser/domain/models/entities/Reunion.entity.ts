@@ -9,7 +9,12 @@ export interface Reunion {
     type_reunion: string;
     /** Législature portée par l'uid (RUANR5L17…), null si illisible. */
     legislature: number | null;
-    organe_uid: string;
+    /** Organe réuni ; null pour une réunion à l'initiative d'un député (sous-type DEP). */
+    organe_uid: string | null;
+    /** Député à l'initiative de la réunion (sous-type DEP). */
+    demandeur_acteur_uid: string | null;
+    /** Organe à l'initiative de la réunion (sous-type GP : groupe politique). */
+    demandeur_organe_uid: string | null;
     /** Confirmé, Annulé, Eventuel, Supprimé. */
     etat: string | null;
     date_debut: string;
@@ -20,7 +25,7 @@ export interface Reunion {
     lieu_libelle: string | null;
     /** Ordinaire (commissions uniquement). */
     format_reunion: string | null;
-    /** Sous-type des réunions à l'initiative d'un parlementaire (GE = groupe d'études). */
+    /** Sous-type des réunions à l'initiative d'un parlementaire (GE = groupe d'études, GP = groupe politique, DEP = député). */
     sous_type_reunion: string | null;
     visio_conference: boolean | null;
     captation_video: boolean | null;

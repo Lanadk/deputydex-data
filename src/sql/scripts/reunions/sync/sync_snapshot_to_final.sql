@@ -7,12 +7,14 @@ BEGIN;
 -- REUNIONS
 -- =====================================================
 
-INSERT INTO reunions (uid, type_reunion, legislature, organe_uid, etat, date_debut, date_fin,
+INSERT INTO reunions (uid, type_reunion, legislature, organe_uid, demandeur_acteur_uid, demandeur_organe_uid,
+                      etat, date_debut, date_fin,
                       session_ref, compte_rendu_ref, lieu_ref, lieu_libelle, format_reunion,
                       sous_type_reunion, visio_conference, captation_video, ouverture_presse,
                       est_reunion_internationale, date_seance, id_jo, num_seance_jo, quantieme,
                       resume_odj, convocation_odj, row_hash, legislature_snapshot)
-SELECT uid, type_reunion, legislature, organe_uid, etat, date_debut, date_fin,
+SELECT uid, type_reunion, legislature, organe_uid, demandeur_acteur_uid, demandeur_organe_uid,
+       etat, date_debut, date_fin,
        session_ref, compte_rendu_ref, lieu_ref, lieu_libelle, format_reunion,
        sous_type_reunion, visio_conference, captation_video, ouverture_presse,
        est_reunion_internationale, date_seance, id_jo, num_seance_jo, quantieme,
@@ -22,6 +24,8 @@ ON CONFLICT (uid) DO UPDATE
     SET type_reunion               = EXCLUDED.type_reunion,
         legislature                = EXCLUDED.legislature,
         organe_uid                 = EXCLUDED.organe_uid,
+        demandeur_acteur_uid       = EXCLUDED.demandeur_acteur_uid,
+        demandeur_organe_uid       = EXCLUDED.demandeur_organe_uid,
         etat                       = EXCLUDED.etat,
         date_debut                 = EXCLUDED.date_debut,
         date_fin                   = EXCLUDED.date_fin,

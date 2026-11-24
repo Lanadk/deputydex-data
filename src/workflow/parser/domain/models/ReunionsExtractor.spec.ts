@@ -126,6 +126,8 @@ describe('ReunionsExtractor', () => {
             type_reunion: 'commission',
             legislature: 17,
             organe_uid: 'PO420120',
+            demandeur_acteur_uid: null,
+            demandeur_organe_uid: null,
             etat: 'Confirmé',
             date_debut: '2024-07-24T09:30:00.000+02:00',
             date_fin: '2024-07-24T09:40:00.000+02:00',
@@ -214,6 +216,50 @@ describe('ReunionsExtractor', () => {
                 date_conf_pres: '2024-07-18',
             }),
         ]);
+    });
+
+    it('extrait une réunion à l\'initiative d\'un député, sans organe (législature 16)', async () => {
+        // Extrait réel de l'archive 16.
+        const initiativeDepute = {
+            reunion: {
+                '@xsi:type': 'reunionInitParlementaire_type',
+                uid: 'RUANR5L15A2022IDF0161271',
+                timeStampDebut: '2022-06-27T14:00:00Z',
+                timeStampFin: '2022-06-27T15:00:00Z',
+                lieu: { lieuRef: 'SLAN101RUSGABR', libelleLong: "Salon Gabriel , 101, rue de l'Université" },
+                cycleDeVie: { etat: 'Confirmé', chrono: { creation: '2022-06-20T15:45:34Z', cloture: null } },
+                demandeur: { acteur: { nom: 'Mme Anne Genetet', acteurRef: 'PA721024' } },
+                organeReuniRef: null,
+                participants: null,
+                visioConference: null,
+                typeReunion: 'DEP',
+                ODJ: null,
+            },
+        };
+        const initiativeGroupe = {
+            reunion: {
+                ...initiativeDepute.reunion,
+                uid: 'RU_GP',
+                typeReunion: 'GP',
+                organeReuniRef: 'PO800490',
+                demandeur: { organe: { nom: 'Groupe X', organeRef: 'PO800490' } },
+            },
+        };
+        const extractor = await extract(initiativeDepute, initiativeGroupe);
+
+        expect(extractor.getErrors()).toEqual([]);
+        expect(extractor.getTables().reunions.map((r) => [r.uid, r.sous_type_reunion, r.organe_uid, r.demandeur_acteur_uid, r.demandeur_organe_uid]))
+            .toEqual([
+                ['RUANR5L15A2022IDF0161271', 'DEP', null, 'PA721024', null],
+                ['RU_GP', 'GP', 'PO800490', null, 'PO800490'],
+            ]);
+    });
+
+    it('consigne une erreur pour une réunion sans organe ni demandeur', async () => {
+        const orpheline = { reunion: { ...SEANCE.reunion, organeReuniRef: null } };
+        const extractor = await extract(orpheline);
+
+        expect(extractor.getErrors()[0].error).toContain('Missing organeReuniRef and demandeur');
     });
 
     it('consigne une erreur pour un type de réunion inconnu ou un fichier illisible, sans s\'interrompre', async () => {

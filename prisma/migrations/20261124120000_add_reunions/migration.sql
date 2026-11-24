@@ -3,7 +3,9 @@ CREATE TABLE "reunions" (
     "uid" VARCHAR(50) NOT NULL,
     "type_reunion" VARCHAR(30) NOT NULL,
     "legislature" INTEGER,
-    "organe_uid" VARCHAR(50) NOT NULL,
+    "organe_uid" VARCHAR(50),
+    "demandeur_acteur_uid" VARCHAR(50),
+    "demandeur_organe_uid" VARCHAR(50),
     "etat" VARCHAR(30),
     "date_debut" TIMESTAMPTZ(6) NOT NULL,
     "date_fin" TIMESTAMPTZ(6),
@@ -80,6 +82,9 @@ CREATE UNIQUE INDEX "reunions_row_hash_key" ON "reunions"("row_hash");
 
 -- CreateIndex
 CREATE INDEX "reunions_organe_uid_idx" ON "reunions"("organe_uid");
+
+-- CreateIndex
+CREATE INDEX "reunions_demandeur_acteur_uid_idx" ON "reunions"("demandeur_acteur_uid");
 
 -- CreateIndex
 CREATE INDEX "reunions_date_debut_idx" ON "reunions"("date_debut");

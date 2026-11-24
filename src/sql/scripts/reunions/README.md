@@ -18,13 +18,36 @@ Chaîne : download (`unzip/<leg>/reunions/json/reunion/*.json`) → `ReunionsExt
 | `reunions_points_odj` | Points de l'ordre du jour (type, objet, état, procédure, comité secret…). |
 | `reunions_points_odj_dossiers` | Lien point de l'ordre du jour → dossier législatif. |
 
+Réunions à l'initiative d'un parlementaire (`type_reunion = 'init_parlementaire'`), selon
+`sous_type_reunion` :
+
+| Sous-type | Signification | `organe_uid` | Demandeur |
+|---|---|---|---|
+| `GE` | groupe d'études | l'organe du groupe | — |
+| `GP` | groupe politique (6 réunions, législature 16) | l'organe du groupe | `demandeur_organe_uid` |
+| `DEP` | député (993 réunions, législature 16 uniquement) | **null** | `demandeur_acteur_uid` |
+
+`organe_uid` est donc nullable : une réunion `DEP` n'est rattachée à aucun organe, c'est le député
+demandeur qui l'identifie. Ces réunions n'ont jamais de liste de présence.
+
 Pas de clé étrangère vers `organes`, `acteurs` ni `dossier_parlementaire` : une réunion peut viser un
 organe ou un dossier absent des archives importées (organes du Sénat pour les réunions communes,
 organes d'une autre législature…). Les participants, points et liens dossiers sont supprimés en
 cascade avec leur réunion.
 
-Volumétrie à l'import initial (législature 17, novembre 2026) : 8 480 réunions, 194 924 lignes de
-présence, 6 676 points, 3 384 liens dossiers.
+Volumétrie à l'import initial (novembre 2026) :
+
+| | Législature 16 | Législature 17 |
+|---|---|---|
+| Réunions | 8 320 | 8 480 |
+| Lignes de présence | 138 937 | 194 924 |
+| Points de l'ordre du jour | 4 337 | 6 676 |
+| Liens dossiers | 2 465 | 3 384 |
+
+Une même réunion peut figurer dans les deux archives (réunions de fin de législature 16 reprises
+dans l'archive 17) : la législature importée en dernier (17) l'emporte. La colonne `legislature`
+vient de l'uid de la réunion (`RUANR5L15…` → 15) et peut donc différer de la législature de
+l'archive (`legislature_snapshot`).
 
 ## Sémantique de la liste de présence — à lire avant tout calcul de taux
 
