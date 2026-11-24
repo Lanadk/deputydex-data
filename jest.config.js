@@ -27,6 +27,9 @@ module.exports = {
             rootDir: __dirname,
             testMatch: ['<rootDir>/src/**/*.it.spec.ts', '<rootDir>/prisma/**/*.it.spec.ts'],
             testPathIgnorePatterns: ['/node_modules/'],
+            // Redirige la connexion vers la base de test (DB_NAME_TEST) avant tout
+            // import : les syncs effaceraient sinon la base de développement.
+            setupFiles: ['<rootDir>/src/workflow/_common/infrastructure/db/test-helpers/jest.integration.setup.ts'],
         },
     ],
 };

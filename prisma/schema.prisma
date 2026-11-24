@@ -471,6 +471,218 @@ model Organes {
   @@map("organes")
 }
 
+// ============================================
+// REUNIONS (agenda : commissions, séances publiques, groupes d'études…)
+// ============================================
+
+/// Réunion de l'agenda de l'Assemblée (jeu « Réunions », un fichier par
+/// réunion). `organe_uid` vise `organes.uid` sans clé étrangère : la commission
+/// d'une réunion peut manquer des archives AMO importées (ex. organes du Sénat
+/// pour les réunions communes).
+model Reunions {
+  uid                        String    @id @db.VarChar(50)
+  /// commission | seance | init_parlementaire
+  type_reunion               String    @db.VarChar(30)
+  /// Législature portée par l'uid (RUANR5L17…).
+  legislature                Int?
+  /// Organe réuni ; null pour une réunion à l'initiative d'un député (sous-type DEP).
+  organe_uid                 String?   @db.VarChar(50)
+  /// Député à l'initiative de la réunion (sous-type DEP).
+  demandeur_acteur_uid       String?   @db.VarChar(50)
+  /// Organe à l'initiative de la réunion (sous-type GP : groupe politique).
+  demandeur_organe_uid       String?   @db.VarChar(50)
+  /// Confirmé, Annulé, Eventuel, Supprimé.
+  etat                       String?   @db.VarChar(30)
+  date_debut                 DateTime  @db.Timestamptz(6)
+  date_fin                   DateTime? @db.Timestamptz(6)
+  session_ref                String?   @db.VarChar(50)
+  /// Compte rendu de la réunion (pont vers les débats pour les séances).
+  compte_rendu_ref           String?   @db.VarChar(80)
+  lieu_ref                   String?   @db.VarChar(50)
+  lieu_libelle               String?   @db.Text
+  format_reunion             String?   @db.VarChar(30)
+  /// Sous-type d'une réunion à l'initiative d'un parlementaire (GE = groupe d'études, GP = groupe politique, DEP = député).
+  sous_type_reunion          String?   @db.VarChar(30)
+  visio_conference           Boolean?
+  captation_video            Boolean?
+  ouverture_presse           Boolean?
+  est_reunion_internationale Boolean?
+  /// Séances publiques uniquement.
+  date_seance                DateTime? @db.Date
+  id_jo                      String?   @db.VarChar(20)
+  num_seance_jo              Int?
+  /// Unique, Première, Deuxième… (séances publiques).
+  quantieme                  String?   @db.VarChar(30)
+  resume_odj                 String?   @db.Text
+  convocation_odj            String?   @db.Text
+  legislature_snapshot       Int
+  row_hash                   String    @unique @db.Text
+  created_at                 DateTime  @default(now()) @db.Timestamp(6)
+  updated_at                 DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  participants ReunionsParticipants[]
+  points_odj   ReunionsPointsOdj[]
+
+  @@index([organe_uid])
+  @@index([demandeur_acteur_uid])
+  @@index([date_debut])
+  @@index([type_reunion])
+  @@index([legislature_snapshot])
+  @@map("reunions")
+}
+
+/// Liste de présence d'une réunion de commission, reconstruite par l'AN à partir
+/// du compte rendu : « Présents » et « Assistaient également à la réunion »
+/// (non-membres présents) → présent, « Excusés » → excusé, membre de l'organe
+/// cité nulle part → absent. `absent` est donc déduit et `présent` peut viser un
+/// non-membre : un taux de présence doit partir des mandats (membre de l'organe
+/// à la date), pas de cette liste seule. Les séances publiques n'en ont pas.
+/// Détails : src/sql/scripts/reunions/README.md.
+/// `acteur_uid` vise `acteurs.uid` sans clé étrangère.
+model ReunionsParticipants {
+  reunion_uid          String   @db.VarChar(50)
+  acteur_uid           String   @db.VarChar(50)
+  /// présent | absent | excusé
+  presence             String   @db.VarChar(20)
+  legislature_snapshot Int
+  row_hash             String   @unique @db.Text
+  created_at           DateTime @default(now()) @db.Timestamp(6)
+  updated_at           DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  reunion Reunions @relation(fields: [reunion_uid], references: [uid], onDelete: Cascade)
+
+  @@id([reunion_uid, acteur_uid])
+  @@index([acteur_uid])
+  @@index([legislature_snapshot])
+  @@map("reunions_participants")
+}
+
+/// Point de l'ordre du jour d'une réunion.
+model ReunionsPointsOdj {
+  uid                  String    @id @db.VarChar(60)
+  reunion_uid          String    @db.VarChar(50)
+  /// Rang du point dans la réunion (à partir de 0).
+  ordre                Int
+  type_point           String?   @db.Text
+  objet                String?   @db.Text
+  etat                 String?   @db.VarChar(30)
+  procedure            String?   @db.Text
+  nature_travaux       String?   @db.VarChar(20)
+  comite_secret        Boolean?
+  date_conf_pres       DateTime? @db.Date
+  legislature_snapshot Int
+  row_hash             String    @unique @db.Text
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+
+  reunion  Reunions                   @relation(fields: [reunion_uid], references: [uid], onDelete: Cascade)
+  dossiers ReunionsPointsOdjDossiers[]
+
+  @@index([reunion_uid])
+  @@index([legislature_snapshot])
+  @@map("reunions_points_odj")
+}
+
+/// Dossier législatif traité par un point de l'ordre du jour. `dossier_uid`
+/// vise `dossier_parlementaire.uid` sans clé étrangère (dossiers d'autres
+/// législatures possibles).
+model ReunionsPointsOdjDossiers {
+  point_uid            String   @db.VarChar(60)
+  reunion_uid          String   @db.VarChar(50)
+  dossier_uid          String   @db.VarChar(50)
+  legislature_snapshot Int
+  row_hash             String   @unique @db.Text
+  created_at           DateTime @default(now()) @db.Timestamp(6)
+
+  point ReunionsPointsOdj @relation(fields: [point_uid], references: [uid], onDelete: Cascade)
+
+  @@id([point_uid, dossier_uid])
+  @@index([dossier_uid])
+  @@index([reunion_uid])
+  @@map("reunions_points_odj_dossiers")
+}
+
+// ============================================
+// QUESTIONS (au Gouvernement, orales sans débat, écrites)
+// ============================================
+
+/// Question parlementaire. QG (au Gouvernement) et QOSD (orale sans débat) sont
+/// posées en séance : leur réponse est publiée au JO des débats et
+/// `date_reponse` (date du JO) est en général celle de la séance. QE (écrite) : question et réponse
+/// publiées au JO des questions, sans passage en séance. `acteur_uid`,
+/// `groupe_uid` et `ministere_uid` sans clé étrangère.
+/// Détails : src/sql/scripts/questions/README.md.
+model Questions {
+  uid                         String    @id @db.VarChar(30)
+  /// QG | QOSD | QE
+  type_question               String    @db.VarChar(10)
+  legislature                 Int?
+  numero                      Int?
+  /// Auteur déclaré (pour une QOSD, la question peut être posée en séance par un suppléant).
+  acteur_uid                  String    @db.VarChar(50)
+  mandat_uid                  String?   @db.VarChar(50)
+  /// Groupe de l'auteur au moment de la question.
+  groupe_uid                  String?   @db.VarChar(50)
+  groupe_abrege               String?   @db.VarChar(30)
+  rubrique                    String?   @db.Text
+  tete_analyse                String?   @db.Text
+  /// Analyse AN = intitulé court de la question (`analyse` est un mot réservé PostgreSQL).
+  libelle_analyse             String?   @db.Text
+  /// Ministère interrogé.
+  ministere_uid               String?   @db.VarChar(50)
+  ministere_abrege            String?   @db.Text
+  /// Publication de la question au JO (null pour une QG).
+  date_question               DateTime? @db.Date
+  texte_question              String?   @db.Text
+  /// Date du JO de la réponse. Pour QG et QOSD, en général la date de la séance,
+  /// mais parfois le lendemain (~6 % des QG) : voir le README du domaine.
+  date_reponse                DateTime? @db.Date
+  /// JO_DEBAT (réponse en séance) | JO_QUESTION (réponse écrite).
+  type_jo_reponse             String?   @db.VarChar(20)
+  page_jo_reponse             String?   @db.VarChar(20)
+  texte_reponse               String?   @db.Text
+  /// REP_PUB (réponse publiée), AU (retrait auteur), FM (fin de mandat), ANSE (séance annulée)…
+  code_cloture                String?   @db.VarChar(20)
+  libelle_cloture             String?   @db.Text
+  date_cloture                DateTime? @db.Date
+  /// Questions écrites : nombre de renouvellements (relances faute de réponse).
+  nb_renouvellements          Int       @default(0)
+  date_dernier_renouvellement DateTime? @db.Date
+  date_signalement            DateTime? @db.Date
+  legislature_snapshot        Int
+  row_hash                    String    @unique @db.Text
+  created_at                  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at                  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  ministeres_attributaires QuestionsMinisteresAttributaires[]
+
+  @@index([acteur_uid])
+  @@index([type_question])
+  @@index([date_reponse])
+  @@index([ministere_uid])
+  @@index([legislature_snapshot])
+  @@map("questions")
+}
+
+/// Ministère auquel une question a été attribuée ; plusieurs lignes quand la
+/// question est réattribuée (changement de gouvernement…). `ordre` = rang dans
+/// la source.
+model QuestionsMinisteresAttributaires {
+  question_uid         String    @db.VarChar(30)
+  ordre                Int
+  ministere_uid        String?   @db.VarChar(50)
+  ministere_abrege     String?   @db.Text
+  date_jo              DateTime? @db.Date
+  legislature_snapshot Int
+  row_hash             String    @unique @db.Text
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+
+  question Questions @relation(fields: [question_uid], references: [uid], onDelete: Cascade)
+
+  @@id([question_uid, ordre])
+  @@index([ministere_uid])
+  @@map("questions_ministeres_attributaires")
+}
+
 model RefGroupes {
   groupe_id          String   @id @db.VarChar(50)
   groupe_legislature Int

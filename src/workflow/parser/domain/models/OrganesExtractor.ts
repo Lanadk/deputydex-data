@@ -3,15 +3,7 @@ import * as path from 'path';
 import {Organe} from "./entities/Organe.entity";
 import {IExtractor} from "../../infrastructure/IExtractor";
 import {computeRowHash} from "../../../../utils/hash";
-import {extractNilableValue} from "../../infrastructure/impl/xml-nil.utils";
-
-/** Entier, ou null si la valeur est absente, nil ou non numérique. */
-function toIntOrNull(val: any): number | null {
-    const raw = extractNilableValue(val);
-    if (raw == null) return null;
-    const n = Number.parseInt(raw, 10);
-    return Number.isNaN(n) ? null : n;
-}
+import {extractNilableValue, toIntOrNull} from "../../infrastructure/impl/xml-nil.utils";
 
 /**
  * Extrait les organes (fichiers `acteurs/json/organe/*.json` du jeu AMO) :

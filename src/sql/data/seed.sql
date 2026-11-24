@@ -34,7 +34,11 @@ VALUES
     ('scrutins', 'Votes et scrutins publics'),
     ('amendements', 'Ammendements législatifs'),
     ('dossiers_legislatifs', 'Dossier législatif'),
-    ('documents_legislatifs', 'Documents législatif')
+    ('documents_legislatifs', 'Documents législatif'),
+    ('reunions', 'Agenda : réunions de commission, séances publiques, groupes d''études'),
+    ('questions_gouvernement', 'Questions au Gouvernement'),
+    ('questions_orales_sans_debat', 'Questions orales sans débat'),
+    ('questions_ecrites', 'Questions écrites')
 ON CONFLICT (code) DO NOTHING;
 
 -- ============================================
@@ -66,6 +70,30 @@ VALUES
         (SELECT id FROM param_legislatures WHERE number = 16),
         'https://data.assemblee-nationale.fr/static/openData/repository/16/loi/dossiers_legislatifs/Dossiers_Legislatifs.json.zip',
         'Dossiers_Legislatifs.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'reunions'),
+        (SELECT id FROM param_legislatures WHERE number = 16),
+        'https://data.assemblee-nationale.fr/static/openData/repository/16/vp/reunions/Agenda.json.zip',
+        'Agenda.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'questions_gouvernement'),
+        (SELECT id FROM param_legislatures WHERE number = 16),
+        'https://data.assemblee-nationale.fr/static/openData/repository/16/questions/questions_gouvernement/Questions_gouvernement.json.zip',
+        'Questions_gouvernement.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'questions_orales_sans_debat'),
+        (SELECT id FROM param_legislatures WHERE number = 16),
+        'https://data.assemblee-nationale.fr/static/openData/repository/16/questions/questions_orales_sans_debat/Questions_orales_sans_debat.json.zip',
+        'Questions_orales_sans_debat.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'questions_ecrites'),
+        (SELECT id FROM param_legislatures WHERE number = 16),
+        'https://data.assemblee-nationale.fr/static/openData/repository/16/questions/questions_ecrites/Questions_ecrites.json.zip',
+        'Questions_ecrites.json.zip'
     )
 ON CONFLICT DO NOTHING;
 
@@ -98,6 +126,30 @@ VALUES
         (SELECT id FROM param_legislatures WHERE number = 17),
         'https://data.assemblee-nationale.fr/static/openData/repository/17/loi/dossiers_legislatifs/Dossiers_Legislatifs.json.zip',
         'Dossiers_Legislatifs.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'reunions'),
+        (SELECT id FROM param_legislatures WHERE number = 17),
+        'https://data.assemblee-nationale.fr/static/openData/repository/17/vp/reunions/Agenda.json.zip',
+        'Agenda.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'questions_gouvernement'),
+        (SELECT id FROM param_legislatures WHERE number = 17),
+        'https://data.assemblee-nationale.fr/static/openData/repository/17/questions/questions_gouvernement/Questions_gouvernement.json.zip',
+        'Questions_gouvernement.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'questions_orales_sans_debat'),
+        (SELECT id FROM param_legislatures WHERE number = 17),
+        'https://data.assemblee-nationale.fr/static/openData/repository/17/questions/questions_orales_sans_debat/Questions_orales_sans_debat.json.zip',
+        'Questions_orales_sans_debat.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'questions_ecrites'),
+        (SELECT id FROM param_legislatures WHERE number = 17),
+        'https://data.assemblee-nationale.fr/static/openData/repository/17/questions/questions_ecrites/Questions_ecrites.json.zip',
+        'Questions_ecrites.json.zip'
     )
 ON CONFLICT DO NOTHING;
 

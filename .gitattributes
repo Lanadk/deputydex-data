@@ -1,0 +1,6 @@
+# Prisma enregistre une somme de contrôle de chaque migration appliquée. Avec
+# core.autocrlf=true (Windows), git réécrirait les fichiers en CRLF au checkout
+# et la somme ne correspondrait plus : `prisma migrate dev` y verrait une
+# migration modifiée et proposerait un reset. Les migrations restent donc en LF
+# sur tous les postes.
+prisma/migrations/**/*.sql text eol=lf

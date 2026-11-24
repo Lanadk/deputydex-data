@@ -189,6 +189,9 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=deputydex
 
+# Base dédiée aux tests d'intégration (créée par docker:db, voir « Tests »)
+DB_NAME_TEST=deputydex_it
+
 # Utilisateur "admin" créé par docker compose (sert à provisionner les rôles ci-dessous)
 DB_USER=dev
 DB_PASSWORD=dev
@@ -315,10 +318,41 @@ Jest (`jest.config.js`) définit deux projets :
 
 - **`unit`** — `src/**/*.spec.ts`, `local/**/*.spec.ts`, `prisma/**/*.spec.ts` (les `*.it.spec.ts` sont
   explicitement exclus). Aucune connexion base requise.
-- **`integration`** — `src/**/*.it.spec.ts`, `prisma/**/*.it.spec.ts`. Nécessitent `DB_URL` pointé vers une
-  base Postgres réelle (voir `test-integration` dans la CI, ou une base locale via `docker:db`).
+- **`integration`** — `src/**/*.it.spec.ts`, `prisma/**/*.it.spec.ts`. Nécessitent une base Postgres
+  réelle **dédiée** (voir ci-dessous).
   `forceExit: true` est nécessaire car l'adapter Prisma (`prisma/prisma.ts`) enveloppe un `Pool` `pg`
   créé manuellement, dont `prisma.$disconnect()` ne maîtrise pas totalement le cycle de vie.
+
+### Base des tests d'intégration
+
+Les tests d'intégration exécutent les scripts de synchronisation complets, qui suppriment les lignes de
+la législature courante absentes du snapshot : lancés sur la base de développement, ils en effacent les
+vraies données (réunions, acteurs…). Ils tournent donc sur une base à part :
+
+- `src/workflow/_common/infrastructure/db/test-helpers/jest.integration.setup.ts` (setup du projet Jest
+  `integration`) redirige `DB_NAME` et `DB_URL` vers `DB_NAME_TEST` avant tout import — `Pool` `pg` comme
+  client Prisma (règles dans `integrationTestEnv.ts`, à côté) ;
+- sans `DB_NAME_TEST`, les tests refusent de tourner, sauf en CI (`CI=true`) où la base du service
+  Postgres est jetable.
+
+Mise en place locale, une fois :
+
+```bash
+# DB_NAME_TEST=deputydex_it dans .env.local, puis créer la base (propriétaire : le rôle writer) :
+docker exec -i deputydex-db psql -U dev -d deputydex -c "CREATE DATABASE deputydex_it OWNER user_etl_writer"
+npm run prisma:migrate-test  # applique les migrations sur la base de test
+```
+
+(Si votre `local/local-db-init.ts` — non versionné — gère `DB_NAME_TEST`, `npm run docker:db` crée la
+base à votre place.)
+
+Relancer `npm run prisma:migrate-test` après chaque nouvelle migration.
+
+### Fins de ligne des migrations
+
+`.gitattributes` force les migrations Prisma en LF : Prisma enregistre une somme de contrôle de chaque
+migration appliquée, et un checkout en CRLF (`core.autocrlf=true` sous Windows) la ferait diverger
+(`prisma migrate dev` verrait alors une migration modifiée et proposerait un reset).
 
 Pas de config de lint dans ce repo actuellement.
 
