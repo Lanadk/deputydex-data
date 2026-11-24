@@ -3,7 +3,8 @@ import path from 'path';
 import {IDirectorySource} from "../IDirectorySource";
 
 export class DirectorySource implements IDirectorySource {
-    constructor(private dir: string) {}
+    /** @param extension extension des fichiers à lister (`.json` par défaut ; `.xml` pour les débats). */
+    constructor(private dir: string, private extension: string = '.json') {}
 
     getFiles(): string[] {
         const files: string[] = [];
@@ -16,7 +17,7 @@ export class DirectorySource implements IDirectorySource {
 
                 if (stats.isDirectory()) {
                     traverse(fullPath);
-                } else if (stats.isFile() && item.endsWith('.json')) {
+                } else if (stats.isFile() && item.endsWith(this.extension)) {
                     files.push(fullPath);
                 }
             }

@@ -22,6 +22,14 @@ export const reunionsSourceDirectoryName = 'reunions/json/reunion';
  * Trois archives (une par type de question, même format), donc trois domaines
  * de téléchargement, parsés ensemble dans le domaine « questions ».
  */
+/** Jeu « Débats » (comptes rendus de séance Syceron), XML uniquement. */
+export const debatsSourceDirectoryName = 'debats/xml/compteRendu';
+/**
+ * Un compte rendu XML pèse jusqu'à ~1,2 Mo et produit des centaines de lignes
+ * avec leur texte intégral : vider la mémoire bien plus souvent que
+ * `parseFlushEveryFiles` (la législature 17 entière tiendrait ~1,3 Go).
+ */
+export const debatsFlushEveryFiles = 100;
 export const questionsSourceDirectoryNames = [
     'questions_gouvernement/json',
     'questions_orales_sans_debat/json',

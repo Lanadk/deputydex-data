@@ -683,6 +683,137 @@ model QuestionsMinisteresAttributaires {
   @@map("questions_ministeres_attributaires")
 }
 
+// ============================================
+// DEBATS (comptes rendus intégraux des séances publiques, Syceron)
+// ============================================
+
+/// Compte rendu intégral d'une séance publique. `seance_uid` vise
+/// `reunions.uid` (type_reunion = 'seance'), sans clé étrangère.
+/// Détails : src/sql/scripts/debats/README.md.
+model DebatsComptesRendus {
+  uid                  String    @id @db.VarChar(40)
+  seance_uid           String?   @db.VarChar(50)
+  session_ref          String?   @db.VarChar(30)
+  /// Ouverture de la séance (heure de Paris).
+  date_seance          DateTime? @db.Timestamptz(6)
+  /// « jeudi 18 juillet 2024 »
+  date_seance_libelle  String?   @db.VarChar(60)
+  num_seance           Int?
+  /// Unique, Première, Deuxième…
+  quantieme            String?   @db.VarChar(30)
+  legislature          Int?
+  session_libelle      String?   @db.Text
+  num_jo               String?   @db.VarChar(20)
+  etat                 String?   @db.VarChar(30)
+  validite             String?   @db.VarChar(30)
+  /// avant_JO…
+  version              String?   @db.VarChar(30)
+  legislature_snapshot Int
+  row_hash             String    @unique @db.Text
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+  updated_at           DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  points        DebatsPoints[]
+  interventions DebatsInterventions[]
+
+  @@index([seance_uid])
+  @@index([date_seance])
+  @@index([legislature_snapshot])
+  @@map("debats_comptes_rendus")
+}
+
+/// Point de l'ordre du jour d'une séance ; les points s'imbriquent (`parent_id`).
+model DebatsPoints {
+  /// `id_syceron` du point.
+  id                   String   @id @db.VarChar(20)
+  compte_rendu_uid     String   @db.VarChar(40)
+  parent_id            String?  @db.VarChar(20)
+  /// 1 = point de premier niveau.
+  profondeur           Int
+  /// Rang dans la séance (ordre_absolu_seance).
+  ordre                Int?
+  valeur_pts_odj       String?  @db.VarChar(20)
+  code_grammaire       String?  @db.VarChar(60)
+  titre                String?  @db.Text
+  legislature_snapshot Int
+  row_hash             String   @unique @db.Text
+  created_at           DateTime @default(now()) @db.Timestamp(6)
+
+  compte_rendu DebatsComptesRendus @relation(fields: [compte_rendu_uid], references: [uid], onDelete: Cascade)
+
+  @@index([compte_rendu_uid])
+  @@index([parent_id])
+  @@map("debats_points")
+}
+
+/// Paragraphe d'un compte rendu : prise de parole, interruption
+/// (code_grammaire INTERRUPTION_…), annonce de la présidence… Une ligne par
+/// paragraphe ; l'ordre réel dans la séance est `ordre`. `acteur_uid` est
+/// l'orateur principal ; tous les orateurs sont dans
+/// `debats_interventions_orateurs`.
+model DebatsInterventions {
+  /// `id_syceron` du paragraphe.
+  id                   String   @id @db.VarChar(20)
+  compte_rendu_uid     String   @db.VarChar(40)
+  /// Point englobant ; null hors point (ouverture, fin de séance).
+  point_id             String?  @db.VarChar(20)
+  ordre                Int?
+  /// null si plusieurs orateurs sans orateur principal, orateur collectif ou sans fiche acteur AN.
+  acteur_uid           String?  @db.VarChar(50)
+  mandat_uid           String?  @db.VarChar(50)
+  /// president quand l'orateur préside la séance.
+  role_debat           String?  @db.VarChar(20)
+  /// PAROLE_GENERIQUE, INTERRUPTION_1_10, DISC_ARTICLES_…, SCRUT_PUB_…
+  code_grammaire       String?  @db.VarChar(60)
+  code_style           String?  @db.VarChar(40)
+  type_debat           String?  @db.VarChar(20)
+  /// Orateurs tels qu'imprimés (« M. le président », « Plusieurs députés du groupe RN »).
+  orateurs_libelle     String?  @db.Text
+  /// Texte sans balises, sauts de ligne conservés.
+  texte                String?  @db.Text
+  /// Position dans la vidéo de la séance, en secondes.
+  stime                Decimal? @db.Decimal(10, 2)
+  /// Discussion d'amendement : numéro du texte, article, amendement, sous-amendement, décision.
+  bibard               String?  @db.Text
+  article              String?  @db.Text
+  amendement           String?  @db.Text
+  sous_amendement      String?  @db.Text
+  amendement_uid       String?  @db.VarChar(60)
+  decision             String?  @db.Text
+  legislature_snapshot Int
+  row_hash             String   @unique @db.Text
+  created_at           DateTime @default(now()) @db.Timestamp(6)
+
+  compte_rendu DebatsComptesRendus           @relation(fields: [compte_rendu_uid], references: [uid], onDelete: Cascade)
+  orateurs     DebatsInterventionsOrateurs[]
+
+  @@index([compte_rendu_uid])
+  @@index([acteur_uid])
+  @@index([point_id])
+  @@index([code_grammaire])
+  @@map("debats_interventions")
+}
+
+/// Orateur d'un paragraphe (un paragraphe peut en compter plusieurs). Brique
+/// de présence en hémicycle : un député qui parle ou interrompt est présent.
+model DebatsInterventionsOrateurs {
+  intervention_id      String   @db.VarChar(20)
+  ordre                Int
+  /// null pour un orateur collectif ou sans fiche acteur AN (personnalité auditionnée…).
+  acteur_uid           String?  @db.VarChar(50)
+  nom                  String?  @db.Text
+  qualite              String?  @db.Text
+  legislature_snapshot Int
+  row_hash             String   @unique @db.Text
+  created_at           DateTime @default(now()) @db.Timestamp(6)
+
+  intervention DebatsInterventions @relation(fields: [intervention_id], references: [id], onDelete: Cascade)
+
+  @@id([intervention_id, ordre])
+  @@index([acteur_uid])
+  @@map("debats_interventions_orateurs")
+}
+
 model RefGroupes {
   groupe_id          String   @id @db.VarChar(50)
   groupe_legislature Int
