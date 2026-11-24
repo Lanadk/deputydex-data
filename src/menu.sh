@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
+# Comme le cron (umask 002) : fichiers et dossiers créés en écriture pour le
+# groupe, pour qu'un run manuel (deployer) et le cron (app user) puissent
+# chacun remplacer ce que l'autre a téléchargé dans data/.
+umask 002
+
 # ts-node du projet (node_modules), comme le cron : jamais téléchargé à la volée.
 TS_NODE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/node_modules/.bin/ts-node"
 
