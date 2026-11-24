@@ -44,10 +44,11 @@ Volumétrie à l'import initial (novembre 2026) :
 | Points de l'ordre du jour | 4 337 | 6 676 |
 | Liens dossiers | 2 465 | 3 384 |
 
-Une même réunion peut figurer dans les deux archives (réunions de fin de législature 16 reprises
-dans l'archive 17) : la législature importée en dernier (17) l'emporte. La colonne `legislature`
-vient de l'uid de la réunion (`RUANR5L15…` → 15) et peut donc différer de la législature de
-l'archive (`legislature_snapshot`).
+Les deux archives sont disjointes (16 800 réunions au total = 8 320 + 8 480). La colonne
+`legislature` vient de l'uid de la réunion et peut différer de la législature de l'archive
+(`legislature_snapshot`) : l'archive 16 contient des uids `RUANR5L15…` (réunions programmées avant
+l'ouverture de la 16), l'archive 17 des uids `RUANR5L16…`. Si une réunion figurait un jour dans les
+deux archives, la législature importée en dernier (17) l'emporterait.
 
 ## Sémantique de la liste de présence — à lire avant tout calcul de taux
 
