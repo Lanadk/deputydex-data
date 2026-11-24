@@ -22,6 +22,7 @@ run_parser_scrutins()           { "$TS_NODE" ./workflow/parser/job/unit-parser/p
 run_parser_amendements()        { "$TS_NODE" ./workflow/parser/job/unit-parser/parseAmendements.ts; }
 run_parser_dossiers()           { "$TS_NODE" ./workflow/parser/job/unit-parser/parseDossiers.ts; }
 run_parser_documents()          { "$TS_NODE" ./workflow/parser/job/unit-parser/parseDocuments.ts; }
+run_parser_reunions()           { "$TS_NODE" ./workflow/parser/job/unit-parser/parseReunions.ts; }
 
 # -- Import --------------------------------------------------------------------
 run_import_all()                { "$TS_NODE" ./workflow/import/job/trtImportCollecte.ts "$1"; }
@@ -31,6 +32,7 @@ run_import_mandats()            { "$TS_NODE" ./workflow/import/job/unit-import/i
 run_import_amendements()        { "$TS_NODE" ./workflow/import/job/unit-import/importAmendements.ts; }
 run_import_dossiers()           { "$TS_NODE" ./workflow/import/job/unit-import/importDossiers.ts; }
 run_import_documents()          { "$TS_NODE" ./workflow/import/job/unit-import/importDocuments.ts; }
+run_import_reunions()           { "$TS_NODE" ./workflow/import/job/unit-import/importReunions.ts; }
 
 # -- Aggregation ---------------------------------------------------------------
 run_aggregate_all_one_shot()      { "$TS_NODE" ./workflow/aggregat/job/trtAggregatCollecte-oneshot.ts; }
@@ -138,6 +140,7 @@ parser_menu() {
         echo "4) Parse Amendements"
         echo "5) Parse Dossiers"
         echo "6) Parse Documents"
+        echo "7) Parse Réunions"
         echo "0) Back"
         echo ""
         echo "=============================================="
@@ -150,6 +153,7 @@ parser_menu() {
             4) run_parser_amendements ;;
             5) run_parser_dossiers ;;
             6) run_parser_documents ;;
+            7) run_parser_reunions ;;
             0) return ;;
             *) echo "⚠️  Invalid option, please try again." ;;
         esac
@@ -169,6 +173,7 @@ import_menu() {
         echo "5) Import Amendements"
         echo "6) Import Dossiers"
         echo "7) Import Documents"
+        echo "8) Import Réunions"
         echo "0) Back"
         echo ""
         echo "=============================================="
@@ -182,6 +187,7 @@ import_menu() {
             5) run_import_amendements ;;
             6) run_import_dossiers;;
             7) run_import_documents;;
+            8) run_import_reunions;;
             0) return ;;
             *) echo "⚠️  Invalid option, please try again." ;;
         esac

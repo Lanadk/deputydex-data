@@ -12,8 +12,10 @@ import {
     outTableDirectoryName,
     scrutinsSourceDirectoryName,
     amendementsSourceDirectoryName, dossiersSourceDirectoryName, documentsSourceDirectoryName,
+    reunionsSourceDirectoryName,
     parseFlushEveryFiles
 } from "../const";
+import {ReunionsExtractor} from "../../domain/models/ReunionsExtractor";
 import {ParserJob} from "../parser/ParserJob";
 import path from "path";
 import fs from "fs";
@@ -24,7 +26,9 @@ import {ParseFilesUseCase} from "../../domain/usecases/ParseFilesUseCase";
 import {DossiersParlementairesExtractor} from "../../domain/models/DossierParlementaireExtractor";
 import {DocumentParlementaireExtractor} from "../../domain/models/DocumentParlementaireExtractor";
 
-export type ParserDomain = 'acteurs' | 'organes' | 'scrutins' | 'amendements' | 'dossiers_legislatifs' | 'documents_parlementaires';
+export type ParserDomain = 'acteurs' | 'organes' | 'scrutins' | 'amendements' | 'dossiers_legislatifs' | 'documents_parlementaires' | 'reunions';
+
+const ALL_DOMAINS: ParserDomain[] = ['acteurs', 'organes', 'scrutins', 'amendements', 'dossiers_legislatifs', 'documents_parlementaires', 'reunions'];
 
 export interface ParserJobRunnerConfig {
     domain: ParserDomain;
@@ -41,6 +45,7 @@ export class ParserJobFactory {
         amendements: amendementsSourceDirectoryName,
         dossiers_legislatifs: dossiersSourceDirectoryName,
         documents_parlementaires: documentsSourceDirectoryName,
+        reunions: reunionsSourceDirectoryName,
     };
 
     // ==============================================================================
@@ -54,6 +59,7 @@ export class ParserJobFactory {
             case "amendements": return new AmendementExtractor(legislatureSnapshot);
             case "dossiers_legislatifs": return new DossiersParlementairesExtractor(legislatureSnapshot);
             case "documents_parlementaires": return new DocumentParlementaireExtractor(legislatureSnapshot);
+            case "reunions": return new ReunionsExtractor(legislatureSnapshot);
         }}
 
     static create(config: ParserJobRunnerConfig): { job: ParserJob; outputDir: string } {
@@ -97,7 +103,7 @@ export class ParserJobFactory {
 
         logger.info(`🏛️  Législatures trouvées : ${legislatures.join(', ')}`);
 
-        const domains: ParserDomain[] = ['acteurs', 'organes', 'scrutins', 'amendements', "dossiers_legislatifs", "documents_parlementaires"];
+        const domains = ALL_DOMAINS;
 
         for (const legislature of legislatures) {
             logger.info(`\n📅 Legislature ${legislature}`);

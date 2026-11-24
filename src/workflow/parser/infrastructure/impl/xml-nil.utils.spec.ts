@@ -1,4 +1,44 @@
-import { extractNilableValue } from './xml-nil.utils';
+import { extractNilableValue, toBoolOrNull, toDateOrNull, toIntOrNull } from './xml-nil.utils';
+
+const NIL = { '@xsi:nil': 'true', '@xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance' };
+
+describe('toBoolOrNull', () => {
+    it('convertit « true » / « false » (texte ou booléen)', () => {
+        expect(toBoolOrNull('true')).toBe(true);
+        expect(toBoolOrNull('false')).toBe(false);
+        expect(toBoolOrNull(true)).toBe(true);
+        expect(toBoolOrNull(false)).toBe(false);
+    });
+
+    it('renvoie null pour une valeur absente, nil ou autre', () => {
+        expect(toBoolOrNull(undefined)).toBeNull();
+        expect(toBoolOrNull(NIL)).toBeNull();
+        expect(toBoolOrNull('oui')).toBeNull();
+    });
+});
+
+describe('toIntOrNull', () => {
+    it('convertit un entier texte', () => {
+        expect(toIntOrNull('5')).toBe(5);
+    });
+
+    it('renvoie null pour une valeur absente, nil ou non numérique', () => {
+        expect(toIntOrNull(null)).toBeNull();
+        expect(toIntOrNull(NIL)).toBeNull();
+        expect(toIntOrNull('abc')).toBeNull();
+    });
+});
+
+describe('toDateOrNull', () => {
+    it('retire le fuseau d\'une date', () => {
+        expect(toDateOrNull('2024-10-01+02:00')).toBe('2024-10-01');
+    });
+
+    it('renvoie null pour une valeur absente ou nil', () => {
+        expect(toDateOrNull(undefined)).toBeNull();
+        expect(toDateOrNull(NIL)).toBeNull();
+    });
+});
 
 describe('extractNilableValue', () => {
     it('returns null for null/undefined input', () => {

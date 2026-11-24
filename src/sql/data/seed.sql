@@ -34,7 +34,8 @@ VALUES
     ('scrutins', 'Votes et scrutins publics'),
     ('amendements', 'Ammendements législatifs'),
     ('dossiers_legislatifs', 'Dossier législatif'),
-    ('documents_legislatifs', 'Documents législatif')
+    ('documents_legislatifs', 'Documents législatif'),
+    ('reunions', 'Agenda : réunions de commission, séances publiques, groupes d''études')
 ON CONFLICT (code) DO NOTHING;
 
 -- ============================================
@@ -66,6 +67,12 @@ VALUES
         (SELECT id FROM param_legislatures WHERE number = 16),
         'https://data.assemblee-nationale.fr/static/openData/repository/16/loi/dossiers_legislatifs/Dossiers_Legislatifs.json.zip',
         'Dossiers_Legislatifs.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'reunions'),
+        (SELECT id FROM param_legislatures WHERE number = 16),
+        'https://data.assemblee-nationale.fr/static/openData/repository/16/vp/reunions/Agenda.json.zip',
+        'Agenda.json.zip'
     )
 ON CONFLICT DO NOTHING;
 
@@ -98,6 +105,12 @@ VALUES
         (SELECT id FROM param_legislatures WHERE number = 17),
         'https://data.assemblee-nationale.fr/static/openData/repository/17/loi/dossiers_legislatifs/Dossiers_Legislatifs.json.zip',
         'Dossiers_Legislatifs.json.zip'
+    ),
+    (
+        (SELECT id FROM ref_data_domains WHERE code = 'reunions'),
+        (SELECT id FROM param_legislatures WHERE number = 17),
+        'https://data.assemblee-nationale.fr/static/openData/repository/17/vp/reunions/Agenda.json.zip',
+        'Agenda.json.zip'
     )
 ON CONFLICT DO NOTHING;
 

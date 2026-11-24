@@ -16,3 +16,5 @@ export const organesSourceDirectoryName = 'acteurs/json/organe';
 export const amendementsSourceDirectoryName = 'amendements';
 export const dossiersSourceDirectoryName = 'dossiers_legislatifs/json/dossierParlementaire';
 export const documentsSourceDirectoryName = 'dossiers_legislatifs/json/document';
+/** Jeu « Réunions » (agenda) : commissions, séances publiques, groupes d'études… */
+export const reunionsSourceDirectoryName = 'reunions/json/reunion';
