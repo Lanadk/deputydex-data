@@ -47,9 +47,13 @@ async function main() {
 
         const job = new DownloadJob(downloadUseCase, logger);
 
+        // Le serveur de l'AN coupe parfois les gros transferts (« aborted ») :
+        // 5 tentatives par fichier (backoff 1 s → 16 s), puis une seconde passe
+        // sur les échecs une fois tous les autres fichiers traités.
         const results = await job.run({
             force: false,
-            maxRetries: 3,
+            maxRetries: 5,
+            retryFailedAfterMs: 60_000,
             filters: undefined
         });
 

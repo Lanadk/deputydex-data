@@ -15,7 +15,8 @@ export class DownloadJob {
         const results = await this.downloadUseCase.execute(options.filters, {
             force: options.force,
             maxRetries: options.maxRetries,
-            maxConcurrency: options.maxConcurrency
+            maxConcurrency: options.maxConcurrency,
+            retryFailedAfterMs: options.retryFailedAfterMs,
         });
 
         this.logSummary(results);

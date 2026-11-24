@@ -43,7 +43,12 @@ function fakeResponse(overrides: Partial<{ statusCode: number; statusMessage: st
 }
 
 function fakeRequest() {
-    return new EventEmitter();
+    const request = new EventEmitter() as EventEmitter & { destroy: jest.Mock };
+    // Comme http.ClientRequest : destroy(err) émet 'error'.
+    request.destroy = jest.fn((err?: Error) => {
+        if (err) request.emit('error', err);
+    });
+    return request;
 }
 
 describe('FileDownloader', () => {
@@ -79,7 +84,7 @@ describe('FileDownloader', () => {
         it('resolves once the transfer completes and matches content-length', async () => {
             const response = fakeResponse({ headers: { 'content-length': '5' } });
             const request = fakeRequest();
-            mockedGet.mockImplementation((_url: string, cb: (res: typeof response) => void) => {
+            mockedGet.mockImplementation((_url: string, _options: unknown, cb: (res: typeof response) => void) => {
                 cb(response);
                 return request;
             });
@@ -95,7 +100,7 @@ describe('FileDownloader', () => {
 
         it('rejects with the HTTP status for a non-200 response, draining it via resume()', async () => {
             const response = fakeResponse({ statusCode: 404, statusMessage: 'Not Found' });
-            mockedGet.mockImplementation((_url: string, cb: (res: typeof response) => void) => {
+            mockedGet.mockImplementation((_url: string, _options: unknown, cb: (res: typeof response) => void) => {
                 cb(response);
                 return fakeRequest();
             });
@@ -112,7 +117,7 @@ describe('FileDownloader', () => {
             // pipe->end() simulation so we never race an async fs.open()
             // against this test's own afterEach tearing workDir down.
             response.pipe = jest.fn();
-            mockedGet.mockImplementation((_url: string, cb: (res: typeof response) => void) => {
+            mockedGet.mockImplementation((_url: string, _options: unknown, cb: (res: typeof response) => void) => {
                 cb(response);
                 return fakeRequest();
             });
@@ -136,12 +141,36 @@ describe('FileDownloader', () => {
 
             await expect(promise).rejects.toThrow('ECONNREFUSED');
         });
+
+        it('passes an idle timeout to the request', async () => {
+            const request = fakeRequest();
+            mockedGet.mockImplementation(() => request);
+            const downloader = new FileDownloader(createMockLogger());
+
+            const promise = downloader.download('https://x/a.zip', dest);
+            request.emit('error', new Error('stop'));
+            await expect(promise).rejects.toThrow('stop');
+
+            expect(mockedGet).toHaveBeenCalledWith('https://x/a.zip', { timeout: 60_000 }, expect.any(Function));
+        });
+
+        it('aborts and rejects when the connection stays idle (timeout event)', async () => {
+            const request = fakeRequest();
+            mockedGet.mockImplementation(() => request);
+            const downloader = new FileDownloader(createMockLogger());
+
+            const promise = downloader.download('https://x/slow.zip', dest);
+            request.emit('timeout');
+
+            await expect(promise).rejects.toThrow('No data received for 60s: https://x/slow.zip');
+            expect(request.destroy).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe('downloadWithRetry', () => {
         it('succeeds on the first attempt without retrying', async () => {
             const response = fakeResponse({ headers: { 'content-length': '5' } });
-            mockedGet.mockImplementation((_url: string, cb: (res: typeof response) => void) => {
+            mockedGet.mockImplementation((_url: string, _options: unknown, cb: (res: typeof response) => void) => {
                 cb(response);
                 return fakeRequest();
             });
@@ -159,7 +188,7 @@ describe('FileDownloader', () => {
         it('retries after a failed attempt and succeeds on a later one', async () => {
             jest.useFakeTimers();
             let call = 0;
-            mockedGet.mockImplementation((_url: string, cb: (res: ReturnType<typeof fakeResponse>) => void) => {
+            mockedGet.mockImplementation((_url: string, _options: unknown, cb: (res: ReturnType<typeof fakeResponse>) => void) => {
                 call++;
                 if (call === 1) {
                     cb(fakeResponse({ statusCode: 500, statusMessage: 'Server Error' }));
@@ -185,7 +214,7 @@ describe('FileDownloader', () => {
 
         it('throws after exhausting all retries', async () => {
             jest.useFakeTimers();
-            mockedGet.mockImplementation((_url: string, cb: (res: ReturnType<typeof fakeResponse>) => void) => {
+            mockedGet.mockImplementation((_url: string, _options: unknown, cb: (res: ReturnType<typeof fakeResponse>) => void) => {
                 cb(fakeResponse({ statusCode: 503, statusMessage: 'Unavailable' }));
                 return fakeRequest();
             });
@@ -199,6 +228,27 @@ describe('FileDownloader', () => {
 
             expect(mockedGet).toHaveBeenCalledTimes(2);
             expect(logger.warn).toHaveBeenCalledTimes(2);
+        });
+
+        it('backs off exponentially and caps the wait at 30s', async () => {
+            jest.useFakeTimers();
+            mockedGet.mockImplementation((_url: string, _options: unknown, cb: (res: ReturnType<typeof fakeResponse>) => void) => {
+                cb(fakeResponse({ statusCode: 503, statusMessage: 'Unavailable' }));
+                return fakeRequest();
+            });
+            const logger = createMockLogger();
+            const downloader = new FileDownloader(logger);
+
+            const promise = downloader.downloadWithRetry('https://x/a.zip', dest, 7);
+            const assertion = expect(promise).rejects.toThrow('Failed after 7 attempts');
+            await jest.advanceTimersByTimeAsync(200_000);
+            await assertion;
+
+            const delays = logger.info.mock.calls
+                .map(([msg]) => /Retrying in (\d+)ms/.exec(String(msg))?.[1])
+                .filter((d): d is string => !!d)
+                .map(Number);
+            expect(delays).toEqual([1000, 2000, 4000, 8000, 16000, 30000]);
         });
     });
 });

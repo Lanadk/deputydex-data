@@ -39,9 +39,35 @@ export class DownloadFilesUsecase {
 
         const results = await this.processSequentially(items, timestampedZipDir, options);
 
+        if (options.retryFailedAfterMs !== undefined) {
+            await this.retryFailed(results, timestampedZipDir, options, options.retryFailedAfterMs);
+        }
+
         this.logFinalStructure(timestampedZipDir, results);
 
         return results;
+    }
+
+    /**
+     * Seconde passe : les fichiers en échec sont retentés une fois tous les
+     * autres traités, après une pause, plutôt qu'enchaînés aussitôt. Les
+     * résultats sont remplacés sur place.
+     */
+    private async retryFailed(
+        results: DownloadResult[],
+        timestampedZipDir: string,
+        options: UseCaseOptions,
+        delayMs: number
+    ): Promise<void> {
+        const failedIndexes = results.flatMap((r, i) => (r.success ? [] : [i]));
+        if (failedIndexes.length === 0) return;
+
+        this.logger.warn(`\n🔁 ${failedIndexes.length} échec(s) : nouvelle passe dans ${Math.round(delayMs / 1000)}s`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+
+        for (const [n, index] of failedIndexes.entries()) {
+            results[index] = await this.processOne(results[index].item, timestampedZipDir, n, failedIndexes.length, options);
+        }
     }
 
     private async processSequentially(
