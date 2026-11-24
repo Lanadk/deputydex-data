@@ -8,7 +8,7 @@ un `Pool` `pg` partagé (`workflow/_common/infrastructure/db/pool.ts`).
 
 ```
 src/workflow/import/job/
-├── trtImportCollecte.ts        # Orchestrateur : lance les 7 imports domaine par domaine
+├── trtImportCollecte.ts        # Orchestrateur : lance les 8 imports domaine par domaine
 └── unit-import/
     ├── importActeurs.ts
     ├── importScrutins.ts
@@ -17,6 +17,7 @@ src/workflow/import/job/
     ├── importDossiers.ts
     ├── importDocuments.ts
     ├── importReunions.ts       # Agenda + présences en commission (voir sql/scripts/reunions/README.md)
+    ├── importQuestions.ts      # Questions QG / QOSD / QE (voir sql/scripts/questions/README.md)
     └── json-splitter.ts        # Utilitaire CLI de split JSON (voir plus bas)
 
 src/workflow/_common/
@@ -68,7 +69,7 @@ npx ts-node src/workflow/import/job/trtImportCollecte.ts [--auto-cleanup]
 ```bash
 npx ts-node src/workflow/import/job/unit-import/importActeurs.ts [--auto-cleanup]
 npx ts-node src/workflow/import/job/unit-import/importScrutins.ts [--auto-cleanup]
-# ... importMandats / importAmendements / importDossiers / importDocuments / importReunions
+# ... importMandats / importAmendements / importDossiers / importDocuments / importReunions / importQuestions
 ```
 
 `--auto-cleanup` supprime automatiquement les tables `*_raw` en fin de job, sans invite de confirmation

@@ -607,7 +607,7 @@ model ReunionsPointsOdjDossiers {
 
 /// Question parlementaire. QG (au Gouvernement) et QOSD (orale sans débat) sont
 /// posées en séance : leur réponse est publiée au JO des débats et
-/// `date_reponse` est la date de la séance. QE (écrite) : question et réponse
+/// `date_reponse` (date du JO) est en général celle de la séance. QE (écrite) : question et réponse
 /// publiées au JO des questions, sans passage en séance. `acteur_uid`,
 /// `groupe_uid` et `ministere_uid` sans clé étrangère.
 /// Détails : src/sql/scripts/questions/README.md.
@@ -633,7 +633,8 @@ model Questions {
   /// Publication de la question au JO (null pour une QG).
   date_question               DateTime? @db.Date
   texte_question              String?   @db.Text
-  /// Date du JO de la réponse (= date de la séance pour QG et QOSD).
+  /// Date du JO de la réponse. Pour QG et QOSD, en général la date de la séance,
+  /// mais parfois le lendemain (~6 % des QG) : voir le README du domaine.
   date_reponse                DateTime? @db.Date
   /// JO_DEBAT (réponse en séance) | JO_QUESTION (réponse écrite).
   type_jo_reponse             String?   @db.VarChar(20)
