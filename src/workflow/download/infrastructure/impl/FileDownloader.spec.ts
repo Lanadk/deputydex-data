@@ -68,7 +68,11 @@ describe('FileDownloader', () => {
     });
 
     afterAll(() => {
-        fs.rmSync(workDir, { recursive: true, force: true });
+        // Même race qu'au-dessus, à la fin du fichier : un fs.open() async d'un
+        // write stream détruit peut encore créer son fichier pendant que
+        // rmSync vide le dossier -> ENOTEMPTY sur le rmdir final (vu en CI).
+        // maxRetries réessaie justement sur ENOTEMPTY/EBUSY.
+        fs.rmSync(workDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
     });
 
     beforeEach(() => {
