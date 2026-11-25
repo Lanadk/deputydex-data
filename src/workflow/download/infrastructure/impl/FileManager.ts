@@ -21,6 +21,10 @@ export class FileManager implements IFileManager {
         console.log('📁 Unzip dir:', this.UNZIP_DIR);
     }
 
+    getZipDir(): string {
+        return this.ZIP_DIR;
+    }
+
     createTimestampedZipDir(): string {
         const timestamp = this.generateTimestamp();
         const timestampedDir = path.join(this.ZIP_DIR, timestamp);

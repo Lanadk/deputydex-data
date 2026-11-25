@@ -104,5 +104,18 @@ describe('sqlRunner (integration)', () => {
                 { id: 2, label: 'b' },
             ]);
         });
+
+        it('also refreshes the view in non-concurrent mode', async () => {
+            await pool.query(`INSERT INTO ${table} (id, label) VALUES (3, 'c');`);
+
+            await refreshMaterializedView(pool, view, { concurrent: false });
+
+            const after = await pool.query(`SELECT * FROM ${view} ORDER BY id;`);
+            expect(after.rows).toEqual([
+                { id: 1, label: 'a' },
+                { id: 2, label: 'b' },
+                { id: 3, label: 'c' },
+            ]);
+        });
     });
 });

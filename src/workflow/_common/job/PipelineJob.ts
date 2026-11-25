@@ -6,7 +6,7 @@ import { importJsonLinesToRaw } from "../infrastructure/db/copyJsonLinesToRaw";
 export type Step =
     | { kind: "sqlFile"; label: string; path: string }
     | { kind: "createView"; label: string; viewName: string; path: string }
-    | { kind: "refreshView"; label: string; viewName: string }
+    | { kind: "refreshView"; label: string; viewName: string; concurrent?: boolean }
     | {
           kind: "importRaw";
           label: string;
@@ -51,7 +51,7 @@ export class PipelineJob {
                 return;
             }
             case "refreshView":
-                await refreshMaterializedView(this.pool, step.viewName);
+                await refreshMaterializedView(this.pool, step.viewName, { concurrent: step.concurrent });
                 return;
             case "importRaw":
                 await importJsonLinesToRaw(this.pool, step.jsonFile, step.rawTable, step.projectionSqlFile, {
