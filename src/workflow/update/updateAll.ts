@@ -6,7 +6,8 @@ import { Logger, LogLevel } from "../../utils/logger";
 // UPDATE ALL — équivalent non interactif de `workflow_update` (menu.sh)
 // ==============================================================================
 // Point d'entrée du cron quotidien en prod (deputydex-cd > deploy-cron-jobs).
-// Enchaîne download → parse → import (--auto-cleanup) → referentials →
+// Enchaîne download → parse → import (--auto-cleanup) → purge des anciens
+// téléchargements (7 derniers gardés) → referentials →
 // enrichment → refresh des vues matérialisées → log de monitoring → vidage du
 // cache du front (revalidateFrontCache.ts), et s'arrête
 // à la première étape en échec (code de sortie non nul -> visible dans le log
@@ -29,6 +30,8 @@ export const UPDATE_STEPS: UpdateStep[] = [
     { label: "Download", script: "workflow/download/job/trtCollecteData.ts" },
     { label: "Parser", script: "workflow/parser/job/trtCheckCollecte.ts" },
     { label: "Import", script: "workflow/import/job/trtImportCollecte.ts", args: ["--auto-cleanup"] },
+    // Après l'import : les zips de la collecte du jour ne servent plus. Non bloquant.
+    { label: "Purge old downloads", script: "workflow/download/job/purgeOldDownloads.ts" },
     { label: "Referentials", script: "workflow/referentials/job/trtUpdateReferentials.ts" },
     { label: "Enrichment", script: "workflow/enrichment/job/trtEnrichmentCollecte.ts" },
     { label: "Aggregat (refresh)", script: "workflow/aggregat/job/trtAggregatCollecte.ts" },
