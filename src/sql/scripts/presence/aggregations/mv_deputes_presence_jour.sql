@@ -48,6 +48,8 @@
 --   - acteur_uid             : député
 --   - jour                   : date
 --   - groupe_uid             : groupe politique ce jour-là
+--   - debut_mandat           : première prise de fonction du député dans la
+--                              législature (base de l'année de mandat)
 --   - jour_seance            : un jour de séance publique
 --   - seance_observable      : jour de séance avec au moins un scrutin public
 --   - attendu                : jour où le député est attendu
@@ -78,6 +80,13 @@ WITH mandats_depute AS (
     FROM mandats m
     WHERE m.type_organe = 'ASSEMBLEE'
 ),
+     -- Première prise de fonction dans la législature : un député qui quitte puis
+     -- retrouve son siège (passage au Gouvernement…) garde le même point de départ.
+     debuts_mandat AS (
+         SELECT acteur_uid, legislature, MIN(debut) AS debut_mandat
+         FROM mandats_depute
+         GROUP BY acteur_uid, legislature
+     ),
      -- Séances réellement tenues : un compte rendu publié ou un scrutin public.
      jours_seance AS (
          SELECT legislature, jour FROM mv_debats_seances_jours
@@ -163,6 +172,7 @@ SELECT
     dt.acteur_uid,
     dt.jour,
     gp.organe_uid                                                                        AS groupe_uid,
+    dm.debut_mandat,
     dt.jour_seance,
     (dt.jour_seance AND dt.scrutins_jour > 0)                                            AS seance_observable,
     ((dt.jour_seance AND dt.scrutins_jour > 0) OR dt.convocations > 0)                   AS attendu,
@@ -182,6 +192,8 @@ SELECT
     dt.absences_commission,
     dt.presences_hors_mandat
 FROM detail dt
+         JOIN debuts_mandat dm
+              ON dm.acteur_uid = dt.acteur_uid AND dm.legislature = dt.legislature
          LEFT JOIN LATERAL (
     SELECT m.organe_uid
     FROM mandats m

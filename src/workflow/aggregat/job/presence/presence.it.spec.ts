@@ -161,6 +161,64 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
         ]);
     });
 
+    it('volume : jours de présence toutes sources (attendus ou non), par source, moyenne par mois actif', async () => {
+        const rows = (await pool.query(
+            `SELECT acteur_uid, jours_presence, jours_vote, jours_debat, jours_commission, mois_actifs, jours_presence_par_mois::float
+             FROM agg_deputes_presence WHERE legislature = $1 ORDER BY acteur_uid`, [LEG])).rows;
+
+        expect(rows).toEqual([
+            // A : vote le 7, parole le 8 (hors taux), commission le 21 ; le 20 (délégation) ne compte pas.
+            { acteur_uid: A, jours_presence: 3, jours_vote: 1, jours_debat: 1, jours_commission: 1, mois_actifs: 1, jours_presence_par_mois: 3 },
+            // B : vote le 20, commission (hors mandat) le 21.
+            { acteur_uid: B, jours_presence: 2, jours_vote: 1, jours_debat: 0, jours_commission: 1, mois_actifs: 1, jours_presence_par_mois: 2 },
+        ]);
+
+        const assemblee = (await pool.query(
+            `SELECT jours_presence, mois_deputes_actifs, jours_presence_par_mois::float FROM agg_assemblee_presence WHERE legislature = $1`, [LEG])).rows;
+        expect(assemblee).toEqual([{ jours_presence: 5, mois_deputes_actifs: 2, jours_presence_par_mois: 2.5 }]);
+
+        const mensuelle = (await pool.query(
+            `SELECT jours_presence, jours_presence_par_depute::float FROM agg_assemblee_presence_mensuelle WHERE legislature = $1`, [LEG])).rows;
+        expect(mensuelle).toEqual([{ jours_presence: 5, jours_presence_par_depute: 2.5 }]);
+    });
+
+    it('agg_deputes_presence_annuelle : année civile, parlementaire (oct. → sept.) et de mandat', async () => {
+        const rows = (await pool.query(
+            `SELECT acteur_uid, type_periode, periode, to_char(periode_debut, 'YYYY-MM-DD') AS debut,
+                    to_char(periode_fin, 'YYYY-MM-DD') AS fin, jours_presence, taux_presence::float
+             FROM agg_deputes_presence_annuelle WHERE legislature = $1 ORDER BY acteur_uid, type_periode`, [LEG])).rows;
+
+        expect(rows).toEqual([
+            { acteur_uid: A, type_periode: 'civile', periode: '2001', debut: '2001-01-01', fin: '2001-12-31', jours_presence: 3, taux_presence: 66.7 },
+            { acteur_uid: A, type_periode: 'mandat', periode: '1', debut: '2001-01-01', fin: '2001-12-31', jours_presence: 3, taux_presence: 66.7 },
+            { acteur_uid: A, type_periode: 'parlementaire', periode: '2000-2001', debut: '2000-10-01', fin: '2001-09-30', jours_presence: 3, taux_presence: 66.7 },
+            { acteur_uid: B, type_periode: 'civile', periode: '2001', debut: '2001-01-01', fin: '2001-12-31', jours_presence: 2, taux_presence: 100 },
+            // Année de mandat de B : depuis sa propre prise de fonction (10 janvier).
+            { acteur_uid: B, type_periode: 'mandat', periode: '1', debut: '2001-01-10', fin: '2002-01-09', jours_presence: 2, taux_presence: 100 },
+            { acteur_uid: B, type_periode: 'parlementaire', periode: '2000-2001', debut: '2000-10-01', fin: '2001-09-30', jours_presence: 2, taux_presence: 100 },
+        ]);
+    });
+
+    it('agg_groupes / agg_assemblee _annuelle : années civile et parlementaire seulement (pas de mandat)', async () => {
+        const groupes = (await pool.query(
+            `SELECT groupe_uid, type_periode, periode, jours_presence, taux_presence::float
+             FROM agg_groupes_presence_annuelle WHERE legislature = $1 ORDER BY groupe_uid, type_periode`, [LEG])).rows;
+        expect(groupes).toEqual([
+            { groupe_uid: G1, type_periode: 'civile', periode: '2001', jours_presence: 4, taux_presence: 100 },
+            { groupe_uid: G1, type_periode: 'parlementaire', periode: '2000-2001', jours_presence: 4, taux_presence: 100 },
+            { groupe_uid: G2, type_periode: 'civile', periode: '2001', jours_presence: 1, taux_presence: 50 },
+            { groupe_uid: G2, type_periode: 'parlementaire', periode: '2000-2001', jours_presence: 1, taux_presence: 50 },
+        ]);
+
+        const assemblee = (await pool.query(
+            `SELECT type_periode, periode, jours_presence, jours_presence_par_mois::float, taux_presence::float
+             FROM agg_assemblee_presence_annuelle WHERE legislature = $1 ORDER BY type_periode`, [LEG])).rows;
+        expect(assemblee).toEqual([
+            { type_periode: 'civile', periode: '2001', jours_presence: 5, jours_presence_par_mois: 2.5, taux_presence: 75 },
+            { type_periode: 'parlementaire', periode: '2000-2001', jours_presence: 5, jours_presence_par_mois: 2.5, taux_presence: 75 },
+        ]);
+    });
+
     it('agg_groupes_presence : chaque jour compte pour le groupe du député ce jour-là (taux pondérés)', async () => {
         const rows = (await pool.query(
             `SELECT groupe_uid, nb_deputes, jours_attendus, jours_presents, taux_presence::float

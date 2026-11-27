@@ -15,6 +15,7 @@ source, puis à consolider**, en gardant chaque étape lisible et vérifiable.
  scrutins                         ─▶ mv_scrutins_jours           (scrutins/jour)  ├─▶ mv_deputes_presence_jour ─▶ agg_deputes_presence(_mensuelle)
  debats_* (comptes rendus)        ─▶ mv_debats_presence_jour     (prises parole)  │   (député × jour)            agg_groupes_presence(_mensuelle)
  debats_comptes_rendus            ─▶ mv_debats_seances_jours     (séances tenues)─┘                              agg_assemblee_presence(_mensuelle)
+                                                                                                                 (+ variantes _annuelle)
  mandats (ASSEMBLEE, GP, organes) ───────────────────────────────────────────────────▲ (période de mandat, groupe du jour, membre d'un organe)
 ```
 
@@ -51,6 +52,39 @@ Composantes publiées à côté du taux principal (mêmes colonnes dans toutes l
   scrutin, réunion d'un organe dont il n'est pas membre) — non comptées dans le taux ;
 - `effectif_moyen` (groupes, Assemblée) : députés en mandat par jour de séance observable ; `nb_deputes` compte
   tout député passé par le groupe (tous passent par « Non inscrits » avant la formation des groupes).
+
+## Volume de présence (jours unitaires)
+
+À côté du taux, chaque vue donne le **volume** : combien de jours le député a été là, toutes sources confondues.
+
+- `jours_presence` : jours avec au moins une trace de présence — vote personnel, prise de parole / interruption /
+  présidence, présence en commission —, **attendus ou non** (une parole un jour de questions au Gouvernement
+  compte). Un jour est compté une fois, même si le député a voté, parlé et siégé en commission.
+- `jours_vote`, `jours_debat`, `jours_commission` : jours avec au moins une trace de chaque source (se recoupent).
+- `mois_actifs` (député) / `mois_deputes_actifs` (groupe, Assemblée) : mois avec au moins une séance tenue ou un
+  jour attendu pendant le mandat — août et mois hors mandat exclus, un député arrivé en cours de route n'est pas
+  pénalisé.
+- `jours_presence_par_mois` : moyenne de jours de présence **d'un député** par mois actif (pour un groupe ou
+  l'Assemblée : jours de présence ÷ mois-députés actifs) ; `jours_presence_par_depute` dans les vues mensuelles
+  des groupes et de l'Assemblée.
+
+Ordre de grandeur (législature 17) : ~6,9 jours de présence par mois et par député (médiane 6,9, de 4,5 à 9,1
+entre les 1er et 9e déciles), soit ~83 jours par an.
+
+## Découpages annuels (`agg_*_presence_annuelle`)
+
+Colonne `type_periode`, avec `periode` (libellé), `periode_debut` et `periode_fin` :
+
+| `type_periode` | Bornes | `periode` | Député | Groupe, Assemblée |
+|---|---|---|---|---|
+| `civile` | 1er janvier → 31 décembre | `2025` | ✅ | ✅ |
+| `parlementaire` | 1er octobre → 30 septembre, comme les sessions de l'AN (ordinaire d'octobre à juin + extraordinaires de juillet / septembre) | `2025-2026` | ✅ | ✅ |
+| `mandat` | années successives depuis la première prise de fonction du député dans la législature (`debut_mandat`) | `1`, `2`… | ✅ | — (bornes propres à chaque député, non additionnables) |
+
+L'année parlementaire est la plus comparable : chaque année complète contient exactement une session ordinaire et
+un budget. Juillet–septembre 2024 (début de la 17ᵉ législature) relève de `2023-2024`, comme les sessions
+extraordinaires de l'été à l'AN. Une période incomplète (début ou fin de législature, année en cours) a moins de
+mois actifs : comparer `jours_presence_par_mois` plutôt que les totaux.
 
 ## Pourquoi ces choix (mesurés sur les législatures 16 et 17)
 

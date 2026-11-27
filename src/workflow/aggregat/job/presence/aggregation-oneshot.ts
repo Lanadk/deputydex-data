@@ -13,10 +13,13 @@ export const VIEWS = [
     "mv_deputes_presence_jour",
     "agg_deputes_presence",
     "agg_deputes_presence_mensuelle",
+    "agg_deputes_presence_annuelle",
     "agg_groupes_presence",
     "agg_groupes_presence_mensuelle",
+    "agg_groupes_presence_annuelle",
     "agg_assemblee_presence",
     "agg_assemblee_presence_mensuelle",
+    "agg_assemblee_presence_annuelle",
 ];
 
 export const main = (): Promise<void> => runDomainAggregation("create", "presence", VIEWS);
