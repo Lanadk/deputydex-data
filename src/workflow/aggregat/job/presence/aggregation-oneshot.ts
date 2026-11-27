@@ -20,6 +20,9 @@ export const VIEWS = [
     "agg_assemblee_presence",
     "agg_assemblee_presence_mensuelle",
     "agg_assemblee_presence_annuelle",
+    "agg_assemblee_presence_jour",
+    // Lit agg_assemblee_presence_jour : après elle.
+    "agg_assemblee_presence_jour_semaine",
 ];
 
 export const main = (): Promise<void> => runDomainAggregation("create", "presence", VIEWS);

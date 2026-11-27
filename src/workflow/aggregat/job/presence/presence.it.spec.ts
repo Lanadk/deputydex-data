@@ -219,6 +219,30 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
         ]);
     });
 
+    it('agg_assemblee_presence_jour et _jour_semaine : une ligne par jour, puis le rythme de la semaine', async () => {
+        const jours = (await pool.query(
+            `SELECT to_char(jour, 'MM-DD') AS jour, jour_semaine, seance_observable, deputes_attendus, deputes_presents,
+                    deputes_en_seance, deputes_en_mandat, deputes_presents_total, scrutins
+             FROM agg_assemblee_presence_jour WHERE legislature = $1 ORDER BY jour`, [LEG])).rows;
+        expect(jours).toEqual([
+            // 7 janvier 2001 : un dimanche (ISO 7) — jours fictifs, seul l'enchaînement compte ici.
+            { jour: '01-07', jour_semaine: 7, seance_observable: true, deputes_attendus: 1, deputes_presents: 1, deputes_en_seance: 1, deputes_en_mandat: 1, deputes_presents_total: 1, scrutins: 1 },
+            { jour: '01-08', jour_semaine: 1, seance_observable: false, deputes_attendus: 0, deputes_presents: 0, deputes_en_seance: 0, deputes_en_mandat: null, deputes_presents_total: 1, scrutins: 0 },
+            { jour: '01-20', jour_semaine: 6, seance_observable: true, deputes_attendus: 2, deputes_presents: 1, deputes_en_seance: 1, deputes_en_mandat: 2, deputes_presents_total: 1, scrutins: 1 },
+            { jour: '01-21', jour_semaine: 7, seance_observable: false, deputes_attendus: 1, deputes_presents: 1, deputes_en_seance: 0, deputes_en_mandat: null, deputes_presents_total: 2, scrutins: 0 },
+        ]);
+
+        const semaine = (await pool.query(
+            `SELECT jour_semaine, jours, jours_seance, taux_presence::float, taux_presence_seance::float
+             FROM agg_assemblee_presence_jour_semaine WHERE legislature = $1 ORDER BY jour_semaine`, [LEG])).rows;
+        expect(semaine).toEqual([
+            { jour_semaine: 1, jours: 0, jours_seance: 0, taux_presence: null, taux_presence_seance: null },
+            { jour_semaine: 6, jours: 1, jours_seance: 1, taux_presence: 50, taux_presence_seance: 50 },
+            // Dimanches : le 7 (séance, 1/1) et le 21 (commission, 1/1).
+            { jour_semaine: 7, jours: 2, jours_seance: 1, taux_presence: 100, taux_presence_seance: 100 },
+        ]);
+    });
+
     it('agg_groupes_presence : chaque jour compte pour le groupe du député ce jour-là (taux pondérés)', async () => {
         const rows = (await pool.query(
             `SELECT groupe_uid, nb_deputes, jours_attendus, jours_presents, taux_presence::float

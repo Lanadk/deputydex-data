@@ -137,3 +137,11 @@ Par député (législature 17, ≥ 50 jours attendus) : de ~12 % à ~82 %, médi
   relancer ensuite le one-shot du domaine `presence` (idempotent) pour les recréer.
 - Test d'intégration de la chaîne complète : `workflow/aggregat/job/presence/presence.it.spec.ts` (un scénario
   par règle).
+
+## Jour par jour et rythme de la semaine
+
+- `agg_assemblee_presence_jour` : une ligne par jour (députés attendus / présents, présence en séance, scrutins,
+  `jour_semaine` ISO) — courbe journalière de l'Assemblée.
+- `agg_assemblee_presence_jour_semaine` : présence par jour de la semaine sur la législature (taux pondérés).
+  Législature 17 : ~68 % le mardi et ~74 % le mercredi (votes solennels, questions au Gouvernement), ~41 % le
+  lundi et ~35 % le vendredi (circonscription).
