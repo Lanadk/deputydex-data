@@ -16,8 +16,13 @@ Chaque domaine (`acteurs`, `groups`, `calendar`, `deputes`) a **deux jobs** :
 Les deux s'appuient sur `PipelineJob` (`workflow/_common/job/PipelineJob.ts`) avec les steps `createView` /
 `refreshView` respectivement, exécutés séquentiellement dans l'ordre de la liste `VIEWS` du job.
 
-`trtAggregatCollecte.ts` (refresh) et `trtAggregatCollecte-oneshot.ts` orchestrent les 4 domaines dans
-l'ordre : `acteurs → groupes → calendar → deputes`.
+`trtAggregatCollecte.ts` (refresh) et `trtAggregatCollecte-oneshot.ts` orchestrent les 8 domaines dans
+l'ordre : `acteurs → groupes → calendar → deputes → reunions → debats → scrutins → presence` (les briques
+`reunions`, `debats`, `scrutins` avant `presence`, qui les lit).
+
+Les domaines `reunions`, `debats`, `scrutins` et `presence` utilisent le job générique
+`job/domainAggregation.ts` : leur `aggregation-oneshot.ts` déclare seulement la liste `VIEWS` (exportée, dans
+l'ordre de création) et leur `aggregation.ts` la réutilise. Préférer ce modèle pour un nouveau domaine.
 
 ## Domaines et vues
 
@@ -27,6 +32,10 @@ l'ordre : `acteurs → groupes → calendar → deputes`.
 | **groups** | `agg_groupes_*.sql`, `mv_groupes_*.sql`, `agg_assemblee_*.sql`, `mv_assemblee_*.sql` | 27 vues : effectifs (courant/législature), cohésion (mensuelle/législature), couverture des scrutins, participation, expression des votes, positions politiques/comptables, démographie, stabilité, proximité de votes, professions (+ catégories/familles), présidents de groupe (`mv_groupes_presidents`), fiche infos, âge, parité, cumul de mandats, géographie (élection / naissance dép. / naissance pays), tranche d'âge, participation de l'Assemblée, présidents de l'Assemblée (`mv_assemblee_presidents`) |
 | **calendar** | `agg_activity_calendar_mv.sql`, `agg_activity_calendar_details_mv.sql` | `agg_activity_calendar_mv`, `agg_activity_calendar_details_mv` |
 | **deputes** | `agg_deputes_cards.sql`, `agg_deputes_stats_votes.sql`, `agg_deputes_stats_age.sql`, `agg_deputes_dossiers_contributions.sql`, `agg_deputes_tendances_recentes.sql` | `agg_deputes_cards`, `agg_deputes_stats_votes`, `agg_deputes_stats_age`, `agg_deputes_dossiers_contributions` (contributions d'un député par dossier législatif : amendements déposés / adoptés / co-signés, auteur ou co-signataire du texte, rapporteur par étape), `agg_deputes_tendances_recentes` (activité de chaque député sur les 30 jours qui finissent au dernier scrutin de la législature : votes exprimés, votes rebelles, amendements déposés — « ce mois-ci » de l'accueil du front) |
+| **reunions** | `mv_reunions_presence_jour.sql` | `mv_reunions_presence_jour` (présences en commission par député et par jour) |
+| **debats** | `mv_debats_*.sql` | `mv_debats_presence_jour` (prises de parole, interruptions, présidence par député et par jour), `mv_debats_seances_jours` (séances publiques réellement tenues, d'après les comptes rendus) |
+| **scrutins** | `mv_scrutins_*.sql` | `mv_scrutins_presence_jour` (votes personnels / par délégation par député et par jour), `mv_scrutins_jours` (scrutins publics par jour) |
+| **presence** | `mv_deputes_presence_jour.sql`, `agg_*_presence*.sql` | `mv_deputes_presence_jour` (consolidation député × jour), `agg_deputes_presence`, `agg_deputes_presence_mensuelle`, `agg_groupes_presence`, `agg_groupes_presence_mensuelle`, `agg_assemblee_presence`, `agg_assemblee_presence_mensuelle` — démarche et règles : `src/sql/scripts/presence/README.md` |
 
 ## Utilisation
 

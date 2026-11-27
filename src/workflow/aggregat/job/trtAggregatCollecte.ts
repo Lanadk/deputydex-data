@@ -4,6 +4,10 @@ import { main as aggregateActeurs } from "./acteurs/aggregation";
 import { main as aggregateGroupes } from "./groups/aggregation";
 import { main as aggregateCalendar } from "./calendar/aggregation";
 import { main as aggregateDeputes } from "./deputes/aggregation";
+import { main as aggregateReunions } from "./reunions/aggregation";
+import { main as aggregateDebats } from "./debats/aggregation";
+import { main as aggregateScrutins } from "./scrutins/aggregation";
+import { main as aggregatePresence } from "./presence/aggregation";
 
 // ==============================================================================
 // AGGREGATION ALL - REFRESH JOB
@@ -16,6 +20,11 @@ const DOMAINS: Array<{ label: string; run: () => Promise<void> }> = [
     { label: "groupes", run: aggregateGroupes },
     { label: "calendar", run: aggregateCalendar },
     { label: "deputes", run: aggregateDeputes },
+    // Briques de la présence, puis la présence qui les consolide (ordre requis).
+    { label: "reunions", run: aggregateReunions },
+    { label: "debats", run: aggregateDebats },
+    { label: "scrutins", run: aggregateScrutins },
+    { label: "presence", run: aggregatePresence },
 ];
 
 async function main(): Promise<void> {
