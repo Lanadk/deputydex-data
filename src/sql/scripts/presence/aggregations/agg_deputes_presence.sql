@@ -21,7 +21,11 @@
 --   - jours_presence_non_attendus : présences un jour où il n'était pas
 --     attendu (ex. réunion d'un organe dont il n'est pas membre)
 --
--- Clé : (legislature, acteur_uid).
+-- legislature IS NULL = toutes les législatures du député confondues
+-- (GROUPING SETS) : un député réélu y a une ligne, jours sommés sur ses
+-- mandats successifs (même acteur_uid d'une législature à l'autre).
+--
+-- Clé : (legislature, acteur_uid) ; legislature NULL = toutes.
 -- ============================================================
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS agg_deputes_presence AS
@@ -62,6 +66,6 @@ SELECT
     ROUND(COUNT(*) FILTER (WHERE present)::numeric
               / NULLIF(COUNT(DISTINCT date_trunc('month', jour)) FILTER (WHERE attendu OR jour_seance), 0), 1) AS jours_presence_par_mois
 FROM mv_deputes_presence_jour
-GROUP BY legislature, acteur_uid;
+GROUP BY GROUPING SETS ((legislature, acteur_uid), (acteur_uid));
 
-CREATE UNIQUE INDEX IF NOT EXISTS agg_deputes_presence_uq ON agg_deputes_presence (legislature, acteur_uid);
+CREATE UNIQUE INDEX IF NOT EXISTS agg_deputes_presence_uq ON agg_deputes_presence (legislature, acteur_uid) NULLS NOT DISTINCT;

@@ -8,7 +8,10 @@
 -- Un mois sans jour attendu (vacances parlementaires) n'a pas de
 -- ligne, ou une ligne avec taux_presence null.
 --
--- Clé : (legislature, acteur_uid, mois) ; mois = 1er jour du mois.
+-- legislature IS NULL = toutes les législatures du député confondues
+-- (GROUPING SETS) : un mois à cheval sur deux mandats n'a qu'une ligne.
+--
+-- Clé : (legislature, acteur_uid, mois) ; mois = 1er jour du mois ; legislature NULL = toutes.
 -- ============================================================
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS agg_deputes_presence_mensuelle AS
@@ -45,6 +48,6 @@ SELECT
     COUNT(*) FILTER (WHERE prises_de_parole + interruptions + paroles_presidence > 0)::int  AS jours_debat,
     COUNT(*) FILTER (WHERE presences_commission + presences_hors_mandat > 0)::int           AS jours_commission
 FROM mv_deputes_presence_jour
-GROUP BY legislature, acteur_uid, date_trunc('month', jour);
+GROUP BY GROUPING SETS ((legislature, acteur_uid, date_trunc('month', jour)), (acteur_uid, date_trunc('month', jour)));
 
-CREATE UNIQUE INDEX IF NOT EXISTS agg_deputes_presence_mensuelle_uq ON agg_deputes_presence_mensuelle (legislature, acteur_uid, mois);
+CREATE UNIQUE INDEX IF NOT EXISTS agg_deputes_presence_mensuelle_uq ON agg_deputes_presence_mensuelle (legislature, acteur_uid, mois) NULLS NOT DISTINCT;

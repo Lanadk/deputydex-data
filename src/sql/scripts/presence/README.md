@@ -161,6 +161,11 @@ plus d'une ligne par législature, des lignes **`legislature IS NULL` = toutes l
 - rien n'y est propre à une législature : une nouvelle législature entre d'elle-même dans ces lignes au prochain
   refresh. Index uniques en `NULLS NOT DISTINCT` (Postgres ≥ 15).
 
+Même niveau pour les **députés** (`agg_deputes_presence`, `_mensuelle`, `_annuelle`) : un député garde son
+`acteur_uid` d'une législature à l'autre, la ligne `legislature IS NULL` d'un député réélu somme ses mandats
+successifs (année parlementaire à cheval calculée sur l'année entière, pas d'année de mandat combinée).
+
 Lecture : filtrer `legislature = N` pour une législature, `legislature IS NULL` pour le combiné, et
-`legislature IS NOT NULL` pour lister les législatures une à une. Les groupes n'ont pas ce niveau (un groupe n'est
-pas identifiable d'une législature à l'autre : LFI-NUPES → LFI-NFP…).
+`legislature IS NOT NULL` pour lister les législatures une à une. Les **groupes** n'ont pas ce niveau : un groupe
+n'est pas identifiable d'une législature à l'autre (identifiants différents, sigles qui changent : LFI-NUPES →
+LFI-NFP, RE → EPR…). Le front affiche alors chaque groupe de chaque législature comme une série distincte.

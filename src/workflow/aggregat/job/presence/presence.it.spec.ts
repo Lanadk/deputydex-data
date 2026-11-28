@@ -129,6 +129,8 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
         await pool.query(`INSERT INTO acteurs (uid, row_hash, legislature_snapshot) VALUES ($1, $2, $3)`, [C, h(C), LEG_PRECEDENTE]);
         await pool.query(`INSERT INTO deputes (id, row_hash, legislature_snapshot) VALUES ($1, $2, $3)`, [C, h(`d-${C}`), LEG_PRECEDENTE]);
         await mandat('PM_IT_PRES_C_AN', C, 'ASSEMBLEE', 'PO_IT_PRES_AN98', '2000-12-01', '2000-12-31', LEG_PRECEDENTE);
+        // A était déjà député dans la législature précédente (réélu) : attendu aux deux scrutins, ne vote pas.
+        await mandat('PM_IT_PRES_A_AN98', A, 'ASSEMBLEE', 'PO_IT_PRES_AN98', '2000-12-01', '2000-12-31', LEG_PRECEDENTE);
         await scrutin('VT_IT_PRES_98A', '2000-12-15', LEG_PRECEDENTE);
         await scrutin('VT_IT_PRES_98B', '2000-12-18', LEG_PRECEDENTE);
         await vote('VT_IT_PRES_98A', C, false, LEG_PRECEDENTE);
@@ -307,10 +309,12 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
                  WHERE type_periode = 'parlementaire' AND periode = '2000-2001'
                  ORDER BY legislature NULLS LAST`)).rows;
             expect(rows).toEqual([
-                { legislature: LEG_PRECEDENTE, jours_attendus: 2, jours_presents: 1, taux_presence: 50 },
+                // Législature précédente : C (2 attendus, 1 présent) et A (2 attendus, absent).
+                { legislature: LEG_PRECEDENTE, jours_attendus: 4, jours_presents: 1, taux_presence: 25 },
                 { legislature: LEG, jours_attendus: 4, jours_presents: 3, taux_presence: 75 },
-                // (1 + 3) / (2 + 4) = 66,7 % — la moyenne des taux aurait donné 62,5 %.
-                { legislature: null, jours_attendus: 6, jours_presents: 4, taux_presence: 66.7 },
+                // (1 + 3) / (4 + 4) = 50 % — la moyenne des taux aurait donné la même chose ici
+                // par hasard (25 et 75) ; voir le cas du député ci-dessous, où elle diffère.
+                { legislature: null, jours_attendus: 8, jours_presents: 4, taux_presence: 50 },
             ]);
         });
 
@@ -322,21 +326,21 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
             const civiles = (await pool.query(
                 `SELECT periode, jours_attendus FROM agg_assemblee_presence_annuelle
                  WHERE legislature IS NULL AND type_periode = 'civile' AND periode IN ('2000', '2001') ORDER BY periode`)).rows;
-            expect(civiles).toEqual([{ periode: '2000', jours_attendus: 2 }, { periode: '2001', jours_attendus: 4 }]);
+            expect(civiles).toEqual([{ periode: '2000', jours_attendus: 4 }, { periode: '2001', jours_attendus: 4 }]);
         });
 
         it('mensuelle, jour et jour de la semaine : une ligne NULL par mois / jour / jour de la semaine', async () => {
             const mois = (await pool.query(
                 `SELECT to_char(mois, 'YYYY-MM') AS mois, jours_attendus FROM agg_assemblee_presence_mensuelle
                  WHERE legislature IS NULL AND mois BETWEEN '2000-12-01' AND '2001-01-01' ORDER BY mois`)).rows;
-            expect(mois).toEqual([{ mois: '2000-12', jours_attendus: 2 }, { mois: '2001-01', jours_attendus: 4 }]);
+            expect(mois).toEqual([{ mois: '2000-12', jours_attendus: 4 }, { mois: '2001-01', jours_attendus: 4 }]);
 
             const jours = (await pool.query(
                 `SELECT to_char(jour, 'YYYY-MM-DD') AS jour, deputes_attendus, deputes_presents FROM agg_assemblee_presence_jour
                  WHERE legislature IS NULL AND jour BETWEEN '2000-12-01' AND '2000-12-31' ORDER BY jour`)).rows;
             expect(jours).toEqual([
-                { jour: '2000-12-15', deputes_attendus: 1, deputes_presents: 1 },
-                { jour: '2000-12-18', deputes_attendus: 1, deputes_presents: 0 },
+                { jour: '2000-12-15', deputes_attendus: 2, deputes_presents: 1 },
+                { jour: '2000-12-18', deputes_attendus: 2, deputes_presents: 0 },
             ]);
 
             // Ligne NULL du jour de la semaine = agrégat des jours NULL (chaque jour une fois).
@@ -345,6 +349,41 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
             const { rows: [joursNull] } = await pool.query(
                 `SELECT COUNT(*) FILTER (WHERE deputes_attendus > 0)::int AS jours FROM agg_assemblee_presence_jour WHERE legislature IS NULL`);
             expect(semaine).toEqual(joursNull);
+        });
+    });
+
+    describe('Député réélu, toutes législatures confondues (legislature IS NULL)', () => {
+        // A : 2 jours attendus sans présence dans la législature précédente, 3 attendus
+        // dont 2 présents dans la suivante.
+
+        it('agg_deputes_presence : une ligne NULL qui somme ses mandats successifs', async () => {
+            const rows = (await pool.query(
+                `SELECT legislature, jours_attendus, jours_presents, taux_presence::float
+                 FROM agg_deputes_presence WHERE acteur_uid = $1 ORDER BY legislature NULLS LAST`, [A])).rows;
+            expect(rows).toEqual([
+                { legislature: LEG_PRECEDENTE, jours_attendus: 2, jours_presents: 0, taux_presence: 0 },
+                { legislature: LEG, jours_attendus: 3, jours_presents: 2, taux_presence: 66.7 },
+                // 2 / 5 = 40 % — la moyenne des deux taux aurait donné 33,3 %.
+                { legislature: null, jours_attendus: 5, jours_presents: 2, taux_presence: 40 },
+            ]);
+        });
+
+        it('annuelle : année parlementaire à cheval calculée sur l\'année entière, pas d\'année de mandat combinée', async () => {
+            const rows = (await pool.query(
+                `SELECT type_periode, periode, jours_attendus, taux_presence::float
+                 FROM agg_deputes_presence_annuelle WHERE acteur_uid = $1 AND legislature IS NULL ORDER BY type_periode, periode`, [A])).rows;
+            expect(rows).toEqual([
+                { type_periode: 'civile', periode: '2000', jours_attendus: 2, taux_presence: 0 },
+                { type_periode: 'civile', periode: '2001', jours_attendus: 3, taux_presence: 66.7 },
+                { type_periode: 'parlementaire', periode: '2000-2001', jours_attendus: 5, taux_presence: 40 },
+            ]);
+        });
+
+        it('mensuelle : une ligne NULL par mois', async () => {
+            const rows = (await pool.query(
+                `SELECT to_char(mois, 'YYYY-MM') AS mois, jours_attendus FROM agg_deputes_presence_mensuelle
+                 WHERE acteur_uid = $1 AND legislature IS NULL ORDER BY mois`, [A])).rows;
+            expect(rows).toEqual([{ mois: '2000-12', jours_attendus: 2 }, { mois: '2001-01', jours_attendus: 3 }]);
         });
     });
 });

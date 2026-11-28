@@ -21,7 +21,13 @@
 -- année en cours) a moins de mois_actifs : comparer les jours de
 -- présence par mois (jours_presence_par_mois) plutôt que le total.
 --
--- Clé : (legislature, acteur_uid, type_periode, periode).
+-- legislature IS NULL = toutes les législatures du député confondues
+-- (GROUPING SETS), années civile et parlementaire seulement : une année
+-- coupée par un changement de législature (député réélu) y est calculée
+-- sur l'année entière. Pas d'année de mandat combinée (deux rangs 1 de
+-- deux mandats différents).
+--
+-- Clé : (legislature, acteur_uid, type_periode, periode) ; legislature NULL = toutes.
 -- ============================================================
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS agg_deputes_presence_annuelle AS
@@ -82,6 +88,7 @@ SELECT
     ROUND(COUNT(*) FILTER (WHERE present)::numeric
               / NULLIF(COUNT(DISTINCT date_trunc('month', jour)) FILTER (WHERE attendu OR jour_seance), 0), 1) AS jours_presence_par_mois
 FROM jours
-GROUP BY legislature, acteur_uid, type_periode, periode;
+GROUP BY GROUPING SETS ((legislature, acteur_uid, type_periode, periode), (acteur_uid, type_periode, periode))
+HAVING NOT (GROUPING(legislature) = 1 AND type_periode = 'mandat');
 
-CREATE UNIQUE INDEX IF NOT EXISTS agg_deputes_presence_annuelle_uq ON agg_deputes_presence_annuelle (legislature, acteur_uid, type_periode, periode);
+CREATE UNIQUE INDEX IF NOT EXISTS agg_deputes_presence_annuelle_uq ON agg_deputes_presence_annuelle (legislature, acteur_uid, type_periode, periode) NULLS NOT DISTINCT;
