@@ -54,6 +54,17 @@ run_aggregate_calendar_one_shot() { "$TS_NODE" ./workflow/aggregat/job/calendar/
 run_aggregate_calendar_refresh()  { "$TS_NODE" ./workflow/aggregat/job/calendar/aggregation.ts; }
 run_aggregate_deputes_one_shot()  { "$TS_NODE" ./workflow/aggregat/job/deputes/aggregation-oneshot.ts; }
 run_aggregate_deputes_refresh()   { "$TS_NODE" ./workflow/aggregat/job/deputes/aggregation.ts; }
+# Présence : les briques (reunions, debats, scrutins) puis leur consolidation (presence), dans cet ordre.
+run_aggregate_presence_refresh() {
+    for domain in reunions debats scrutins presence; do
+        "$TS_NODE" "./workflow/aggregat/job/$domain/aggregation.ts"
+    done
+}
+run_aggregate_presence_one_shot() {
+    for domain in reunions debats scrutins presence; do
+        "$TS_NODE" "./workflow/aggregat/job/$domain/aggregation-oneshot.ts"
+    done
+}
 
 # DROP + recréation à la demande d'une/plusieurs vue(s) déjà créée(s) — seul
 # moyen de propager un changement de définition SQL sur une vue existante (ni
@@ -228,6 +239,8 @@ aggregate_menu() {
         echo "9) Aggregate Deputes (Refresh)"
         echo "10) Aggregate Deputes (Create - One shot)"
         echo "11) Recreate View(s) (DROP + CREATE, on demand)"
+        echo "12) Aggregate Présence (Refresh : reunions, debats, scrutins, presence)"
+        echo "13) Aggregate Présence (Create - One shot)"
         echo "0) Back"
         echo ""
         echo "=============================================="
@@ -245,6 +258,8 @@ aggregate_menu() {
             9) run_aggregate_deputes_refresh ;;
             10) run_aggregate_deputes_one_shot ;;
             11) run_aggregate_recreate_view ;;
+            12) run_aggregate_presence_refresh ;;
+            13) run_aggregate_presence_one_shot ;;
             0) return ;;
             *) echo "⚠️  Invalid option, please try again." ;;
         esac

@@ -3,6 +3,10 @@ import { VIEWS as ACTEURS_VIEWS } from "./job/acteurs/aggregation-oneshot";
 import { VIEWS as GROUPES_VIEWS } from "./job/groups/aggregation-oneshot";
 import { VIEWS as CALENDAR_VIEWS } from "./job/calendar/aggregation-oneshot";
 import { VIEWS as DEPUTES_VIEWS } from "./job/deputes/aggregation-oneshot";
+import { VIEWS as REUNIONS_VIEWS } from "./job/reunions/aggregation-oneshot";
+import { VIEWS as DEBATS_VIEWS } from "./job/debats/aggregation-oneshot";
+import { VIEWS as SCRUTINS_VIEWS } from "./job/scrutins/aggregation-oneshot";
+import { VIEWS as PRESENCE_VIEWS } from "./job/presence/aggregation-oneshot";
 
 // ==============================================================================
 // REGISTRE DES VUES D'AGREGATION
@@ -20,6 +24,10 @@ const DOMAINS: Array<{ label: string; views: readonly string[] }> = [
     { label: "groups", views: GROUPES_VIEWS },
     { label: "calendar", views: CALENDAR_VIEWS },
     { label: "deputes", views: DEPUTES_VIEWS },
+    { label: "reunions", views: REUNIONS_VIEWS },
+    { label: "debats", views: DEBATS_VIEWS },
+    { label: "scrutins", views: SCRUTINS_VIEWS },
+    { label: "presence", views: PRESENCE_VIEWS },
 ];
 
 export interface ViewEntry {
