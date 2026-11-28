@@ -1,13 +1,17 @@
 -- ============================================================
 -- VIEW : agg_assemblee_presence_annuelle
 -- ============================================================
--- Présence de toute l'Assemblée nationale par année, en année civile et en année parlementaire
--- (colonne type_periode ; mêmes découpages que
+-- Présence de toute l'Assemblée nationale par année : civile, parlementaire
+-- et de mandat (colonne type_periode ; mêmes découpages que
 -- agg_deputes_presence_annuelle). Mêmes indicateurs et règles
 -- d'agrégation que agg_assemblee_presence (taux pondérés, tous députés).
 --
--- Pas d'année de mandat ici : chaque député a ses propres bornes, on
--- ne peut pas les additionner.
+-- Année de mandat : rang de l'année dans le mandat de CHAQUE député
+-- (« année 1 » = ses 12 premiers mois depuis sa prise de fonction dans la
+-- législature, debut_mandat). On agrège par rang, pas par dates : un
+-- député entré en cours de législature (remplaçant, partielle) compte dans
+-- « année 1 » pour ses propres 12 premiers mois. periode_debut / periode_fin
+-- sont donc les bornes extrêmes sur tous les députés du rang.
 --
 -- jours_presence_par_mois : moyenne de jours de présence d'un député
 -- par mois actif (jours_presence / mois_deputes_actifs).
@@ -29,7 +33,12 @@ WITH jours AS (
              to_char(date_trunc('year', p.jour - INTERVAL '9 months'), 'YYYY') || '-'
                  || to_char(date_trunc('year', p.jour - INTERVAL '9 months') + INTERVAL '1 year', 'YYYY'),
              (date_trunc('year', p.jour - INTERVAL '9 months') + INTERVAL '9 months')::date,
-             (date_trunc('year', p.jour - INTERVAL '9 months') + INTERVAL '21 months - 1 day')::date)
+             (date_trunc('year', p.jour - INTERVAL '9 months') + INTERVAL '21 months - 1 day')::date),
+            ('mandat',
+             (EXTRACT(YEAR FROM age(p.jour, p.debut_mandat))::int + 1)::text,
+             (p.debut_mandat + EXTRACT(YEAR FROM age(p.jour, p.debut_mandat))::int * INTERVAL '1 year')::date,
+             (p.debut_mandat + (EXTRACT(YEAR FROM age(p.jour, p.debut_mandat))::int + 1) * INTERVAL '1 year'
+                 - INTERVAL '1 day')::date)
         ) AS per(type_periode, periode, periode_debut, periode_fin)
 )
 SELECT
@@ -37,7 +46,7 @@ SELECT
     type_periode,
     periode,
     MIN(periode_debut)                                                                      AS periode_debut,
-    MIN(periode_fin)                                                                        AS periode_fin,
+    MAX(periode_fin)                                                                        AS periode_fin,
     COUNT(DISTINCT acteur_uid)::int                                                         AS nb_deputes,
     ROUND(COUNT(*) FILTER (WHERE seance_observable)::numeric
               / NULLIF(COUNT(DISTINCT jour) FILTER (WHERE seance_observable), 0), 1)        AS effectif_moyen,

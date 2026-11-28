@@ -199,7 +199,7 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
         ]);
     });
 
-    it('agg_groupes / agg_assemblee _annuelle : années civile et parlementaire seulement (pas de mandat)', async () => {
+    it('agg_groupes / agg_assemblee _annuelle : civile et parlementaire ; année de mandat pour l\'Assemblée seulement', async () => {
         const groupes = (await pool.query(
             `SELECT groupe_uid, type_periode, periode, jours_presence, taux_presence::float
              FROM agg_groupes_presence_annuelle WHERE legislature = $1 ORDER BY groupe_uid, type_periode`, [LEG])).rows;
@@ -211,11 +211,15 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
         ]);
 
         const assemblee = (await pool.query(
-            `SELECT type_periode, periode, jours_presence, jours_presence_par_mois::float, taux_presence::float
+            `SELECT type_periode, periode, to_char(periode_debut, 'YYYY-MM-DD') AS debut, to_char(periode_fin, 'YYYY-MM-DD') AS fin,
+                    jours_presence, jours_presence_par_mois::float, taux_presence::float
              FROM agg_assemblee_presence_annuelle WHERE legislature = $1 ORDER BY type_periode`, [LEG])).rows;
         expect(assemblee).toEqual([
-            { type_periode: 'civile', periode: '2001', jours_presence: 5, jours_presence_par_mois: 2.5, taux_presence: 75 },
-            { type_periode: 'parlementaire', periode: '2000-2001', jours_presence: 5, jours_presence_par_mois: 2.5, taux_presence: 75 },
+            { type_periode: 'civile', periode: '2001', debut: '2001-01-01', fin: '2001-12-31', jours_presence: 5, jours_presence_par_mois: 2.5, taux_presence: 75 },
+            // Année de mandat : par rang, chacun depuis sa prise de fonction
+            // (A le 1er janvier, B le 10) — bornes extrêmes sur les deux.
+            { type_periode: 'mandat', periode: '1', debut: '2001-01-01', fin: '2002-01-09', jours_presence: 5, jours_presence_par_mois: 2.5, taux_presence: 75 },
+            { type_periode: 'parlementaire', periode: '2000-2001', debut: '2000-10-01', fin: '2001-09-30', jours_presence: 5, jours_presence_par_mois: 2.5, taux_presence: 75 },
         ]);
     });
 

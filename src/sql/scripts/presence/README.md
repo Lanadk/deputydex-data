@@ -79,7 +79,7 @@ Colonne `type_periode`, avec `periode` (libellé), `periode_debut` et `periode_f
 |---|---|---|---|---|
 | `civile` | 1er janvier → 31 décembre | `2025` | ✅ | ✅ |
 | `parlementaire` | 1er octobre → 30 septembre, comme les sessions de l'AN (ordinaire d'octobre à juin + extraordinaires de juillet / septembre) | `2025-2026` | ✅ | ✅ |
-| `mandat` | années successives depuis la première prise de fonction du député dans la législature (`debut_mandat`) | `1`, `2`… | ✅ | — (bornes propres à chaque député, non additionnables) |
+| `mandat` | années successives depuis la première prise de fonction du député dans la législature (`debut_mandat`) | `1`, `2`… | ✅ | Assemblée seulement : agrégée **par rang** (« année 1 » = les 12 premiers mois de chaque député, quelle que soit sa date d'arrivée) ; `periode_debut` / `periode_fin` = bornes extrêmes du rang. Pas de groupe : un député change de groupe en cours d'année de mandat. |
 
 L'année parlementaire est la plus comparable : chaque année complète contient exactement une session ordinaire et
 un budget. Juillet–septembre 2024 (début de la 17ᵉ législature) relève de `2023-2024`, comme les sessions
