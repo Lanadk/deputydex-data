@@ -6,7 +6,12 @@
 -- Mêmes indicateurs que agg_deputes_presence ; taux pondérés (somme
 -- des jours présents / somme des jours attendus de tous les députés).
 --
--- Clé : (legislature).
+-- Une ligne par législature, plus une ligne legislature IS NULL =
+-- toutes législatures confondues (GROUPING SETS) : jours sommés, pas
+-- de moyenne de taux. Rien de propre à une législature : une nouvelle
+-- législature entre d'elle-même dans les deux niveaux.
+--
+-- Clé : (legislature) — NULL = toutes législatures.
 -- ============================================================
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS agg_assemblee_presence AS
@@ -53,6 +58,6 @@ SELECT
     ROUND(COUNT(*) FILTER (WHERE present)::numeric
               / NULLIF(COUNT(DISTINCT (acteur_uid, date_trunc('month', jour))) FILTER (WHERE attendu OR jour_seance), 0), 1) AS jours_presence_par_mois
 FROM mv_deputes_presence_jour
-GROUP BY legislature;
+GROUP BY GROUPING SETS ((legislature), ());
 
-CREATE UNIQUE INDEX IF NOT EXISTS agg_assemblee_presence_uq ON agg_assemblee_presence (legislature);
+CREATE UNIQUE INDEX IF NOT EXISTS agg_assemblee_presence_uq ON agg_assemblee_presence (legislature) NULLS NOT DISTINCT;

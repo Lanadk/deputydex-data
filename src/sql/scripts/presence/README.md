@@ -145,3 +145,22 @@ Par député (législature 17, ≥ 50 jours attendus) : de ~12 % à ~82 %, médi
 - `agg_assemblee_presence_jour_semaine` : présence par jour de la semaine sur la législature (taux pondérés).
   Législature 17 : ~68 % le mardi et ~74 % le mercredi (votes solennels, questions au Gouvernement), ~41 % le
   lundi et ~35 % le vendredi (circonscription).
+
+## Toutes législatures confondues (`legislature IS NULL`)
+
+Les vues de l'Assemblée (`agg_assemblee_presence`, `_mensuelle`, `_annuelle`, `_jour`, `_jour_semaine`) ont, en
+plus d'une ligne par législature, des lignes **`legislature IS NULL` = toutes législatures confondues**
+(`GROUPING SETS`) :
+
+- les jours attendus / présents y sont **sommés** sur toutes les législatures, jamais les taux moyennés : une
+  année parlementaire coupée par un changement de législature (2023-2024, dissolution du 9 juin 2024) y est
+  calculée sur l'année entière — 55,5 % au lieu de 55 % (16ᵉ, oct.–juin) et 65,8 % (17ᵉ, juil.–sept., 2 671
+  jours attendus seulement) ;
+- un mois ou un jour à cheval sur deux législatures n'y a qu'une ligne ;
+- pas d'**année de mandat** combinée (le rang 1 de deux législatures mêlerait deux débuts de mandat) ;
+- rien n'y est propre à une législature : une nouvelle législature entre d'elle-même dans ces lignes au prochain
+  refresh. Index uniques en `NULLS NOT DISTINCT` (Postgres ≥ 15).
+
+Lecture : filtrer `legislature = N` pour une législature, `legislature IS NULL` pour le combiné, et
+`legislature IS NOT NULL` pour lister les législatures une à une. Les groupes n'ont pas ce niveau (un groupe n'est
+pas identifiable d'une législature à l'autre : LFI-NUPES → LFI-NFP…).

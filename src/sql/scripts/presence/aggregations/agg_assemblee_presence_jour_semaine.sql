@@ -20,7 +20,12 @@
 --   - deputes_en_seance_moyen : députés présents en séance, en moyenne
 --                               par séance observable
 --
--- Clé : (legislature, jour_semaine).
+-- legislature IS NULL = toutes législatures confondues : agrège les
+-- lignes « toutes législatures » de agg_assemblee_presence_jour (le
+-- GROUP BY legislature les regroupe naturellement sous NULL), si bien
+-- qu'un jour de passage d'une législature à l'autre compte une fois.
+--
+-- Clé : (legislature, jour_semaine) ; legislature NULL = toutes.
 -- ============================================================
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS agg_assemblee_presence_jour_semaine AS
@@ -36,4 +41,4 @@ SELECT
 FROM agg_assemblee_presence_jour
 GROUP BY legislature, jour_semaine;
 
-CREATE UNIQUE INDEX IF NOT EXISTS agg_assemblee_presence_jour_semaine_uq ON agg_assemblee_presence_jour_semaine (legislature, jour_semaine);
+CREATE UNIQUE INDEX IF NOT EXISTS agg_assemblee_presence_jour_semaine_uq ON agg_assemblee_presence_jour_semaine (legislature, jour_semaine) NULLS NOT DISTINCT;

@@ -5,7 +5,10 @@
 -- journalier de la page statistiques). Règles dans
 -- mv_deputes_presence_jour.
 --
--- Une ligne par jour où au moins un député est attendu ou présent.
+-- Une ligne par jour où au moins un député est attendu ou présent, par
+-- législature ; plus une ligne legislature IS NULL par jour = toutes
+-- législatures confondues (GROUPING SETS : un jour de passage d'une
+-- législature à l'autre y somme les deux).
 --
 -- Colonnes :
 --   - legislature        : législature
@@ -23,7 +26,7 @@
 --   - deputes_presents_total : députés présents, attendus ou non
 --   - scrutins           : scrutins publics ce jour-là
 --
--- Clé : (legislature, jour).
+-- Clé : (legislature, jour) ; legislature NULL = toutes.
 -- ============================================================
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS agg_assemblee_presence_jour AS
@@ -43,6 +46,6 @@ SELECT
     COUNT(*) FILTER (WHERE present)::int                                                    AS deputes_presents_total,
     MAX(scrutins_jour)::int                                                                 AS scrutins
 FROM mv_deputes_presence_jour
-GROUP BY legislature, jour;
+GROUP BY GROUPING SETS ((legislature, jour), (jour));
 
-CREATE UNIQUE INDEX IF NOT EXISTS agg_assemblee_presence_jour_uq ON agg_assemblee_presence_jour (legislature, jour);
+CREATE UNIQUE INDEX IF NOT EXISTS agg_assemblee_presence_jour_uq ON agg_assemblee_presence_jour (legislature, jour) NULLS NOT DISTINCT;

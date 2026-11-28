@@ -12,8 +12,13 @@ import { VIEWS as PRESENCE_VIEWS } from './aggregation-oneshot';
 // sur un mini jeu de données : législature fictive 99, en 2001, pour ne croiser
 // aucune autre donnée de la base de test.
 const LEG = 99;
+// Législature fictive précédente (98) : un seul député, C, en décembre 2000 — pour
+// tester les lignes « toutes législatures » (legislature IS NULL) des vues de
+// l'Assemblée : l'année parlementaire 2000-2001 est à cheval sur 98 et 99.
+const LEG_PRECEDENTE = 98;
 const A = 'PA_IT_PRES_A';
 const B = 'PA_IT_PRES_B';
+const C = 'PA_IT_PRES_C';
 const G1 = 'PO_IT_PRES_G1';
 const G2 = 'PO_IT_PRES_G2';
 const COM = 'PO_IT_PRES_COM';
@@ -36,18 +41,18 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
         await pool.query(`DELETE FROM reunions WHERE uid LIKE 'RU_IT_PRES%'`);
         await pool.query(`DELETE FROM votes_deputes WHERE scrutin_uid LIKE 'VT_IT_PRES%'`);
         await pool.query(`DELETE FROM scrutins WHERE uid LIKE 'VT_IT_PRES%'`);
-        await pool.query(`DELETE FROM deputes WHERE id IN ($1, $2)`, [A, B]);
+        await pool.query(`DELETE FROM deputes WHERE id IN ($1, $2, $3)`, [A, B, C]);
         await pool.query(`DELETE FROM mandats WHERE uid LIKE 'PM_IT_PRES%'`);
-        await pool.query(`DELETE FROM acteurs WHERE uid IN ($1, $2)`, [A, B]);
+        await pool.query(`DELETE FROM acteurs WHERE uid IN ($1, $2, $3)`, [A, B, C]);
     }
 
-    const mandat = (uid: string, acteur: string, type: string, organe: string, debut: string, fin: string | null) =>
+    const mandat = (uid: string, acteur: string, type: string, organe: string, debut: string, fin: string | null, leg = LEG) =>
         pool.query(
             `INSERT INTO mandats (uid, acteur_uid, legislature, type_organe, date_debut, date_fin, mandature_date_prise_fonction,
                                   preseance, nomin_principale, code_qualite, lib_qualite, lib_qualite_sex, organe_uid,
                                   row_hash, legislature_snapshot)
              VALUES ($1, $2, $3, $4, $5, $6, $5, 0, 0, 'Membre', 'Membre', 'Membre', $7, $8, $3)`,
-            [uid, acteur, LEG, type, debut, fin, organe, h(uid)]);
+            [uid, acteur, leg, type, debut, fin, organe, h(uid)]);
 
     const reunion = (uid: string, type: string, etat: string, debut: string, organe: string | null, dateSeance: string | null) =>
         pool.query(
@@ -60,14 +65,14 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
             `INSERT INTO reunions_participants (reunion_uid, acteur_uid, presence, row_hash, legislature_snapshot)
              VALUES ($1, $2, $3, $4, $5)`, [reunionUid, acteur, presence, h(`${reunionUid}-${acteur}`), LEG]);
 
-    const scrutin = (uid: string, date: string) =>
+    const scrutin = (uid: string, date: string, leg = LEG) =>
         pool.query(`INSERT INTO scrutins (uid, date_scrutin, row_hash, legislature_snapshot) VALUES ($1, $2, $3, $4)`,
-            [uid, date, h(uid), LEG]);
+            [uid, date, h(uid), leg]);
 
-    const vote = (scrutinUid: string, acteur: string, delegation: boolean) =>
+    const vote = (scrutinUid: string, acteur: string, delegation: boolean, leg = LEG) =>
         pool.query(
             `INSERT INTO votes_deputes (scrutin_uid, depute_id, position, par_delegation, row_hash, legislature_snapshot)
-             VALUES ($1, $2, 'pour', $3, $4, $5)`, [scrutinUid, acteur, delegation || null, h(`${scrutinUid}-${acteur}`), LEG]);
+             VALUES ($1, $2, 'pour', $3, $4, $5)`, [scrutinUid, acteur, delegation || null, h(`${scrutinUid}-${acteur}`), leg]);
 
     beforeAll(async () => {
         pool = createTestPool();
@@ -119,6 +124,14 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
         await pool.query(
             `INSERT INTO debats_interventions_orateurs (intervention_id, ordre, acteur_uid, row_hash, legislature_snapshot)
              VALUES ('IT_PRES_P1', 0, $1, $2, $3)`, [A, h('o1'), LEG]);
+
+        // C (législature précédente) : député en décembre 2000 ; deux scrutins, il vote au premier.
+        await pool.query(`INSERT INTO acteurs (uid, row_hash, legislature_snapshot) VALUES ($1, $2, $3)`, [C, h(C), LEG_PRECEDENTE]);
+        await pool.query(`INSERT INTO deputes (id, row_hash, legislature_snapshot) VALUES ($1, $2, $3)`, [C, h(`d-${C}`), LEG_PRECEDENTE]);
+        await mandat('PM_IT_PRES_C_AN', C, 'ASSEMBLEE', 'PO_IT_PRES_AN98', '2000-12-01', '2000-12-31', LEG_PRECEDENTE);
+        await scrutin('VT_IT_PRES_98A', '2000-12-15', LEG_PRECEDENTE);
+        await scrutin('VT_IT_PRES_98B', '2000-12-18', LEG_PRECEDENTE);
+        await vote('VT_IT_PRES_98A', C, false, LEG_PRECEDENTE);
 
         for (const [domain, views] of CHAINE) {
             for (const view of views) await runSqlFile(pool, path.join(aggregationScriptsDir(domain), `${view}.sql`));
@@ -271,5 +284,67 @@ describe('présence : briques par source → mv_deputes_presence_jour → taux (
         const deputeMensuel = (await pool.query(
             `SELECT acteur_uid, taux_presence::float FROM agg_deputes_presence_mensuelle WHERE legislature = $1 ORDER BY acteur_uid`, [LEG])).rows;
         expect(deputeMensuel).toEqual([{ acteur_uid: A, taux_presence: 66.7 }, { acteur_uid: B, taux_presence: 100 }]);
+    });
+
+    describe('Assemblée, toutes législatures confondues (legislature IS NULL)', () => {
+        // Rien de propre aux numéros : la ligne NULL somme les lignes par législature,
+        // quelles qu'elles soient. Le scénario met une année parlementaire à cheval :
+        // C (législature précédente) en décembre 2000, A et B (législature suivante) en janvier 2001.
+
+        it('agg_assemblee_presence : la ligne NULL somme les jours de chaque législature', async () => {
+            const { rows: [toutes] } = await pool.query(
+                `SELECT jours_attendus, jours_presents FROM agg_assemblee_presence WHERE legislature IS NULL`);
+            const { rows: [somme] } = await pool.query(
+                `SELECT SUM(jours_attendus)::int AS jours_attendus, SUM(jours_presents)::int AS jours_presents
+                 FROM agg_assemblee_presence WHERE legislature IS NOT NULL`);
+            expect(toutes).toEqual(somme);
+        });
+
+        it('année parlementaire à cheval : une seule ligne, jours sommés (pas la moyenne des taux)', async () => {
+            const rows = (await pool.query(
+                `SELECT legislature, jours_attendus, jours_presents, taux_presence::float
+                 FROM agg_assemblee_presence_annuelle
+                 WHERE type_periode = 'parlementaire' AND periode = '2000-2001'
+                 ORDER BY legislature NULLS LAST`)).rows;
+            expect(rows).toEqual([
+                { legislature: LEG_PRECEDENTE, jours_attendus: 2, jours_presents: 1, taux_presence: 50 },
+                { legislature: LEG, jours_attendus: 4, jours_presents: 3, taux_presence: 75 },
+                // (1 + 3) / (2 + 4) = 66,7 % — la moyenne des taux aurait donné 62,5 %.
+                { legislature: null, jours_attendus: 6, jours_presents: 4, taux_presence: 66.7 },
+            ]);
+        });
+
+        it('pas d\'année de mandat combinée ; années civiles séparées quand elles ne se chevauchent pas', async () => {
+            const { rows: mandat } = await pool.query(
+                `SELECT 1 FROM agg_assemblee_presence_annuelle WHERE legislature IS NULL AND type_periode = 'mandat'`);
+            expect(mandat).toEqual([]);
+
+            const civiles = (await pool.query(
+                `SELECT periode, jours_attendus FROM agg_assemblee_presence_annuelle
+                 WHERE legislature IS NULL AND type_periode = 'civile' AND periode IN ('2000', '2001') ORDER BY periode`)).rows;
+            expect(civiles).toEqual([{ periode: '2000', jours_attendus: 2 }, { periode: '2001', jours_attendus: 4 }]);
+        });
+
+        it('mensuelle, jour et jour de la semaine : une ligne NULL par mois / jour / jour de la semaine', async () => {
+            const mois = (await pool.query(
+                `SELECT to_char(mois, 'YYYY-MM') AS mois, jours_attendus FROM agg_assemblee_presence_mensuelle
+                 WHERE legislature IS NULL AND mois BETWEEN '2000-12-01' AND '2001-01-01' ORDER BY mois`)).rows;
+            expect(mois).toEqual([{ mois: '2000-12', jours_attendus: 2 }, { mois: '2001-01', jours_attendus: 4 }]);
+
+            const jours = (await pool.query(
+                `SELECT to_char(jour, 'YYYY-MM-DD') AS jour, deputes_attendus, deputes_presents FROM agg_assemblee_presence_jour
+                 WHERE legislature IS NULL AND jour BETWEEN '2000-12-01' AND '2000-12-31' ORDER BY jour`)).rows;
+            expect(jours).toEqual([
+                { jour: '2000-12-15', deputes_attendus: 1, deputes_presents: 1 },
+                { jour: '2000-12-18', deputes_attendus: 1, deputes_presents: 0 },
+            ]);
+
+            // Ligne NULL du jour de la semaine = agrégat des jours NULL (chaque jour une fois).
+            const { rows: [semaine] } = await pool.query(
+                `SELECT SUM(jours)::int AS jours FROM agg_assemblee_presence_jour_semaine WHERE legislature IS NULL`);
+            const { rows: [joursNull] } = await pool.query(
+                `SELECT COUNT(*) FILTER (WHERE deputes_attendus > 0)::int AS jours FROM agg_assemblee_presence_jour WHERE legislature IS NULL`);
+            expect(semaine).toEqual(joursNull);
+        });
     });
 });

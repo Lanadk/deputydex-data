@@ -5,7 +5,11 @@
 -- (graphique d'évolution de la page statistiques). Mêmes règles que
 -- agg_assemblee_presence, par mois civil.
 --
--- Clé : (legislature, mois) ; mois = 1er jour du mois.
+-- legislature IS NULL = toutes législatures confondues (GROUPING SETS) :
+-- un mois à cheval sur deux législatures (dissolution, renouvellement)
+-- y a une seule ligne, jours sommés.
+--
+-- Clé : (legislature, mois) ; mois = 1er jour du mois ; legislature NULL = toutes.
 -- ============================================================
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS agg_assemblee_presence_mensuelle AS
@@ -51,6 +55,6 @@ SELECT
     ROUND(COUNT(*) FILTER (WHERE present)::numeric
               / NULLIF(COUNT(DISTINCT acteur_uid) FILTER (WHERE attendu OR jour_seance), 0), 1)     AS jours_presence_par_depute
 FROM mv_deputes_presence_jour
-GROUP BY legislature, date_trunc('month', jour);
+GROUP BY GROUPING SETS ((legislature, date_trunc('month', jour)), (date_trunc('month', jour)));
 
-CREATE UNIQUE INDEX IF NOT EXISTS agg_assemblee_presence_mensuelle_uq ON agg_assemblee_presence_mensuelle (legislature, mois);
+CREATE UNIQUE INDEX IF NOT EXISTS agg_assemblee_presence_mensuelle_uq ON agg_assemblee_presence_mensuelle (legislature, mois) NULLS NOT DISTINCT;
